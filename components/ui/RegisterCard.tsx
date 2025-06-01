@@ -1,89 +1,81 @@
 // components/ui/RegisterCard.tsx
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
-import Image from "next/image";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useAppDispatch } from "@/store/hooks";
+import { registerUserThunk } from "@/store/thunks/registerUser";
+import { motion } from "framer-motion";
 
-export default function RegisterCard({
-  email,
-  onRegisterSubmit,
-  onBack,
-}: {
-  email: string;
-  onRegisterSubmit: (data: { name: string; password: string }) => void;
-  onBack: () => void;
-}) {
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function RegisterCard() {
+  const dispatch = useAppDispatch();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (!name || !password) {
-      setError("All fields are required.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    await new Promise((res) => setTimeout(res, 1000));
-    onRegisterSubmit({ name, password });
-    setIsSubmitting(false);
-  };
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      name: "",
+    },
+    validationSchema: Yup.object({
+      email: Yup.string().email("Invalid email").required("Required"),
+      name: Yup.string().min(2, "Too short").required("Required"),
+    }),
+    onSubmit: async (values, { setSubmitting }) => {
+      await dispatch(registerUserThunk(values));
+      setSubmitting(false);
+    },
+  });
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
-      className="max-w-md w-full mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-slate-200"
     >
-      <div className="flex justify-center mb-6">
-        <Image src="/x.png" alt="Xyvo Logo" width={64} height={64} />
-      </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Your Name"
-          id="name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          isInvalid={!!error && !name}
-        />
-        <Input
-          label={`Create password for ${email}`}
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          isInvalid={!!error && !password}
-          errorMessage={error}
-        />
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onPress={onBack}
-            className="w-1/3"
-          >
-            Back
-          </Button>
-          <Button
-            type="submit"
-            variant="solid"
-            className="w-2/3"
-            isLoading={isSubmitting}
-          >
-            Register
-          </Button>
-        </div>
-      </form>
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="text-xl font-bold text-center">
+          Register
+        </CardHeader>
+        <form onSubmit={formik.handleSubmit}>
+          <CardBody className="space-y-4">
+            <Input
+              id="email"
+              name="email"
+              label="Email"
+              variant="bordered"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={!!(formik.touched.email && formik.errors.email)}
+              errorMessage={formik.touched.email && formik.errors.email}
+            />
+            <Input
+              id="name"
+              name="name"
+              label="Name"
+              variant="bordered"
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={!!(formik.touched.name && formik.errors.name)}
+              errorMessage={formik.touched.name && formik.errors.name}
+            />
+          </CardBody>
+          <CardFooter>
+            <Button
+              type="submit"
+              variant="shadow"
+              isDisabled={formik.isSubmitting}
+              className="w-full"
+              onPress={() => {}} // still required for HeroUI
+            >
+              {formik.isSubmitting ? "Registering..." : "Register"}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </motion.div>
   );
 }

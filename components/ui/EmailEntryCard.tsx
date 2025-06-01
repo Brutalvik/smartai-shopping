@@ -1,0 +1,116 @@
+// components/ui/EmailEntryCard.tsx
+"use client";
+
+import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
+import { Input } from "@heroui/input";
+import { Button } from "@heroui/button";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { motion } from "framer-motion";
+import { useAppDispatch } from "@/store/hooks";
+import { checkUserEmailThunk } from "@/store/thunks/checkUserEmail";
+import Link from "next/link";
+
+export default function EmailEntryCard({
+  onNext,
+}: {
+  onNext: (email: string) => void;
+}) {
+  const dispatch = useAppDispatch();
+
+  const formik = useFormik({
+    initialValues: { email: "" },
+    validationSchema: Yup.object({
+      email: Yup.string().email("Invalid email").required("Email is required"),
+    }),
+    onSubmit: async (values, { setSubmitting, setFieldError }) => {
+      try {
+        const result = await dispatch(
+          checkUserEmailThunk(values.email)
+        ).unwrap();
+
+        if (!result.exists) {
+          onNext(values.email);
+        } else {
+          // TODO: future login flow here
+          setFieldError("email", "User already exists. Please login.");
+        }
+      } catch (err: any) {
+        setFieldError("email", err);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Card className="w-full max-w-md mx-auto shadow-xl backdrop-blur bg-white/5 border border-white/10">
+        <CardHeader className="text-xl font-semibold text-center">
+          Sign in
+        </CardHeader>
+        <form onSubmit={formik.handleSubmit}>
+          <CardBody className="space-y-4">
+            <div className="text-sm font-medium text-gray-300">
+              E-mail address or mobile phone number
+            </div>
+            <Input
+              id="email"
+              name="email"
+              label="Email"
+              variant="bordered"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={!!(formik.touched.email && formik.errors.email)}
+              errorMessage={formik.touched.email && formik.errors.email}
+            />
+          </CardBody>
+          <CardFooter className="flex flex-col space-y-2">
+            <Button
+              type="submit"
+              variant="shadow"
+              isDisabled={formik.isSubmitting}
+              className="w-full"
+              onPress={() => {}}
+            >
+              {formik.isSubmitting ? "Checking..." : "Continue"}
+            </Button>
+
+            <p className="pt-4 text-xs text-center text-gray-400 px-2">
+              By continuing, you agree to XYVO's{" "}
+              <Link href="#" className="underline hover:text-white">
+                Conditions of Use
+              </Link>{" "}
+              and{" "}
+              <Link href="#" className="underline hover:text-white">
+                Privacy Notice
+              </Link>
+              .
+            </p>
+
+            <div className="text-sm text-center text-cyan-500 font-medium mt-2">
+              <Link href="#" className="hover:underline">
+                Need help?
+              </Link>
+            </div>
+
+            <div className="text-xs text-center text-gray-400">
+              <Link href="#" className="hover:underline">
+                Forgot Password
+              </Link>
+              <span className="mx-1">|</span>
+              <Link href="#" className="hover:underline">
+                Other issues with Sign-In?
+              </Link>
+            </div>
+          </CardFooter>
+        </form>
+      </Card>
+    </motion.div>
+  );
+}
