@@ -1,4 +1,4 @@
-// components/ui/RegisterCard.tsx
+// components/ui/Register.tsx
 "use client";
 
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
@@ -9,13 +9,16 @@ import * as Yup from "yup";
 import { useAppDispatch } from "@/store/hooks";
 import { registerUserThunk } from "@/store/thunks/registerUser";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
-export default function RegisterCard() {
+export default function Register() {
   const dispatch = useAppDispatch();
+  const searchParams = useSearchParams();
+  const prefilledEmail = searchParams.get("email") || "";
 
   const formik = useFormik({
     initialValues: {
-      email: "",
+      email: prefilledEmail,
       name: "",
     },
     validationSchema: Yup.object({
@@ -71,7 +74,7 @@ export default function RegisterCard() {
               variant="shadow"
               isDisabled={formik.isSubmitting}
               className="w-full"
-              onPress={() => {}} // still required for HeroUI
+              onPress={() => {}}
             >
               {formik.isSubmitting ? "Registering..." : "Register"}
             </Button>

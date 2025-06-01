@@ -1,14 +1,21 @@
 // components/auth/AuthFlow.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import RegisterCard from "@/components/ui/RegisterCard";
+import { useRouter } from "next/navigation";
 import EmailEntryCard from "@/components/ui/EmailEntryCard";
 
 export default function AuthFlow() {
+  const router = useRouter();
   const [step, setStep] = useState<"email" | "register">("email");
   const [email, setEmail] = useState<string>("");
+
+  useEffect(() => {
+    if (step === "register") {
+      router.push(`/register?email=${encodeURIComponent(email)}`);
+    }
+  }, [step]);
 
   return (
     <AnimatePresence mode="wait">
@@ -23,17 +30,11 @@ export default function AuthFlow() {
         {step === "email" && (
           <EmailEntryCard
             onNext={(enteredEmail) => {
-              console.log(
-                "Email does not exist, transitioning to register:",
-                enteredEmail
-              );
               setEmail(enteredEmail);
               setStep("register");
             }}
           />
         )}
-
-        {step === "register" && <RegisterCard />}
       </motion.div>
     </AnimatePresence>
   );

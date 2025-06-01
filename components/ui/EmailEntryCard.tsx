@@ -11,6 +11,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { checkUserEmailThunk } from "@/store/thunks/checkUserEmail";
 import Link from "next/link";
 import { CircularProgress } from "@heroui/progress";
+import { useRouter } from "next/navigation";
 
 export default function EmailEntryCard({
   onNext,
@@ -18,6 +19,7 @@ export default function EmailEntryCard({
   onNext: (email: string) => void;
 }) {
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const formik = useFormik({
     initialValues: { email: "" },
@@ -78,10 +80,11 @@ export default function EmailEntryCard({
           <CardFooter className="flex flex-col space-y-2">
             <Button
               type="submit"
-              variant="shadow"
+              variant="solid"
               isDisabled={formik.isSubmitting}
               className="w-full"
               onPress={() => {}}
+              color="primary"
             >
               {formik.isSubmitting ? <CircularProgress /> : "Continue"}
             </Button>
@@ -122,16 +125,13 @@ export default function EmailEntryCard({
       <div className="w-full max-w-md mx-auto mt-6 flex flex-col items-center space-y-4">
         <hr className="w-full border-t border-white/20" />
 
-        <div className="text-xs uppercase tracking-wide text-gray-400 text-center">
-          New to XYVO?
-        </div>
+        <div className="text-xs tracking-wide text-center">New to XYVO?</div>
 
         <Button
-          variant="bordered"
+          variant="solid"
           className="w-full"
           onPress={() => {
-            // You can also use router.push("/register") if routing directly
-            window.location.href = "/register";
+            router.push("/register");
           }}
         >
           Create your XYVO account
