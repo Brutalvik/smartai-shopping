@@ -16,6 +16,7 @@ interface CartCardProps {
   variant: string;
   quantity: number;
   price: string;
+  index?: number; // optional index for staggered animation
 }
 
 const CartCard: React.FC<CartCardProps> = ({
@@ -28,9 +29,13 @@ const CartCard: React.FC<CartCardProps> = ({
   variant,
   quantity,
   price,
+  index = 0,
 }) => {
   return (
-    <div className="animate-fadeIn flex flex-col sm:flex-row w-full min-h-[20vh] p-4 shadow rounded-none border-b border-default-200 mb-4 transition-transform duration-300 ease-in-out">
+    <div
+      style={{ animationDelay: `${index * 100}ms` }}
+      className="animate-staggerFadeIn flex flex-col sm:flex-row w-full min-h-[20vh] p-4 shadow rounded-none border-b border-default-200 mb-4 transition-transform duration-300 ease-in-out"
+    >
       {/* Left column - Image */}
       <div className="w-full sm:w-[20%] flex items-center justify-center mb-4 sm:mb-0">
         <img
