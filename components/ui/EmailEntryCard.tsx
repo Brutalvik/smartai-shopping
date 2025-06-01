@@ -83,11 +83,11 @@ export default function EmailEntryCard({
 
             <p className="pt-4 text-xs text-center text-gray-400 px-2">
               By continuing, you agree to XYVO's{" "}
-              <Link href="#" className="underline hover:text-white">
+              <Link href="/conditions" className="underline hover:text-white">
                 Conditions of Use
               </Link>{" "}
               and{" "}
-              <Link href="#" className="underline hover:text-white">
+              <Link href="/privacy" className="underline hover:text-white">
                 Privacy Notice
               </Link>
               .
