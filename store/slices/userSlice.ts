@@ -3,53 +3,34 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
   email: string;
-  isNewUser: boolean;
-  name?: string;
-  isAuthenticated: boolean;
+  name: string;
+  role: string;
+  isVerified: boolean;
+  preferredLocale: string;
+  sessionToken: string;
 }
 
 const initialState: UserState = {
   email: "",
-  isNewUser: false,
-  name: undefined,
-  isAuthenticated: false,
+  name: "",
+  role: "user",
+  isVerified: false,
+  preferredLocale: "en-US",
+  sessionToken: "",
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUserEmail(state, action: PayloadAction<string>) {
-      state.email = action.payload;
+    setUser(state, action: PayloadAction<Partial<UserState>>) {
+      return { ...state, ...action.payload };
     },
-    markAsNewUser(state) {
-      state.isNewUser = true;
-    },
-    markAsExistingUser(state) {
-      state.isNewUser = false;
-    },
-    authenticateUser(state) {
-      state.isAuthenticated = true;
-    },
-    setUserName(state, action: PayloadAction<string>) {
-      state.name = action.payload;
-    },
-    resetUser(state) {
-      state.email = "";
-      state.name = undefined;
-      state.isNewUser = false;
-      state.isAuthenticated = false;
+    clearUser() {
+      return initialState;
     },
   },
 });
 
-export const {
-  setUserEmail,
-  markAsNewUser,
-  markAsExistingUser,
-  authenticateUser,
-  setUserName,
-  resetUser,
-} = userSlice.actions;
-
+export const { setUser, clearUser } = userSlice.actions;
 export default userSlice.reducer;
