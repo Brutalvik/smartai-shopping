@@ -31,8 +31,10 @@ import { LogIn, UserPlus, Heart, ShoppingCart, X } from "lucide-react";
 import UserDrawerMenu from "@/components/ui/UserDrawerMenu";
 import { RiShoppingCart2Line } from "react-icons/ri";
 import { Badge } from "@heroui/badge";
+import { useRouter } from "next/navigation";
 
 export const Navbar = () => {
+  const router = useRouter();
   const [item, setItem] = useState(0);
 
   const addItem = () => {
@@ -116,6 +118,7 @@ export const Navbar = () => {
               fontSize={30}
               className="hover:cursor-pointer"
               fontWeight={900}
+              onClick={() => router.push("/cart")}
             />
           </Badge>
         </NavbarItem>
@@ -128,7 +131,7 @@ export const Navbar = () => {
           src="https://images.unsplash.com/broken"
           size="sm"
         />
-        <RiShoppingCart2Line />
+        <RiShoppingCart2Line onClick={() => router.push("/cart")} />
         <NavbarMenuToggle />
       </NavbarContent>
 
