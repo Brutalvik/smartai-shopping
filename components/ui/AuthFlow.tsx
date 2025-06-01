@@ -5,24 +5,32 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import AuthCard from "@/components/ui/AuthCard";
 import PasswordCard from "@/components/ui/PasswordCard";
+import RegisterCard from "@/components/ui/RegisterCard";
 
 export default function AuthFlow() {
-  const [step, setStep] = useState<"email" | "password">("email");
+  const [step, setStep] = useState<"email" | "password" | "register">("email");
   const [email, setEmail] = useState("");
+  const [isNewUser, setIsNewUser] = useState(false);
 
-  const handleEmailSubmit = (submittedEmail: string) => {
+  const handleEmailSubmit = async (submittedEmail: string) => {
     setEmail(submittedEmail);
-    setStep("password");
+    const exists = await mockCheckUserExists(submittedEmail);
+    setIsNewUser(!exists);
+    setStep(exists ? "password" : "register");
   };
 
   const handlePasswordSubmit = (password: string) => {
-    console.log("Login complete for", email);
-    // TODO: route to dashboard or trigger auth logic
+    console.log("✅ Login complete for", email);
+  };
+
+  const handleRegisterSubmit = (data: { name: string; password: string }) => {
+    console.log("✅ Registration complete for", email, "→", data);
   };
 
   const handleBackToEmail = () => {
     setStep("email");
     setEmail("");
+    setIsNewUser(false);
   };
 
   return (
@@ -40,7 +48,22 @@ export default function AuthFlow() {
             onBack={handleBackToEmail}
           />
         )}
+
+        {step === "register" && (
+          <RegisterCard
+            key="register"
+            email={email}
+            onRegisterSubmit={handleRegisterSubmit}
+            onBack={handleBackToEmail}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
+}
+
+// Temporary mock logic
+async function mockCheckUserExists(email: string): Promise<boolean> {
+  await new Promise((res) => setTimeout(res, 800));
+  return email.toLowerCase().endsWith("@xyvo.ai");
 }
