@@ -2,8 +2,8 @@
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 50px;
+  height: 24px;
 }
 
 .switch #input {
@@ -29,10 +29,10 @@
 .sun-moon {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
+  height: 18px;
+  width: 18px;
   left: 4px;
-  bottom: 4px;
+  bottom: 3px;
   background-color: yellow;
   -webkit-transition: 0.4s;
   transition: 0.4s;
@@ -151,9 +151,9 @@
 }
 
 #cloud-1 {
-  left: 30px;
-  top: 15px;
-  width: 40px;
+  left: 15px;
+  top: 10px;
+  width: 20px;
 }
 
 #cloud-2 {
@@ -163,27 +163,27 @@
 }
 
 #cloud-3 {
-  left: 18px;
-  top: 24px;
-  width: 30px;
-}
-
-#cloud-4 {
-  left: 36px;
-  top: 18px;
-  width: 40px;
-}
-
-#cloud-5 {
-  left: 48px;
-  top: 14px;
+  left: 10px;
+  top: 16px;
   width: 20px;
 }
 
-#cloud-6 {
+#cloud-4 {
   left: 22px;
-  top: 26px;
-  width: 30px;
+  top: 12px;
+  width: 20px;
+}
+
+#cloud-5 {
+  left: 22px;
+  top: 8px;
+  width: 10px;
+}
+
+#cloud-6 {
+  left: 12px;
+  top: 12px;
+  width: 10px;
 }
 
 @keyframes cloud-move {
