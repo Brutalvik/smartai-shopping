@@ -1,5 +1,6 @@
 import React from "react";
 import CartContainer from "@/components/CartContainer";
+import CartSidebarSummary from "@/components/CartSidebarSummary";
 
 export default function CartPage() {
   // Mock cart items data (you can replace this with real cart state from Redux, context, etc.)
@@ -26,14 +27,13 @@ export default function CartPage() {
       }
       rightContent={
         hasItems && (
-          <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 shadow">
-            <h3 className="text-xl font-medium mb-2">Summary</h3>
-            <p className="mb-2">Subtotal: $99.00</p>
-            <p className="mb-4">Taxes and shipping calculated at checkout.</p>
-            <button className="bg-primary text-white w-full py-2 rounded">
-              Proceed to Checkout
-            </button>
-          </div>
+          <CartSidebarSummary
+            subtotal={1499}
+            shipping={0}
+            tax={112.43}
+            total={1611.43}
+            currencySymbol="$"
+          />
         )
       }
     />
