@@ -1,9 +1,7 @@
 // store/index.ts
-import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "@/store/slices/userSlice";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import storageSession from "redux-persist/lib/storage/session";
-import { combineReducers } from "redux";
 import {
   FLUSH,
   REHYDRATE,
@@ -13,15 +11,19 @@ import {
   REGISTER,
 } from "redux-persist";
 
+import userReducer from "@/store/slices/userSlice";
+import authReducer from "@/store/slices/authSlice"; // <-- newly added
+
 const rootReducer = combineReducers({
   user: userReducer,
+  auth: authReducer, // <-- include it in persisted reducer
 });
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage: storageSession,
-  whitelist: ["user"],
+  whitelist: ["user", "auth"], // <-- include auth if you want persistence
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
