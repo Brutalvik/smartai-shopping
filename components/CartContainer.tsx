@@ -3,6 +3,8 @@
 
 import { Image } from "@heroui/react";
 import React from "react";
+import { dummyCartItems } from "@/data/dummyItems";
+import CartCard from "@/components/CartCard";
 
 interface CartContainerProps {
   leftContent: React.ReactNode;
@@ -20,7 +22,9 @@ const CartContainer: React.FC<CartContainerProps> = ({
       {/* Left side - cart items or main content */}
       <div className={hasItems ? "w-full lg:w-[80%]" : "w-full lg:w-[70%]"}>
         {hasItems ? (
-          leftContent
+          dummyCartItems.map((item) => (
+            <CartCard key={item.productId} {...item} />
+          ))
         ) : (
           <Image alt="Your cart is empty" className="w-full max-w-md mx-auto" />
         )}

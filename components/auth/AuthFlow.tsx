@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import EmailEntryCard from "@/components/ui/EmailEntryCard";
+import EmailEntryCard from "@/components/EmailEntryCard";
 
 export default function AuthFlow() {
   const router = useRouter();

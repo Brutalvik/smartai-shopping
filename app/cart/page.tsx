@@ -1,5 +1,5 @@
 import React from "react";
-import CartContainer from "@/components/ui/CartContainer";
+import CartContainer from "@/components/CartContainer";
 
 export default function CartPage() {
   // Mock cart items data (you can replace this with real cart state from Redux, context, etc.)
