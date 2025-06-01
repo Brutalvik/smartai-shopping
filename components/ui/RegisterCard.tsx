@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import Image from "next/image";
-import logo from "@/public/x.png";
 
 export default function RegisterCard({
   email,
@@ -46,7 +45,7 @@ export default function RegisterCard({
       className="max-w-md w-full mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-slate-200"
     >
       <div className="flex justify-center mb-6">
-        <Image src={logo} alt="Xyvo Logo" width={64} height={64} />
+        <Image src="/x.png" alt="Xyvo Logo" width={64} height={64} />
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
