@@ -29,13 +29,16 @@ import { Avatar } from "@heroui/avatar";
 import { useState } from "react";
 import { LogIn, UserPlus, Heart, ShoppingCart, X } from "lucide-react";
 import UserDrawerMenu from "@/components/ui/UserDrawerMenu";
+import { RiShoppingCart2Line } from "react-icons/ri";
+import { Badge } from "@heroui/badge";
 
 export const Navbar = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [item, setItem] = useState(0);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
+  const addItem = () => {
+    let value = 0;
+    setItem(value++);
+  };
   const searchInput = (
     <Input
       aria-label="Search"
@@ -107,6 +110,15 @@ export const Navbar = () => {
         <NavbarItem>
           <UserDrawerMenu />
         </NavbarItem>
+        <NavbarItem className="mt-2">
+          <Badge color="primary" content="5">
+            <RiShoppingCart2Line
+              fontSize={30}
+              className="hover:cursor-pointer"
+              fontWeight={900}
+            />
+          </Badge>
+        </NavbarItem>
       </NavbarContent>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
@@ -116,6 +128,7 @@ export const Navbar = () => {
           src="https://images.unsplash.com/broken"
           size="sm"
         />
+        <RiShoppingCart2Line />
         <NavbarMenuToggle />
       </NavbarContent>
 
