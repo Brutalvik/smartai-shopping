@@ -55,7 +55,7 @@ export default function EmailEntryCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="w-full max-w-md mx-auto shadow-xl backdrop-blur bg-white/5 border">
+      <Card className="p-4 w-full max-w-md mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
         <CardHeader className="text-xl font-semibold text-center">
           Sign in
         </CardHeader>
