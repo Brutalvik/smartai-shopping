@@ -24,6 +24,7 @@ import {
   SearchIcon,
   Logo,
 } from "@/components/icons";
+import { Avatar } from "@heroui/avatar";
 
 export const Navbar = () => {
   const searchInput = (
@@ -87,7 +88,6 @@ export const Navbar = () => {
             isExternal
             as={Link}
             className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig.links.sponsor}
             startContent={<SearchIcon />}
             variant="flat"
           />
@@ -95,10 +95,22 @@ export const Navbar = () => {
         <NavbarItem>
           <ThemeSwitch />
         </NavbarItem>
+        <NavbarItem>
+          <Avatar
+            showFallback
+            src="https://images.unsplash.com/broken"
+            size="md"
+          />
+        </NavbarItem>
       </NavbarContent>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
         <ThemeSwitch />
+        <Avatar
+          showFallback
+          src="https://images.unsplash.com/broken"
+          size="sm"
+        />
         <NavbarMenuToggle />
       </NavbarContent>
 
@@ -109,7 +121,6 @@ export const Navbar = () => {
           name="search"
           as={Link}
           className=" text-sm font-normal text-default-600 bg-default-100"
-          href={siteConfig.links.sponsor}
           startContent={<SearchIcon />}
           variant="flat"
         >
