@@ -67,7 +67,6 @@ export default function EmailEntryCard({
             <Input
               id="email"
               name="email"
-              label="Email"
               aria-label="Email address or mobile number"
               variant="bordered"
               value={formik.values.email}
@@ -75,6 +74,7 @@ export default function EmailEntryCard({
               onBlur={formik.handleBlur}
               isInvalid={!!(formik.touched.email && formik.errors.email)}
               errorMessage={formik.touched.email && formik.errors.email}
+              size="md"
             />
           </CardBody>
           <CardFooter className="flex flex-col space-y-2">

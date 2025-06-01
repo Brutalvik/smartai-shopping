@@ -64,6 +64,7 @@ export default function Register() {
               onBlur={formik.handleBlur}
               isInvalid={!!(formik.touched.name && formik.errors.name)}
               errorMessage={formik.touched.name && formik.errors.name}
+              size="sm"
             />
             <Input
               id="email"
@@ -76,6 +77,7 @@ export default function Register() {
               onBlur={formik.handleBlur}
               isInvalid={!!(formik.touched.email && formik.errors.email)}
               errorMessage={formik.touched.email && formik.errors.email}
+              size="sm"
             />
             <Input
               id="password"
@@ -90,6 +92,7 @@ export default function Register() {
               onBlur={formik.handleBlur}
               isInvalid={!!(formik.touched.password && formik.errors.password)}
               errorMessage={formik.touched.password && formik.errors.password}
+              size="sm"
             />
             <Input
               id="confirmPassword"
@@ -110,6 +113,7 @@ export default function Register() {
               errorMessage={
                 formik.touched.confirmPassword && formik.errors.confirmPassword
               }
+              size="sm"
             />
           </CardBody>
           <CardFooter className="flex flex-col space-y-3">
