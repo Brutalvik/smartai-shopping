@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { useAppDispatch } from "@/store/hooks";
 import { checkUserEmailThunk } from "@/store/thunks/checkUserEmail";
 import Link from "next/link";
+import { CircularProgress } from "@heroui/progress";
 
 export default function EmailEntryCard({
   onNext,
@@ -28,6 +29,8 @@ export default function EmailEntryCard({
         const result = await dispatch(
           checkUserEmailThunk(values.email)
         ).unwrap();
+        console.log("EMAIL : ", values.email);
+        console.log("RESULT - ", result);
 
         if (!result.exists) {
           onNext(values.email);
@@ -37,6 +40,7 @@ export default function EmailEntryCard({
         }
       } catch (err: any) {
         setFieldError("email", err);
+        console.log("ERROR : ", err);
       } finally {
         setSubmitting(false);
       }
@@ -49,19 +53,20 @@ export default function EmailEntryCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="w-full max-w-md mx-auto shadow-xl backdrop-blur bg-white/5 border border-white/10">
+      <Card className="w-full max-w-md mx-auto shadow-xl backdrop-blur bg-white/5 border">
         <CardHeader className="text-xl font-semibold text-center">
           Sign in
         </CardHeader>
         <form onSubmit={formik.handleSubmit}>
           <CardBody className="space-y-4">
-            <div className="text-sm font-medium text-gray-300">
+            <div className="text-sm font-medium text-300">
               E-mail address or mobile phone number
             </div>
             <Input
               id="email"
               name="email"
               label="Email"
+              aria-label="Email address or mobile number"
               variant="bordered"
               value={formik.values.email}
               onChange={formik.handleChange}
@@ -78,16 +83,19 @@ export default function EmailEntryCard({
               className="w-full"
               onPress={() => {}}
             >
-              {formik.isSubmitting ? "Checking..." : "Continue"}
+              {formik.isSubmitting ? <CircularProgress /> : "Continue"}
             </Button>
 
-            <p className="pt-4 text-xs text-center text-gray-400 px-2">
+            <p className="pt-4 text-xs text-center px-2">
               By continuing, you agree to XYVO's{" "}
-              <Link href="/conditions" className="underline hover:text-white">
+              <Link
+                href="/conditions"
+                className="underline hover:text-cyan-500"
+              >
                 Conditions of Use
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="underline hover:text-white">
+              <Link href="/privacy" className="underline hover:text-cyan-500">
                 Privacy Notice
               </Link>
               .
@@ -99,7 +107,7 @@ export default function EmailEntryCard({
               </Link>
             </div>
 
-            <div className="text-xs text-center text-gray-400">
+            <div className="text-xs text-center ">
               <Link href="#" className="hover:underline">
                 Forgot Password
               </Link>
@@ -111,6 +119,24 @@ export default function EmailEntryCard({
           </CardFooter>
         </form>
       </Card>
+      <div className="w-full max-w-md mx-auto mt-6 flex flex-col items-center space-y-4">
+        <hr className="w-full border-t border-white/20" />
+
+        <div className="text-xs uppercase tracking-wide text-gray-400 text-center">
+          New to XYVO?
+        </div>
+
+        <Button
+          variant="bordered"
+          className="w-full"
+          onPress={() => {
+            // You can also use router.push("/register") if routing directly
+            window.location.href = "/register";
+          }}
+        >
+          Create your XYVO account
+        </Button>
+      </div>
     </motion.div>
   );
 }

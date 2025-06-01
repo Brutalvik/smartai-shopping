@@ -23,6 +23,10 @@ export default function AuthFlow() {
         {step === "email" && (
           <EmailEntryCard
             onNext={(enteredEmail) => {
+              console.log(
+                "Email does not exist, transitioning to register:",
+                enteredEmail
+              );
               setEmail(enteredEmail);
               setStep("register");
             }}

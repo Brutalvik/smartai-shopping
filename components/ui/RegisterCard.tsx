@@ -44,6 +44,7 @@ export default function RegisterCard() {
               id="email"
               name="email"
               label="Email"
+              aria-label="Email address or mobile number"
               variant="bordered"
               value={formik.values.email}
               onChange={formik.handleChange}
@@ -56,6 +57,7 @@ export default function RegisterCard() {
               name="name"
               label="Name"
               variant="bordered"
+              aria-label="name"
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
