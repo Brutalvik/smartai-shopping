@@ -1,6 +1,7 @@
 // components/CartContainer.tsx
 "use client";
 
+import { Image } from "@heroui/react";
 import React from "react";
 
 interface CartContainerProps {
@@ -18,7 +19,11 @@ const CartContainer: React.FC<CartContainerProps> = ({
     <div className="flex flex-col lg:flex-row w-full min-h-screen gap-4 p-4">
       {/* Left side - cart items or main content */}
       <div className={hasItems ? "w-full lg:w-[80%]" : "w-full lg:w-[70%]"}>
-        {leftContent}
+        {hasItems ? (
+          leftContent
+        ) : (
+          <Image alt="Your cart is empty" className="w-full max-w-md mx-auto" />
+        )}
       </div>
 
       {/* Right side - summary or additional info */}
