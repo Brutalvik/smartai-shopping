@@ -5,7 +5,7 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import AuthCard from "@/components/ui/AuthCard";
 import PasswordCard from "@/components/ui/PasswordCard";
-import RegisterCard from "@/components/ui/RegisterCArd";
+import RegisterCard from "@/components/ui/RegisterCard";
 
 export default function AuthFlow() {
   const [step, setStep] = useState<"email" | "password" | "register">("email");
