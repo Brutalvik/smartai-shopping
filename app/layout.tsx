@@ -38,7 +38,7 @@ export default function RootLayout({
       <body
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
-          fontSans.variable,
+          fontSans.variable
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
@@ -48,15 +48,15 @@ export default function RootLayout({
               {children}
             </main>
             <footer className="w-full flex items-center justify-center py-3">
-              <Link
-                isExternal
-                className="flex items-center gap-1 text-current"
-                href="https://heroui.com?utm_source=next-app-template"
-                title="heroui.com homepage"
-              >
-                <span className="text-default-600">Powered by</span>
-                <p className="text-primary">HeroUI</p>
-              </Link>
+              {/* footer goes here */}
+              <p>
+                © {new Date().getFullYear()}{" "}
+                <span className="font-semibold tracking-wide">Xyvo</span> — All
+                rights reserved.{" "}
+                <Link href="/privacy" className="underline hover:text-blue-600">
+                  Privacy Policy
+                </Link>
+              </p>
             </footer>
           </div>
         </Providers>
