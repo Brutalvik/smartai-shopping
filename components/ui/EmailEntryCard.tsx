@@ -31,14 +31,11 @@ export default function EmailEntryCard({
         const result = await dispatch(
           checkUserEmailThunk(values.email)
         ).unwrap();
-        console.log("EMAIL : ", values.email);
-        console.log("RESULT - ", result);
 
         if (!result.exists) {
           onNext(values.email);
         } else {
-          // TODO: future login flow here
-          setFieldError("email", "User already exists. Please login.");
+          setFieldError("email", "Login Simulation");
         }
       } catch (err: any) {
         setFieldError("email", err);
