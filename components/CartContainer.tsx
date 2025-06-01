@@ -21,13 +21,7 @@ const CartContainer: React.FC<CartContainerProps> = ({
     <div className="flex flex-col lg:flex-row w-full min-h-screen gap-4 p-4">
       {/* Left side - cart items or main content */}
       <div className={hasItems ? "w-full lg:w-[80%]" : "w-full lg:w-[70%]"}>
-        {hasItems ? (
-          dummyCartItems.map((item) => (
-            <CartCard key={item.productId} {...item} />
-          ))
-        ) : (
-          <Image alt="Your cart is empty" className="w-full max-w-md mx-auto" />
-        )}
+        {leftContent}
       </div>
 
       {/* Right side - summary or additional info */}
