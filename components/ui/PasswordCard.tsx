@@ -1,4 +1,4 @@
-// components/ui/AuthCard.tsx
+// components/ui/PasswordCard.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,27 +8,34 @@ import { Button } from "@heroui/button";
 import Image from "next/image";
 import logo from "@/public/x.png";
 
-export default function AuthCard({
-  onEmailSubmit,
+export default function PasswordCard({
+  email,
+  onPasswordSubmit,
+  onBack,
 }: {
-  onEmailSubmit: (email: string) => void;
+  email: string;
+  onPasswordSubmit: (password: string) => void;
+  onBack: () => void;
 }) {
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
 
-    // Simulate check (replace with actual API call)
-    const exists = await mockCheckUserExists(email);
+    if (!password) {
+      setError("Password is required.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Simulate auth logic
+    await new Promise((res) => setTimeout(res, 1000));
+    onPasswordSubmit(password);
     setIsSubmitting(false);
-
-    if (!email) return setError("Email is required.");
-
-    onEmailSubmit(email);
   };
 
   return (
@@ -44,36 +51,33 @@ export default function AuthCard({
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
-          label="Enter your email"
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          label={`Enter password for ${email}`}
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           isInvalid={!!error}
           errorMessage={error}
-          placeholder="you@xyvo.ai"
         />
-        <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-        >
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            onPress={onBack}
+            className="w-1/3"
+          >
+            Back
+          </Button>
           <Button
             type="submit"
             variant="solid"
-            className="w-full"
+            className="w-2/3"
             isLoading={isSubmitting}
           >
-            Continue
+            Log in
           </Button>
-        </motion.div>
+        </div>
       </form>
     </motion.div>
   );
-}
-
-// Mock function to simulate DB check
-async function mockCheckUserExists(email: string): Promise<boolean> {
-  await new Promise((res) => setTimeout(res, 1000));
-  return email.toLowerCase().endsWith("@xyvo.ai");
 }
