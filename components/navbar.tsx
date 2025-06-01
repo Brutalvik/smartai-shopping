@@ -1,3 +1,4 @@
+"use client";
 import {
   Navbar as HeroUINavbar,
   NavbarContent,
@@ -8,7 +9,6 @@ import {
   NavbarMenuItem,
 } from "@heroui/navbar";
 import { Button } from "@heroui/button";
-import { Kbd } from "@heroui/kbd";
 import { Link } from "@heroui/link";
 import { Input } from "@heroui/input";
 import { link as linkStyles } from "@heroui/theme";
@@ -26,7 +26,16 @@ import {
 } from "@/components/icons";
 import { Avatar } from "@heroui/avatar";
 
+import { useState } from "react";
+import { LogIn, UserPlus, Heart, ShoppingCart, X } from "lucide-react";
+import UserDrawerMenu from "@/components/ui/UserDrawerMenu";
+
 export const Navbar = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
   const searchInput = (
     <Input
       aria-label="Search"
@@ -96,11 +105,7 @@ export const Navbar = () => {
           <ThemeSwitch />
         </NavbarItem>
         <NavbarItem>
-          <Avatar
-            showFallback
-            src="https://images.unsplash.com/broken"
-            size="md"
-          />
+          <UserDrawerMenu />
         </NavbarItem>
       </NavbarContent>
 
