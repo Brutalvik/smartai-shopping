@@ -10,6 +10,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { registerUserThunk } from "@/store/thunks/registerUser";
 import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function Register() {
   const dispatch = useAppDispatch();
@@ -20,10 +21,18 @@ export default function Register() {
     initialValues: {
       email: prefilledEmail,
       name: "",
+      password: "",
+      confirmPassword: "",
     },
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email").required("Required"),
       name: Yup.string().min(2, "Too short").required("Required"),
+      password: Yup.string()
+        .min(6, "At least 6 characters")
+        .required("Required"),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref("password")], "Passwords must match")
+        .required("Required"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
       await dispatch(registerUserThunk(values));
@@ -37,17 +46,30 @@ export default function Register() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full max-w-md mx-auto shadow-xl backdrop-blur bg-grey/10 bg-white/10 border border-gray-500">
         <CardHeader className="text-xl font-bold text-center">
-          Register
+          Create account
         </CardHeader>
         <form onSubmit={formik.handleSubmit}>
           <CardBody className="space-y-4">
             <Input
+              id="name"
+              name="name"
+              label="Your name"
+              placeholder="First and last name"
+              aria-label="Full name"
+              variant="bordered"
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={!!(formik.touched.name && formik.errors.name)}
+              errorMessage={formik.touched.name && formik.errors.name}
+            />
+            <Input
               id="email"
               name="email"
-              label="Email"
-              aria-label="Email address or mobile number"
+              label="Mobile number or email"
+              aria-label="Mobile number or email"
               variant="bordered"
               value={formik.values.email}
               onChange={formik.handleChange}
@@ -56,28 +78,76 @@ export default function Register() {
               errorMessage={formik.touched.email && formik.errors.email}
             />
             <Input
-              id="name"
-              name="name"
-              label="Name"
+              id="password"
+              name="password"
+              type="password"
+              label="Password"
+              placeholder="At least 6 characters"
+              aria-label="Password"
               variant="bordered"
-              aria-label="name"
-              value={formik.values.name}
+              value={formik.values.password}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              isInvalid={!!(formik.touched.name && formik.errors.name)}
-              errorMessage={formik.touched.name && formik.errors.name}
+              isInvalid={!!(formik.touched.password && formik.errors.password)}
+              errorMessage={formik.touched.password && formik.errors.password}
+            />
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              label="Password again"
+              aria-label="Password again"
+              variant="bordered"
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={
+                !!(
+                  formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword
+                )
+              }
+              errorMessage={
+                formik.touched.confirmPassword && formik.errors.confirmPassword
+              }
             />
           </CardBody>
-          <CardFooter>
+          <CardFooter className="flex flex-col space-y-3">
             <Button
               type="submit"
-              variant="shadow"
+              variant="solid"
+              color="primary"
               isDisabled={formik.isSubmitting}
               className="w-full"
               onPress={() => {}}
             >
-              {formik.isSubmitting ? "Registering..." : "Register"}
+              {formik.isSubmitting ? "Registering..." : "Continue"}
             </Button>
+            <p className="text-xs text-center px-2">
+              By creating an account, you agree to XYVO's{" "}
+              <Link
+                href="/conditions"
+                className="underline hover:text-cyan-500"
+              >
+                Conditions of Use
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="underline hover:text-cyan-500">
+                Privacy Notice
+              </Link>
+              .
+            </p>
+            <div className="text-sm text-center font-medium mt-2">
+              <Link href="#" className="hover:underline hover:text-cyan-500">
+                Buying for work? Create a free business account
+              </Link>
+            </div>
+            <div className="text-sm text-center">
+              Already have an account?{" "}
+              <Link href="/auth" className="underline hover:text-cyan-500">
+                Sign in
+              </Link>
+            </div>
           </CardFooter>
         </form>
       </Card>
