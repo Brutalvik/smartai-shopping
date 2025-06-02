@@ -34,6 +34,12 @@ const featuredSlides = [
     text: "Enjoy your favorite shows in stunning clarity – top 2025 TVs from Samsung, LG, Sony & more.",
     cta: "Browse TV Offers",
   },
+  {
+    image: "/xbox.png",
+    deal: "Up to 30% Off Gaming Gear",
+    text: "Level up your play with deals on consoles, games, and accessories from top brands like PlayStation, Xbox & Razer.",
+    cta: "See Gaming Deals",
+  },
 ];
 
 export default function HeroWithSearch() {
