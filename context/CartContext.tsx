@@ -43,12 +43,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateQuantity = (productId: string, delta: number) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.productId.toString() === productId
-          ? { ...item, quantity: Math.max(item.quantity + delta, 1) }
-          : item
-      )
+    setCartItems(
+      (prevItems) =>
+        prevItems
+          .map((item) =>
+            item.productId.toString() === productId
+              ? { ...item, quantity: item.quantity + delta }
+              : item
+          )
+          .filter((item) => item.quantity > 0) //remove item if quantity hits 0
     );
   };
 

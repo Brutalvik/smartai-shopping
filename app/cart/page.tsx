@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import CartContainer from "@/components/CartContainer";
 import CartSidebarSummary from "@/components/CartSidebarSummary";
 import CartMobileDrawer from "@/components/CartMobileDrawer";
@@ -11,15 +11,16 @@ import { useCart } from "@/context/CartContext";
 
 export default function CartPage() {
   const { cartItems, addItem } = useCart();
+  const hasInitialized = useRef(false); // 🧠 flag to prevent reloading
 
-  // Add dummy items on first mount
   useEffect(() => {
-    if (cartItems.length === 0) {
-      dummyCartItems.forEach((item) => {
-        addItem({ ...item, productId: item.productId });
-      });
+    if (!hasInitialized.current && cartItems.length === 0) {
+      dummyCartItems.forEach((item) =>
+        addItem({ ...item, productId: item.productId })
+      );
+      hasInitialized.current = true;
     }
-  }, [cartItems.length, addItem]);
+  }, [cartItems, addItem]);
 
   const hasItems = cartItems.length > 0;
 
@@ -28,9 +29,26 @@ export default function CartPage() {
       hasItems={hasItems}
       leftContent={
         hasItems ? (
-          cartItems.map((item, index) => (
-            <CartCard key={index} index={index} {...item} />
-          ))
+          cartItems
+            .filter((item) => {
+              const fullItem = dummyCartItems.find(
+                (d) => d.productId === item.productId
+              );
+              return fullItem?.inStock;
+            })
+            .map((item, index) => {
+              const fullItem = dummyCartItems.find(
+                (d) => d.productId === item.productId
+              );
+              return fullItem ? (
+                <CartCard
+                  key={item.productId}
+                  index={index}
+                  {...fullItem}
+                  quantity={item.quantity}
+                />
+              ) : null;
+            })
         ) : (
           <EmptyCart />
         )

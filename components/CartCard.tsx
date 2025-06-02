@@ -122,7 +122,7 @@ const CartCard: React.FC<CartCardProps> = ({
                 {quantity <= 1 ? (
                   <BiSolidTrash fontSize={15} />
                 ) : (
-                  <FaMinus fontSize={15} />
+                  <FaMinus fontSize={14} />
                 )}
               </Button>
               <span className="px-2 text-sm font-medium">{quantity}</span>
