@@ -6,6 +6,9 @@ import { Checkbox } from "@heroui/checkbox";
 import { Button } from "@heroui/button";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { BiSolidTrash } from "react-icons/bi";
+import { MdAdd } from "react-icons/md";
+import { FaMinus } from "react-icons/fa6";
 
 interface CartCardProps {
   imageUrl: string;
@@ -35,10 +38,10 @@ const CartCard: React.FC<CartCardProps> = ({
   index = 0,
 }) => {
   const { updateQuantity, cartItems } = useCart();
-  const item = cartItems.find((i) => i.productId === productId.toString());
+  const item = cartItems.find((i) => i.productId === productId);
   const quantity = item?.quantity ?? initialQuantity;
 
-  const isDecrementDisabled = !inStock || quantity <= 1;
+  const isDecrementDisabled = !inStock || quantity <= 0;
   const isIncrementDisabled = !inStock;
 
   const handleDecrement = () => {
@@ -116,7 +119,11 @@ const CartCard: React.FC<CartCardProps> = ({
                 onPress={handleDecrement}
                 isDisabled={isDecrementDisabled}
               >
-                -
+                {quantity <= 1 ? (
+                  <BiSolidTrash fontSize={15} />
+                ) : (
+                  <FaMinus fontSize={15} />
+                )}
               </Button>
               <span className="px-2 text-sm font-medium">{quantity}</span>
               <Button
@@ -126,7 +133,7 @@ const CartCard: React.FC<CartCardProps> = ({
                 onPress={handleIncrement}
                 isDisabled={isIncrementDisabled}
               >
-                +
+                <MdAdd fontSize={18} />
               </Button>
             </div>
             <div className="text-sm text-primary flex gap-2 flex-wrap">
