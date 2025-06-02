@@ -22,11 +22,31 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+// 🎨 Color utility
+const avatarColors = [
+  { bg: "#FF6B6B", fg: "#FFFFFF" },
+  { bg: "#6BCB77", fg: "#FFFFFF" },
+  { bg: "#4D96FF", fg: "#FFFFFF" },
+  { bg: "#FFD93D", fg: "#000000" },
+  { bg: "#FF9F1C", fg: "#000000" },
+  { bg: "#845EC2", fg: "#FFFFFF" },
+  { bg: "#2C3E50", fg: "#FFFFFF" },
+  { bg: "#00C9A7", fg: "#000000" },
+  { bg: "#E63946", fg: "#FFFFFF" },
+  { bg: "#1D3557", fg: "#FFFFFF" },
+];
+
+// Stable hash based on name to pick a color
+function getColorByName(name: string) {
+  const code = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return avatarColors[code % avatarColors.length];
+}
+
 export default function UserDrawerMenu() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const router = useRouter();
 
-  // 🔐 Mock auth state — replace this with your real context/store
+  // 🔐 Replace with real auth state
   const user = {
     firstName: "Vikram",
     email: "vikram@example.com",
@@ -35,26 +55,44 @@ export default function UserDrawerMenu() {
 
   const handleNavigate = (path: string) => {
     router.push(path);
-    onOpenChange(); // close drawer
+    onOpenChange();
   };
+
+  const avatarInitial = user.firstName?.charAt(0).toUpperCase() || "";
+  const { bg, fg } = getColorByName(user.firstName || "Guest");
 
   const greetingLine = user.isLoggedIn
     ? `Hi, ${user.firstName}`
     : `Hi there 👋`;
-
   const subline = user.isLoggedIn
     ? "Ready to explore something exciting?"
     : "Welcome! Sign in to get started";
 
-  return (
-    <>
+  const UserAvatar = () => {
+    return (
       <Avatar
         showFallback
         size="sm"
         src="https://images.unsplash.com/broken"
-        className="cursor-pointer hover:opacity-80 transition"
+        name={avatarInitial}
         onClick={onOpen}
+        className="cursor-pointer hover:opacity-80 transition"
+        classNames={{
+          name: "text-lg font-bold",
+          fallback: "rounded-full",
+        }}
+        style={{
+          backgroundColor: bg,
+          color: fg,
+        }}
       />
+    );
+  };
+
+  return (
+    <>
+      {/*avatar in navbar */}
+      <UserAvatar />
 
       <Drawer
         isOpen={isOpen}
@@ -72,12 +110,8 @@ export default function UserDrawerMenu() {
             <>
               <DrawerHeader className="flex flex-col items-start gap-2">
                 <div className="flex items-center gap-3">
-                  <Avatar
-                    src="https://images.unsplash.com/broken"
-                    size="md"
-                    showFallback
-                    className="border border-default-200"
-                  />
+                  {/* avatar inside drawer */}
+                  <UserAvatar />
                   <div>
                     <p className="text-base font-semibold">{greetingLine}</p>
                     <p className="text-xs text-default-500">{subline}</p>
