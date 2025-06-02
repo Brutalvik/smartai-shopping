@@ -49,7 +49,7 @@ export default function RootLayout({
               <main className="container mx-auto max-w-7xl px-6 flex-grow">
                 {children}
               </main>
-              <footer className="w-full flex items-center justify-center py-3">
+              <footer className="w-full flex items-center justify-center py-3 text-xs">
                 {/* footer goes here */}
                 <p>
                   © {new Date().getFullYear()}{" "}
@@ -57,7 +57,7 @@ export default function RootLayout({
                   All rights reserved.{" "}
                   <Link
                     href="/privacy"
-                    className="underline hover:text-blue-600"
+                    className="text-default-700 underline hover:text-blue-600 text-xs"
                   >
                     Privacy Policy
                   </Link>
