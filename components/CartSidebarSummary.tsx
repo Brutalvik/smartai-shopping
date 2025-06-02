@@ -6,7 +6,7 @@ import { Button } from "@heroui/button";
 import { useCart } from "@/context/CartContext";
 
 const CartSidebarSummary: React.FC = () => {
-  const { subtotal, shipping, tax, total } = useCart();
+  const { subtotal, shipping, tax, total, totalItems } = useCart();
 
   return (
     <div className="bg-white dark:bg-zinc-900 p-6 shadow-lg rounded-xl w-full space-y-4 sticky top-[80px] lg:block hidden">
@@ -14,7 +14,9 @@ const CartSidebarSummary: React.FC = () => {
 
       <div className="space-y-2 text-sm text-default-700">
         <div className="flex justify-between">
-          <span>Subtotal</span>
+          <span>
+            Subtotal ({totalItems} {totalItems === 1 ? "item" : "items"})
+          </span>
           <span>${subtotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between">

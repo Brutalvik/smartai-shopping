@@ -22,6 +22,7 @@ interface CartContextType {
   shipping: number;
   tax: number;
   total: number;
+  totalItems: number;
   addItem: (item: CartItem) => void;
   updateQuantity: (productId: string, delta: number) => void;
   setShipping: (value: number) => void;
@@ -66,6 +67,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setTotal(subtotalCalc + taxCalc + shipping);
   }, [cartItems, shipping]);
 
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <CartContext.Provider
       value={{
@@ -77,6 +80,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         addItem,
         updateQuantity,
         setShipping,
+        totalItems,
       }}
     >
       {children}
