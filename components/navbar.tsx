@@ -123,12 +123,19 @@ export const Navbar = () => {
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
         <ThemeSwitch />
-        <Avatar
-          showFallback
-          src="https://images.unsplash.com/broken"
-          size="sm"
-        />
-        <RiShoppingCart2Line onClick={() => router.push("/cart")} />
+        <NavbarItem>
+          <UserDrawerMenu />
+        </NavbarItem>
+        <NavbarItem className="mt-2">
+          <Badge color="primary" content={totalItems}>
+            <RiShoppingCart2Line
+              fontSize={30}
+              className="hover:cursor-pointer"
+              fontWeight={900}
+              onClick={() => router.push("/cart")}
+            />
+          </Badge>
+        </NavbarItem>
         <NavbarMenuToggle />
       </NavbarContent>
 
