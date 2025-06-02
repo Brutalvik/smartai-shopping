@@ -8,7 +8,7 @@ import EmptyCart from "@/components/EmptyCart";
 
 export default function CartPage() {
   // Mock cart items data (you can replace this with real cart state from Redux, context, etc.)
-  const hasItems = false; // change this to false to test empty state
+  const hasItems = true; // change this to false to test empty state
 
   return (
     <CartContainer
@@ -32,13 +32,7 @@ export default function CartPage() {
               total={1611.43}
               currencySymbol="$"
             />
-            <CartMobileDrawer
-              subtotal={1499}
-              shipping={0}
-              tax={112.43}
-              total={1611.43}
-              currencySymbol="$"
-            />
+            <CartMobileDrawer />
           </>
         )
       }

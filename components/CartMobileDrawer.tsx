@@ -11,76 +11,57 @@ import {
   Button,
   useDisclosure,
 } from "@heroui/react";
+import { useCart } from "@/context/CartContext";
 
-interface CartMobileDrawerProps {
-  subtotal: number;
-  shipping: number;
-  tax: number;
-  total: number;
-  currencySymbol?: string;
-}
-
-const CartMobileDrawer: React.FC<CartMobileDrawerProps> = ({
-  subtotal,
-  shipping,
-  tax,
-  total,
-  currencySymbol = "$",
-}) => {
+export default function CartMobileDrawer() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { subtotal, shipping, tax, total } = useCart();
 
   return (
     <div className="lg:hidden w-full">
+      {/* Toggle Button visible at all times */}
       <Button onPress={onOpen} className="w-full sticky bottom-4 z-50">
         View Summary
       </Button>
 
-      <Drawer isOpen={isOpen} size="full" onClose={onClose} placement="bottom">
+      <Drawer isOpen={isOpen} onClose={onClose} size="md">
         <DrawerContent>
           {(onClose) => (
             <>
-              <DrawerHeader className="flex justify-between items-center">
-                <span className="text-lg font-semibold">Order Summary</span>
-                <Button size="sm" variant="light" onPress={onClose}>
-                  Close
-                </Button>
+              <DrawerHeader className="text-lg font-bold">
+                Order Summary
               </DrawerHeader>
-              <DrawerBody className="space-y-4 text-sm text-default-700">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>
-                    {currencySymbol}
-                    {subtotal.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span>
-                    {shipping === 0 ? (
-                      <span className="text-success font-medium">FREE</span>
-                    ) : (
-                      `${currencySymbol}${shipping.toFixed(2)}`
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Estimated Tax</span>
-                  <span>
-                    {currencySymbol}
-                    {tax.toFixed(2)}
-                  </span>
-                </div>
-                <hr className="border-default-200" />
-                <div className="flex justify-between font-semibold text-default-900 text-base">
-                  <span>Total</span>
-                  <span>
-                    {currencySymbol}
-                    {total.toFixed(2)}
-                  </span>
+              <DrawerBody>
+                <div className="space-y-3 text-sm text-default-700">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span>
+                      {shipping === 0 ? (
+                        <span className="text-success font-semibold uppercase">
+                          FREE
+                        </span>
+                      ) : (
+                        `$${shipping.toFixed(2)}`
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Estimated Tax</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+                  <hr className="my-2 border-default-200" />
+                  <div className="flex justify-between font-semibold text-lg">
+                    <span>Total</span>
+                    <span>${total.toFixed(2)}</span>
+                  </div>
                 </div>
               </DrawerBody>
               <DrawerFooter>
-                <Button color="primary" className="w-full" onPress={onClose}>
+                <Button fullWidth color="primary" onPress={onClose}>
                   Proceed to Checkout
                 </Button>
               </DrawerFooter>
@@ -90,6 +71,4 @@ const CartMobileDrawer: React.FC<CartMobileDrawerProps> = ({
       </Drawer>
     </div>
   );
-};
-
-export default CartMobileDrawer;
+}
