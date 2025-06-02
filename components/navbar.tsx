@@ -32,15 +32,12 @@ import UserDrawerMenu from "@/components/UserDrawerMenu";
 import { RiShoppingCart2Line } from "react-icons/ri";
 import { Badge } from "@heroui/badge";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 export const Navbar = () => {
   const router = useRouter();
-  const [item, setItem] = useState(0);
+  const { totalItems } = useCart();
 
-  const addItem = () => {
-    let value = 0;
-    setItem(value++);
-  };
   const searchInput = (
     <Input
       aria-label="Search"
@@ -113,7 +110,7 @@ export const Navbar = () => {
           <UserDrawerMenu />
         </NavbarItem>
         <NavbarItem className="mt-2">
-          <Badge color="primary" content="5">
+          <Badge color="primary" content={totalItems}>
             <RiShoppingCart2Line
               fontSize={30}
               className="hover:cursor-pointer"
