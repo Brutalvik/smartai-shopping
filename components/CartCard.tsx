@@ -5,6 +5,7 @@ import React from "react";
 import { Checkbox } from "@heroui/checkbox";
 import { Button } from "@heroui/button";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 interface CartCardProps {
   imageUrl: string;
@@ -15,8 +16,9 @@ interface CartCardProps {
   freeShipping: boolean;
   variant: string;
   quantity: number;
-  price: string;
-  index?: number; // optional index for staggered animation
+  price: number;
+  productId: number;
+  index?: number;
 }
 
 const CartCard: React.FC<CartCardProps> = ({
@@ -27,16 +29,32 @@ const CartCard: React.FC<CartCardProps> = ({
   seller,
   freeShipping,
   variant,
-  quantity,
+  quantity: initialQuantity,
   price,
+  productId,
   index = 0,
 }) => {
+  const { updateQuantity, cartItems } = useCart();
+  const item = cartItems.find((i) => i.productId === productId.toString());
+  const quantity = item?.quantity ?? initialQuantity;
+
+  const isDecrementDisabled = !inStock || quantity <= 1;
+  const isIncrementDisabled = !inStock;
+
+  const handleDecrement = () => {
+    if (!isDecrementDisabled) updateQuantity(productId.toString(), -1);
+  };
+
+  const handleIncrement = () => {
+    if (!isIncrementDisabled) updateQuantity(productId.toString(), 1);
+  };
+
   return (
     <div
       style={{ animationDelay: `${index * 100}ms` }}
       className="animate-staggerFadeIn flex flex-col sm:flex-row w-full min-h-[20vh] p-4 shadow rounded-none border-b border-default-200 mb-4 transition-transform duration-300 ease-in-out"
     >
-      {/* Left column - Image */}
+      {/* Left - Image */}
       <div className="w-full sm:w-[20%] flex items-center justify-center mb-4 sm:mb-0">
         <img
           src={imageUrl}
@@ -45,7 +63,7 @@ const CartCard: React.FC<CartCardProps> = ({
         />
       </div>
 
-      {/* Middle column - Product Info */}
+      {/* Middle - Info */}
       <div className="w-full sm:w-[65%] px-0 sm:px-4 flex flex-col justify-between">
         <div>
           <p className="text-lg font-semibold mb-1 line-clamp-1">{name}</p>
@@ -88,12 +106,26 @@ const CartCard: React.FC<CartCardProps> = ({
             <span className="font-medium">Variant:</span> {variant}
           </p>
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center border border-default-300 rounded">
-              <Button size="sm" variant="light" className="px-3">
+            <div
+              className={`flex items-center border border-default-300 rounded ${quantity <= 0 && "bg-default-300"}`}
+            >
+              <Button
+                size="sm"
+                variant="light"
+                className="px-3"
+                onPress={handleDecrement}
+                isDisabled={isDecrementDisabled}
+              >
                 -
               </Button>
               <span className="px-2 text-sm font-medium">{quantity}</span>
-              <Button size="sm" variant="light" className="px-3">
+              <Button
+                size="sm"
+                variant="light"
+                className="px-3"
+                onPress={handleIncrement}
+                isDisabled={isIncrementDisabled}
+              >
                 +
               </Button>
             </div>
@@ -108,9 +140,9 @@ const CartCard: React.FC<CartCardProps> = ({
         </div>
       </div>
 
-      {/* Right column - Price */}
+      {/* Right - Price */}
       <div className="w-full sm:w-[15%] flex items-start justify-end text-xl font-bold text-foreground mt-4 sm:mt-0">
-        {price}
+        ${price.toFixed(2)}
       </div>
     </div>
   );

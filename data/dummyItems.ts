@@ -9,7 +9,7 @@ export const dummyCartItems = [
     freeShipping: true,
     variant: "V25 600W 25KM",
     quantity: 1,
-    price: "$599.00",
+    price: 599.0,
     productId: 1,
   },
   {
@@ -22,8 +22,8 @@ export const dummyCartItems = [
     seller: "TimeWare",
     freeShipping: false,
     variant: "X10 Pro Silver",
-    quantity: 2,
-    price: "$149.99",
+    quantity: 0,
+    price: 149.99,
     productId: 2,
   },
   {
@@ -37,7 +37,7 @@ export const dummyCartItems = [
     freeShipping: true,
     variant: "i7 / 16GB / 512GB SSD",
     quantity: 1,
-    price: "$1,099.00",
+    price: 1099.0,
     productId: 3,
   },
   {
@@ -51,7 +51,7 @@ export const dummyCartItems = [
     freeShipping: false,
     variant: "Matte Black",
     quantity: 1,
-    price: "$299.99",
+    price: 299.99,
     productId: 4,
   },
 ];

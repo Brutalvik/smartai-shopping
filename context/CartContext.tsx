@@ -4,8 +4,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface CartItem {
-  productId: string;
+  productId: number;
+  imageUrl: string;
   name: string;
+  description: string;
+  inStock: boolean;
+  seller: string;
+  freeShipping: boolean;
+  variant: string;
   price: number;
   quantity: number;
 }
@@ -13,10 +19,12 @@ interface CartItem {
 interface CartContextType {
   cartItems: CartItem[];
   subtotal: number;
+  shipping: number;
   tax: number;
   total: number;
   addItem: (item: CartItem) => void;
   updateQuantity: (productId: string, delta: number) => void;
+  setShipping: (value: number) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -24,6 +32,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [subtotal, setSubtotal] = useState(0);
+  const [shipping, setShipping] = useState(0);
   const [tax, setTax] = useState(0);
   const [total, setTotal] = useState(0);
 
@@ -34,10 +43,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateQuantity = (productId: string, delta: number) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.productId === productId
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.productId.toString() === productId
+          ? { ...item, quantity: Math.max(item.quantity + delta, 1) }
           : item
       )
     );
@@ -51,18 +60,20 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const taxCalc = subtotalCalc * TAX_RATE;
     setSubtotal(subtotalCalc);
     setTax(taxCalc);
-    setTotal(subtotalCalc + taxCalc);
-  }, [cartItems]);
+    setTotal(subtotalCalc + taxCalc + shipping);
+  }, [cartItems, shipping]);
 
   return (
     <CartContext.Provider
       value={{
         cartItems,
         subtotal,
+        shipping,
         tax,
         total,
         addItem,
         updateQuantity,
+        setShipping,
       }}
     >
       {children}
