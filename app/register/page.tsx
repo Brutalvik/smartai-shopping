@@ -128,7 +128,7 @@ export default function Register() {
               {formik.isSubmitting ? "Registering..." : "Continue"}
             </Button>
             <p className="text-xs text-center px-2">
-              By creating an account, you agree to XYVO's{" "}
+              By creating an account, you agree to XYVO&aposs{" "}
               <Link
                 href="/conditions"
                 className="underline hover:text-cyan-500"

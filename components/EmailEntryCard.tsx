@@ -87,7 +87,7 @@ export default function EmailEntryCard({
             </Button>
 
             <p className="pt-4 text-xs text-center px-2">
-              By continuing, you agree to XYVO's{" "}
+              By continuing, you agree to XYVOs{" "}
               <Link
                 href="/conditions"
                 className="underline hover:text-cyan-500"

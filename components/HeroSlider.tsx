@@ -8,13 +8,12 @@ import { Input } from "@heroui/input";
 import { Truck, BadgePercent, ArrowRight } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import Image from "next/image";
-import { FaSearch } from "react-icons/fa";
 
 const featuredSlides = [
   {
     image: "/iphone.png",
     deal: "Up to 25% off today",
-    text: "Meet the new iPhone 16 Pro Max – blazing speed, iconic design, and exclusive launch deals you won't want to miss.",
+    text: "Meet the new iPhone 16 Pro Max – blazing speed, iconic design, and exclusive launch deals you wont want to miss.",
     cta: "Explore iPhone deals",
   },
   {
@@ -56,25 +55,25 @@ export default function HeroWithSearch() {
   const current = featuredSlides[index];
 
   return (
-    <section className="relative w-full bg-background py-16">
+    <section className="relative w-full bg-background py-16 perspective-[2000px]">
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
 
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 30, rotateX: -10 }}
+        whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.7 }}
         className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center"
       >
         {/* Right Card - First on Mobile */}
-        <div className="order-1 lg:order-2">
+        <div className="order-1 lg:order-2 transform-style-3d">
           <div className="bg-white/5 dark:bg-zinc-900 rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between h-[420px]">
-            <div className="relative h-[80%] w-full">
+            <div className="relative h-[80%] w-full overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`image-${index}`}
-                  className="absolute inset-0"
-                  initial={{ opacity: 0, scale: 1.05 }}
+                  className="absolute inset-0 w-full h-full"
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.6 }}
@@ -115,7 +114,7 @@ export default function HeroWithSearch() {
         </div>
 
         {/* Left Content */}
-        <div className="order-2 lg:order-1">
+        <div className="order-2 lg:order-1 transform-style-3d">
           <motion.h1
             className="text-4xl md:text-5xl font-bold leading-tight mb-4"
             initial={{ opacity: 0, y: 20 }}
@@ -161,7 +160,7 @@ export default function HeroWithSearch() {
               className="w-[65%] border-none focus:ring-0 rounded-none"
             />
             <Button className="w-[5%] rounded-none" isIconOnly variant="light">
-              <FaSearch />
+              🔍
             </Button>
           </motion.div>
 

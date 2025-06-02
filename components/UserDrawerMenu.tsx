@@ -21,6 +21,7 @@ import {
   Store,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/context/UserContext";
 
 // 🎨 Color utility
 const avatarColors = [
@@ -45,26 +46,20 @@ function getColorByName(name: string) {
 export default function UserDrawerMenu() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const router = useRouter();
-
-  // 🔐 Replace with real auth state
-  const user = {
-    firstName: "Vikram",
-    email: "vikram@example.com",
-    isLoggedIn: true,
-  };
+  const { user, setUser } = useUser();
 
   const handleNavigate = (path: string) => {
     router.push(path);
     onOpenChange();
   };
 
-  const avatarInitial = user.firstName?.charAt(0).toUpperCase() || "";
-  const { bg, fg } = getColorByName(user.firstName || "Guest");
+  const avatarInitial = user?.firstName?.charAt(0).toUpperCase() || "";
+  const { bg, fg } = getColorByName(user?.firstName || "Guest");
 
-  const greetingLine = user.isLoggedIn
-    ? `Hi, ${user.firstName}`
+  const greetingLine = user?.isLoggedIn
+    ? `Hi, ${user?.firstName}`
     : `Hi there 👋`;
-  const subline = user.isLoggedIn
+  const subline = user?.isLoggedIn
     ? "Ready to explore something exciting?"
     : "Welcome! Sign in to get started";
 
