@@ -56,10 +56,10 @@ export default function UserDrawerMenu() {
   const avatarInitial = user?.firstName?.charAt(0).toUpperCase() || "";
   const { bg, fg } = getColorByName(user?.firstName || "Guest");
 
-  const greetingLine = user?.isLoggedIn
+  const greetingLine = user?.firstName
     ? `Hi, ${user?.firstName}`
     : `Hi there 👋`;
-  const subline = user?.isLoggedIn
+  const subline = user?.firstName
     ? "Ready to explore something exciting?"
     : "Welcome! Sign in to get started";
 
@@ -157,7 +157,7 @@ export default function UserDrawerMenu() {
                   <hr className="border-default-200" />
 
                   <div className="space-y-2">
-                    {user.isLoggedIn ? (
+                    {user?.firstName ? (
                       <DrawerItem
                         icon={<LogOut size={18} />}
                         label="Sign Out"

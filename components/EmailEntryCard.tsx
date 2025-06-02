@@ -36,6 +36,7 @@ export default function EmailEntryCard({
           onNext(values.email);
         } else {
           setFieldError("email", "Login Simulation");
+          //Login logic to be implemented
         }
       } catch (err: any) {
         setFieldError("email", err);

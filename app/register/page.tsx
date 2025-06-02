@@ -1,4 +1,3 @@
-// components/ui/Register.tsx
 "use client";
 
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
@@ -9,13 +8,17 @@ import * as Yup from "yup";
 import { useAppDispatch } from "@/store/hooks";
 import { registerUserThunk } from "@/store/thunks/registerUser";
 import { motion } from "framer-motion";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useUser } from "@/context/UserContext";
+import { toast } from "react-hot-toast";
 
 export default function Register() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledEmail = searchParams.get("email") || "";
+  const { setUser } = useUser();
 
   const formik = useFormik({
     initialValues: {
@@ -35,8 +38,38 @@ export default function Register() {
         .required("Required"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
-      await dispatch(registerUserThunk(values));
-      setSubmitting(false);
+      try {
+        const userRegistrationData = {
+          email: values.email,
+          name: values.name,
+          password: values.password,
+          preferred_locale: "en-US",
+        };
+
+        const resultAction = await dispatch(
+          registerUserThunk(userRegistrationData)
+        );
+
+        if (registerUserThunk.fulfilled.match(resultAction)) {
+          const user = resultAction.payload;
+
+          // ✅ Set user in context and localStorage
+          setUser(user);
+          localStorage.setItem("user", JSON.stringify(user));
+
+          toast.success("Welcome! Account created successfully.");
+          setTimeout(() => {
+            router.push("/");
+          }, 5000);
+        } else {
+          toast.error(resultAction.payload || "Registration failed.");
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Something went wrong.");
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 
@@ -57,7 +90,6 @@ export default function Register() {
               name="name"
               label="Your name"
               placeholder="First and last name"
-              aria-label="Full name"
               variant="bordered"
               value={formik.values.name}
               onChange={formik.handleChange}
@@ -70,7 +102,6 @@ export default function Register() {
               id="email"
               name="email"
               label="Mobile number or email"
-              aria-label="Mobile number or email"
               variant="bordered"
               value={formik.values.email}
               onChange={formik.handleChange}
@@ -85,7 +116,6 @@ export default function Register() {
               type="password"
               label="Password"
               placeholder="At least 6 characters"
-              aria-label="Password"
               variant="bordered"
               value={formik.values.password}
               onChange={formik.handleChange}
@@ -99,7 +129,6 @@ export default function Register() {
               name="confirmPassword"
               type="password"
               label="Password again"
-              aria-label="Password again"
               variant="bordered"
               value={formik.values.confirmPassword}
               onChange={formik.handleChange}
@@ -128,7 +157,7 @@ export default function Register() {
               {formik.isSubmitting ? "Registering..." : "Continue"}
             </Button>
             <p className="text-xs text-center px-2">
-              By creating an account, you agree to XYVO&aposs{" "}
+              By creating an account, you agree to XYVO's{" "}
               <Link
                 href="/conditions"
                 className="underline hover:text-cyan-500"
