@@ -12,11 +12,7 @@ import Link from "next/link";
 import { CircularProgress } from "@heroui/progress";
 import { useRouter } from "next/navigation";
 
-export default function EmailEntryCard({
-  onNext,
-}: {
-  onNext: (email: string) => void;
-}) {
+export default function EmailEntryCard() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 

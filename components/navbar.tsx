@@ -33,11 +33,13 @@ import { RiShoppingCart2Line } from "react-icons/ri";
 import { Badge } from "@heroui/badge";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useUser } from "@/context/UserContext";
 
 export const Navbar = () => {
+  const { user } = useUser();
   const router = useRouter();
   const { totalItems } = useCart();
-
+  console.log("USER ", user);
   const searchInput = (
     <Input
       aria-label="Search"

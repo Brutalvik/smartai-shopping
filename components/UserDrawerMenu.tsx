@@ -47,20 +47,18 @@ function getColorByName(name: string) {
 export default function UserDrawerMenu() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const router = useRouter();
-  const { user, setUser } = useUser();
+  const { user } = useUser();
 
   const handleNavigate = (path: string) => {
     router.push(path);
     onOpenChange();
   };
 
-  const avatarInitial = user?.firstName?.charAt(0).toUpperCase() || "";
-  const { bg, fg } = getColorByName(user?.firstName || "Guest");
+  const avatarInitial = user?.name?.charAt(0).toUpperCase() || "";
+  const { bg, fg } = getColorByName(user?.name || "Guest");
 
-  const greetingLine = user?.firstName
-    ? `Hi, ${user?.firstName}`
-    : `Hi there 👋`;
-  const subline = user?.firstName
+  const greetingLine = user ? `Hi, ${user?.name}` : `Hi there 👋`;
+  const subline = user?.name
     ? "Ready to explore something exciting?"
     : "Welcome! Sign in to get started";
 
@@ -158,7 +156,7 @@ export default function UserDrawerMenu() {
                   <hr className="border-default-200" />
 
                   <div className="space-y-2">
-                    {user?.firstName ? (
+                    {user?.name ? (
                       <DrawerItem
                         icon={<LogOut size={18} />}
                         label="Sign Out"

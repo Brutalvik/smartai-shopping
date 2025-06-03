@@ -13,7 +13,7 @@ import { toast } from "react-hot-toast";
 import { Select, SelectItem } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { countryCodes } from "@/data/countryCodes";
-import { getFlagFromPhone } from "@/utils/helper";
+import { getFirstNameCapitalized, getFlagFromPhone } from "@/utils/helper";
 import { Tooltip } from "@heroui/react";
 import { FcInfo } from "react-icons/fc";
 import { FcGoogle } from "react-icons/fc";
@@ -73,11 +73,12 @@ export default function Register() {
         if (res.ok) {
           const user = await res.json();
           setUser(user);
-          localStorage.setItem("user", JSON.stringify(user));
-          setTimeout(() => {
-            toast.success("Welcome! Account created successfully.");
-          }, 3000);
-          setTimeout(() => router.push("/"), 3000);
+          sessionStorage.setItem("user", JSON.stringify(user));
+          localStorage.setItem(
+            "toastMessage",
+            `Welcome ${getFirstNameCapitalized(values.name)}! Account created successfully.`
+          );
+          router.push("/");
         } else {
           const error = await res.json();
           toast.error(error.message || "Registration failed.");
