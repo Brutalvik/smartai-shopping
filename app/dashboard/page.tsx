@@ -18,9 +18,7 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 text-white">
-      <h1 className="text-2xl font-bold">
-        Welcome, {user.firstName || user.email}!
-      </h1>
+      <h1 className="text-2xl font-bold">Welcome, {user.name}!</h1>
       <p className="mt-2">This is your dashboard.</p>
     </div>
   );
