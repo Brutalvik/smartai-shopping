@@ -15,6 +15,9 @@ import { useState, useEffect } from "react";
 import { countryCodes } from "@/data/countryCodes";
 import { getFlagFromPhone } from "@/utils/helper";
 
+const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
+// min 5 characters, 1 upper case letter, 1 lower case letter, 1 numeric digit.
+
 export default function Register() {
   const [selectedCode, setSelectedCode] = useState("+1");
   const [flag, setFlag] = useState("🇺🇸");
@@ -38,7 +41,10 @@ export default function Register() {
       name: Yup.string().min(2, "Too short").required("Required"),
       phone: Yup.string().min(10, "Too short").required("Required"),
       password: Yup.string()
-        .min(6, "At least 6 characters")
+        .min(5)
+        .matches(passwordRules, {
+          message: "Please create a stronger password",
+        })
         .required("Required"),
       confirmPassword: Yup.string()
         .oneOf([Yup.ref("password")], "Passwords must match")
