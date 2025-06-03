@@ -1,7 +1,14 @@
 // context/UserContext.tsx
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 export interface User {
   id: string;
@@ -17,24 +24,41 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Load user from localStorage/cookie on refresh (optional)
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("user");
+      if (stored) {
+        try {
+          setUser(JSON.parse(stored));
+        } catch (err) {
+          console.warn("Failed to parse session user:", err);
+        }
+      }
+    }
   }, []);
 
-  return (
-    <UserContext.Provider value={{ user, setUser }}>
-      {children}
-    </UserContext.Provider>
-  );
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (user) {
+        sessionStorage.setItem("user", JSON.stringify(user));
+      } else {
+        sessionStorage.removeItem("user");
+      }
+    }
+  }, [user]);
+
+  const value = useMemo(() => ({ user, setUser }), [user]);
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
-export const useUser = () => {
+export const useUser = (): UserContextType => {
   const context = useContext(UserContext);
-  if (!context) throw new Error("useUser must be used within UserProvider");
+  if (!context) {
+    throw new Error("useUser must be used within a <UserProvider>");
+  }
   return context;
 };

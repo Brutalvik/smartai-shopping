@@ -8,7 +8,6 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { motion } from "framer-motion";
 import { useAppDispatch } from "@/store/hooks";
-import { checkUserEmailThunk } from "@/store/thunks/checkUserEmail";
 import Link from "next/link";
 import { CircularProgress } from "@heroui/progress";
 import { useRouter } from "next/navigation";
@@ -28,19 +27,14 @@ export default function EmailEntryCard({
     }),
     onSubmit: async (values, { setSubmitting, setFieldError }) => {
       try {
-        const result = await dispatch(
-          checkUserEmailThunk(values.email)
-        ).unwrap();
+        const redirectUri = `${window.location.origin}/auth/callback`;
+        const cognitoLoginUrl = `https://${process.env.NEXT_PUBLIC_COGNITO_DOMAIN}/login?client_id=${process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+profile&redirect_uri=${redirectUri}`;
 
-        if (!result.exists) {
-          onNext(values.email);
-        } else {
-          setFieldError("email", "Login Simulation");
-          //Login logic to be implemented
-        }
-      } catch (err: any) {
-        setFieldError("email", err);
-        console.log("ERROR : ", err);
+        // Simply redirect to hosted Cognito login (will handle both login and signup)
+        window.location.href = cognitoLoginUrl;
+      } catch (err) {
+        console.error(err);
+        setFieldError("email", "Login failed.");
       } finally {
         setSubmitting(false);
       }

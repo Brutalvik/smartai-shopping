@@ -167,7 +167,7 @@ export default function UserDrawerMenu() {
                       <DrawerItem
                         icon={<LogIn size={18} />}
                         label="Sign In"
-                        onClick={() => handleNavigate("/signin")}
+                        onClick={() => handleNavigate("/auth/login")}
                       />
                     )}
                   </div>

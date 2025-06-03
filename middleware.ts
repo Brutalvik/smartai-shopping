@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const isAuthenticated = req.cookies.get("authToken");
+  const session = req.cookies.get("session");
 
-  if (!isAuthenticated) {
+  if (!session) {
     const url = req.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/auth/login";
     url.searchParams.set("redirect", req.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
@@ -14,7 +14,6 @@ export function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-// Apply only to protected routes
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*"],
+  matcher: ["/dashboard/:path*", "/profile/:path*"], // Protect what you want
 };
