@@ -243,7 +243,6 @@ export default function Register() {
               <span>Password instructions</span>
               <span>
                 <Tooltip
-                  c
                   content={
                     <div className="px-1 py-2">
                       <div className="text-small font-bold text-blue-500">
@@ -320,9 +319,9 @@ export default function Register() {
             <div className="my-4 text-center text-sm text-white/70">
               or sign up with
             </div>
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
-              <FcGoogle />
-              <FaFacebook />
+            <div className="flex flex-row justify-center items-center gap-4 w-full">
+              <FcGoogle size={25} className="hover:cursor-pointer" />
+              <FaFacebook size={25} className="hover:cursor-pointer" />
             </div>
           </CardFooter>
         </form>
