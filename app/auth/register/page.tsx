@@ -14,9 +14,13 @@ import { Select, SelectItem } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { countryCodes } from "@/data/countryCodes";
 import { getFlagFromPhone } from "@/utils/helper";
+import { Tooltip } from "@heroui/react";
+import { FcInfo } from "react-icons/fc";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
-// min 5 characters, 1 upper case letter, 1 lower case letter, 1 numeric digit.
+// min 8 characters, 1 upper case letter, 1 lower case letter, 1 numeric digit.
 
 export default function Register() {
   const [selectedCode, setSelectedCode] = useState("+1");
@@ -41,7 +45,7 @@ export default function Register() {
       name: Yup.string().min(2, "Too short").required("Required"),
       phone: Yup.string().min(10, "Too short").required("Required"),
       password: Yup.string()
-        .min(5)
+        .min(8)
         .matches(passwordRules, {
           message: "Please create a stronger password",
         })
@@ -226,7 +230,7 @@ export default function Register() {
               name="password"
               type="password"
               label="Password"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters"
               variant="bordered"
               value={formik.values.password}
               onChange={formik.handleChange}
@@ -235,6 +239,31 @@ export default function Register() {
               errorMessage={formik.touched.password && formik.errors.password}
               size="sm"
             />
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
+              <span>Password instructions</span>
+              <span>
+                <Tooltip
+                  c
+                  content={
+                    <div className="px-1 py-2">
+                      <div className="text-small font-bold text-blue-500">
+                        Password Rules
+                      </div>
+                      <span className="text-tiny">
+                        <ul>
+                          <li>Minimum 8 characters</li>
+                          <li>One uppercase character</li>
+                          <li>One lowercase character</li>
+                          <li>One number</li>
+                        </ul>
+                      </span>
+                    </div>
+                  }
+                >
+                  <FcInfo size={15} className="hover:cursor-pointer" />
+                </Tooltip>
+              </span>
+            </div>
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -291,21 +320,9 @@ export default function Register() {
             <div className="my-4 text-center text-sm text-white/70">
               or sign up with
             </div>
-            <div className="flex flex-col gap-3 px-4">
-              <Button
-                onPress={() => handleSocialLogin("google")}
-                className="w-full bg-white text-black border"
-                variant="flat"
-              >
-                Continue with Google
-              </Button>
-              <Button
-                onPress={() => handleSocialLogin("facebook")}
-                className="w-full bg-[#3b5998] text-white"
-                variant="flat"
-              >
-                Continue with Facebook
-              </Button>
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
+              <FcGoogle />
+              <FaFacebook />
             </div>
           </CardFooter>
         </form>
