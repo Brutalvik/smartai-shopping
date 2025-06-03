@@ -5,18 +5,20 @@ import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { toast } from "react-hot-toast";
 import { Select, SelectItem } from "@heroui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { countryCodes } from "@/data/countryCodes";
 import { getFlagFromPhone } from "@/utils/helper";
 
 export default function Register() {
   const [selectedCode, setSelectedCode] = useState("+1");
+  const [flag, setFlag] = useState("🇺🇸");
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledEmail = searchParams.get("email") || "";
@@ -29,6 +31,7 @@ export default function Register() {
       name: "",
       password: "",
       confirmPassword: "",
+      countryCode: selectedCode,
     },
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email").required("Required"),
@@ -79,18 +82,31 @@ export default function Register() {
   const handleCodeChange = (code: string) => {
     setSelectedCode(code);
     formik.setFieldValue("countryCode", code);
+
+    const selected = countryCodes.find((c) => c.dial_code === code);
+    if (selected) setFlag(selected.flag);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const phone = e.target.value;
     formik.setFieldValue("phone", phone);
+
+    const digits = phone.replace(/\D/g, "");
+    if (selectedCode === "+1" && digits.length >= 3) {
+      const dynamicFlag = getFlagFromPhone(digits);
+      if (dynamicFlag !== flag) {
+        setFlag(dynamicFlag);
+      }
+    }
   };
 
-  const selectedCountry = countryCodes.find((c) => c.code === selectedCode);
-  const dynamicFlag =
-    selectedCode === "+1" && formik.values.phone.replace(/\D/g, "").length >= 3
-      ? getFlagFromPhone(formik.values.phone)
-      : selectedCountry?.flag || "";
+  useEffect(() => {
+    const initialCountry = countryCodes.find((c) => c.dial_code === "+1");
+    if (initialCountry) {
+      setFlag(initialCountry.flag);
+      formik.setFieldValue("countryCode", "+1");
+    }
+  }, []);
 
   const handleSocialLogin = (provider: "google" | "facebook") => {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/social/${provider}`;
@@ -139,23 +155,48 @@ export default function Register() {
             {/* Flag + Country Code + Phone Number */}
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
               <div className="flex items-center gap-2 w-full sm:w-1/3">
-                {dynamicFlag && <span className="text-2xl">{dynamicFlag}</span>}
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={flag}
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.6, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-2xl"
+                  >
+                    {flag}
+                  </motion.span>
+                </AnimatePresence>
                 <Select
+                  variant="bordered"
                   selectedKeys={new Set([selectedCode])}
                   onSelectionChange={(keys) => {
                     const code = Array.from(keys)[0];
                     handleCodeChange(code as string);
                   }}
                   className="w-full"
+                  renderValue={() => (
+                    <div className="flex items-center gap-2">
+                      <span>{selectedCode}</span>
+                    </div>
+                  )}
+                  size="lg"
                 >
-                  {countryCodes.map((country, index) => (
-                    <SelectItem key={index} textValue={country.dial_code}>
-                      <div className="flex items-center gap-2">
-                        <span>{country.flag}</span>
-                        <span>{country.dial_code}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {countryCodes.map((country, index) =>
+                    country.code === "CA" ? null : (
+                      <SelectItem
+                        key={country.dial_code}
+                        textValue={country.dial_code}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm t<span>{flag}</span>ext-white/60">
+                            {country.code}
+                          </span>
+                          <span>{country.dial_code}</span>
+                        </div>
+                      </SelectItem>
+                    )
+                  )}
                 </Select>
               </div>
               <Input
@@ -170,6 +211,7 @@ export default function Register() {
                 isInvalid={!!(formik.touched.phone && formik.errors.phone)}
                 errorMessage={formik.touched.phone && formik.errors.phone}
                 className="w-full sm:w-2/3"
+                size="sm"
               />
             </div>
 
