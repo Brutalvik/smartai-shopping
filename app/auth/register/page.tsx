@@ -1,0 +1,267 @@
+"use client";
+
+import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
+import { Input } from "@heroui/input";
+import { Button } from "@heroui/button";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { motion } from "framer-motion";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useUser } from "@/context/UserContext";
+import { toast } from "react-hot-toast";
+import { Select, SelectItem } from "@heroui/react";
+import { useState } from "react";
+import { countryCodes } from "@/data/countryCodes";
+import { getFlagFromPhone } from "@/utils/helper";
+
+export default function Register() {
+  const [selectedCode, setSelectedCode] = useState("+1");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const prefilledEmail = searchParams.get("email") || "";
+  const { setUser } = useUser();
+
+  const formik = useFormik({
+    initialValues: {
+      email: prefilledEmail,
+      phone: "",
+      name: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationSchema: Yup.object({
+      email: Yup.string().email("Invalid email").required("Required"),
+      name: Yup.string().min(2, "Too short").required("Required"),
+      phone: Yup.string().min(10, "Too short").required("Required"),
+      password: Yup.string()
+        .min(6, "At least 6 characters")
+        .required("Required"),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref("password")], "Passwords must match")
+        .required("Required"),
+    }),
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        const res = await fetch(
+          `https://m1pozl1jdg.execute-api.us-east-2.amazonaws.com/auth/register`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: values.email,
+              phone: values.phone,
+              password: values.password,
+              name: values.name,
+            }),
+          }
+        );
+
+        if (res.ok) {
+          const user = await res.json();
+          setUser(user);
+          localStorage.setItem("user", JSON.stringify(user));
+          toast.success("Welcome! Account created successfully.");
+          setTimeout(() => router.push("/"), 3000);
+        } else {
+          const error = await res.json();
+          toast.error(error.message || "Registration failed.");
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Something went wrong.");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
+
+  const handleCodeChange = (code: string) => {
+    setSelectedCode(code);
+    formik.setFieldValue("countryCode", code);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const phone = e.target.value;
+    formik.setFieldValue("phone", phone);
+  };
+
+  const selectedCountry = countryCodes.find((c) => c.code === selectedCode);
+  const dynamicFlag =
+    selectedCode === "+1" && formik.values.phone.replace(/\D/g, "").length >= 3
+      ? getFlagFromPhone(formik.values.phone)
+      : selectedCountry?.flag || "";
+
+  const handleSocialLogin = (provider: "google" | "facebook") => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/social/${provider}`;
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Card className="p-4 w-full max-w-md mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+        <CardHeader className="text-xl font-bold text-center">
+          Create account
+        </CardHeader>
+        <form onSubmit={formik.handleSubmit}>
+          <CardBody className="space-y-4">
+            <Input
+              id="name"
+              name="name"
+              label="Your name"
+              type="text"
+              placeholder="First and last name"
+              variant="bordered"
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={!!(formik.touched.name && formik.errors.name)}
+              errorMessage={formik.touched.name && formik.errors.name}
+              size="sm"
+            />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              label="Mobile number or email"
+              variant="bordered"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={!!(formik.touched.email && formik.errors.email)}
+              errorMessage={formik.touched.email && formik.errors.email}
+              size="sm"
+            />
+
+            {/* Flag + Country Code + Phone Number */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
+              <div className="flex items-center gap-2 w-full sm:w-1/3">
+                {dynamicFlag && <span className="text-2xl">{dynamicFlag}</span>}
+                <Select
+                  selectedKeys={new Set([selectedCode])}
+                  onSelectionChange={(keys) => {
+                    const code = Array.from(keys)[0];
+                    handleCodeChange(code as string);
+                  }}
+                  className="w-full"
+                >
+                  {countryCodes.map((country, index) => (
+                    <SelectItem key={index} textValue={country.dial_code}>
+                      <div className="flex items-center gap-2">
+                        <span>{country.flag}</span>
+                        <span>{country.dial_code}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+              <Input
+                id="phone"
+                name="phone"
+                label="Phone Number"
+                placeholder="Enter your number"
+                variant="bordered"
+                value={formik.values.phone}
+                onChange={handlePhoneChange}
+                onBlur={formik.handleBlur}
+                isInvalid={!!(formik.touched.phone && formik.errors.phone)}
+                errorMessage={formik.touched.phone && formik.errors.phone}
+                className="w-full sm:w-2/3"
+              />
+            </div>
+
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              label="Password"
+              placeholder="At least 6 characters"
+              variant="bordered"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={!!(formik.touched.password && formik.errors.password)}
+              errorMessage={formik.touched.password && formik.errors.password}
+              size="sm"
+            />
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              label="Password again"
+              variant="bordered"
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={
+                !!(
+                  formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword
+                )
+              }
+              errorMessage={
+                formik.touched.confirmPassword && formik.errors.confirmPassword
+              }
+              size="sm"
+            />
+          </CardBody>
+
+          <CardFooter className="flex flex-col space-y-3">
+            <Button
+              type="submit"
+              variant="solid"
+              color="primary"
+              isDisabled={formik.isSubmitting}
+              className="w-full"
+              onPress={() => {}}
+            >
+              {formik.isSubmitting ? "Registering..." : "Continue"}
+            </Button>
+            <p className="text-xs text-center px-2">
+              By creating an account, you agree to XYVO's{" "}
+              <Link
+                href="/conditions"
+                className="underline hover:text-cyan-500"
+              >
+                Conditions of Use
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="underline hover:text-cyan-500">
+                Privacy Notice
+              </Link>
+              .
+            </p>
+            <div className="text-sm text-center">
+              Already have an account?{" "}
+              <Link href="/auth" className="underline hover:text-cyan-500">
+                Sign in
+              </Link>
+            </div>
+            <div className="my-4 text-center text-sm text-white/70">
+              or sign up with
+            </div>
+            <div className="flex flex-col gap-3 px-4">
+              <Button
+                onPress={() => handleSocialLogin("google")}
+                className="w-full bg-white text-black border"
+                variant="flat"
+              >
+                Continue with Google
+              </Button>
+              <Button
+                onPress={() => handleSocialLogin("facebook")}
+                className="w-full bg-[#3b5998] text-white"
+                variant="flat"
+              >
+                Continue with Facebook
+              </Button>
+            </div>
+          </CardFooter>
+        </form>
+      </Card>
+    </motion.div>
+  );
+}

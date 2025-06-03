@@ -1,0 +1,51 @@
+export const countryCodes = [
+  {
+    id: "us",
+    code: "US",
+    name: "United States",
+    dial_code: "+1",
+    flag: "🇺🇸",
+  },
+  {
+    id: "ca",
+    code: "CA",
+    name: "Canada",
+    dial_code: "+1",
+    flag: "🇨🇦",
+  },
+  {
+    id: "in",
+    code: "IN",
+    name: "India",
+    dial_code: "+91",
+    flag: "🇮🇳",
+  },
+  {
+    id: "id",
+    code: "ID",
+    name: "Indonesia",
+    dial_code: "+62",
+    flag: "🇮🇩",
+  },
+  {
+    id: "sg",
+    code: "SG",
+    name: "Singapore",
+    dial_code: "+65",
+    flag: "🇸🇬",
+  },
+  {
+    id: "th",
+    code: "TH",
+    name: "Thailand",
+    dial_code: "+66",
+    flag: "🇹🇭",
+  },
+  {
+    id: "my",
+    code: "MY",
+    name: "Malaysia",
+    dial_code: "+60",
+    flag: "🇲🇾",
+  },
+];

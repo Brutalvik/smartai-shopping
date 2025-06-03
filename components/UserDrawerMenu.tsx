@@ -19,6 +19,7 @@ import {
   Star,
   LogOut,
   Store,
+  User2Icon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
@@ -161,16 +162,37 @@ export default function UserDrawerMenu() {
                       <DrawerItem
                         icon={<LogOut size={18} />}
                         label="Sign Out"
-                        onClick={() => handleNavigate("/logout")}
+                        onClick={() => {
+                          fetch(
+                            `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`,
+                            {
+                              credentials: "include",
+                            }
+                          ).then(() => {
+                            sessionStorage.clear();
+                            router.push("/auth");
+                          });
+                        }}
                       />
                     ) : (
                       <DrawerItem
                         icon={<LogIn size={18} />}
                         label="Sign In"
-                        onClick={() => handleNavigate("/auth/login")}
+                        onClick={() => {
+                          router.push("/auth/login");
+                        }}
                       />
                     )}
                   </div>
+                  <hr className="border-default-200" />
+                  <DrawerItem
+                    icon={<User2Icon size={18} />}
+                    label="Register"
+                    onClick={() => {
+                      router.push("/auth/register");
+                      onClose();
+                    }}
+                  />
                 </div>
               </DrawerBody>
 
