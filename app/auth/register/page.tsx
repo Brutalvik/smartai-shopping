@@ -55,7 +55,6 @@ export default function Register() {
         .required("Required"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
-      console.log("FORMIK VALUES : ", values);
       try {
         const res = await fetch(
           `https://m1pozl1jdg.execute-api.us-east-2.amazonaws.com/auth/register`,
@@ -75,7 +74,9 @@ export default function Register() {
           const user = await res.json();
           setUser(user);
           localStorage.setItem("user", JSON.stringify(user));
-          toast.success("Welcome! Account created successfully.");
+          setTimeout(() => {
+            toast.success("Welcome! Account created successfully.");
+          }, 3000);
           setTimeout(() => router.push("/"), 3000);
         } else {
           const error = await res.json();
@@ -180,6 +181,7 @@ export default function Register() {
                 </AnimatePresence>
                 <Select
                   variant="bordered"
+                  aria-labelledby="country code"
                   selectedKeys={new Set([selectedCode])}
                   onSelectionChange={(keys) => {
                     const code = Array.from(keys)[0];
