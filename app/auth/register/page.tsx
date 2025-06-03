@@ -55,6 +55,7 @@ export default function Register() {
         .required("Required"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
+      console.log("FORMIK VALUES : ", values);
       try {
         const res = await fetch(
           `https://m1pozl1jdg.execute-api.us-east-2.amazonaws.com/auth/register`,
@@ -63,7 +64,7 @@ export default function Register() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: values.email,
-              phone: values.phone,
+              phone: values.countryCode + values.phone,
               password: values.password,
               name: values.name,
             }),
@@ -239,8 +240,8 @@ export default function Register() {
               errorMessage={formik.touched.password && formik.errors.password}
               size="sm"
             />
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
-              <span>Password instructions</span>
+            <div className="flex flex-row items-center gap-2 w-full">
+              <p className="text-xs text-center px-2">Password instructions</p>
               <span>
                 <Tooltip
                   content={
@@ -320,8 +321,8 @@ export default function Register() {
               or sign up with
             </div>
             <div className="flex flex-row justify-center items-center gap-4 w-full">
-              <FcGoogle size={25} className="hover:cursor-pointer" />
-              <FaFacebook size={25} className="hover:cursor-pointer" />
+              <FcGoogle size={35} className="hover:cursor-pointer" />
+              <FaFacebook size={30} className="hover:cursor-pointer" />
             </div>
           </CardFooter>
         </form>
