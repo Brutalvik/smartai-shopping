@@ -25,9 +25,6 @@ import {
   Logo,
 } from "@/components/icons";
 import { Avatar } from "@heroui/avatar";
-
-import { useState } from "react";
-import { LogIn, UserPlus, Heart, ShoppingCart, X } from "lucide-react";
 import UserDrawerMenu from "@/components/UserDrawerMenu";
 import { RiShoppingCart2Line } from "react-icons/ri";
 import { Badge } from "@heroui/badge";

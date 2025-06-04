@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { toast } from "react-hot-toast";
 import { CDN } from "@/config/config";
-import { getFirstNameCapitalized } from "@/utils/helper";
+import { getColorByName, getFirstNameCapitalized } from "@/utils/helper";
 
 // 🎨 Color utility
 const avatarColors = [
@@ -41,39 +41,43 @@ const avatarColors = [
   { bg: "#1D3557", fg: "#FFFFFF" },
 ];
 
-function getColorByName(name: string) {
-  const code = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return avatarColors[code % avatarColors.length];
-}
-
 export default function UserDrawerMenu() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const router = useRouter();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
 
   const handleNavigate = (path: string) => {
     router.push(path);
     onOpenChange();
   };
 
-  const handleLogout = async () => {
+  const handleSignout = async () => {
     try {
-      await fetch(`${CDN.userAuthApi}/auth/signout`, {
+      const res = await fetch(`${CDN.userAuthApi}/auth/signout`, {
         method: "POST",
         credentials: "include",
       });
+
+      if (!res.ok) {
+        toast.error("Failed to sign out.");
+        return;
+      }
+
       sessionStorage.clear();
-      localStorage.removeItem("user"); // optional if used
+      localStorage.removeItem("user");
+
+      setUser(null);
       toast.success("You've been signed out.");
       router.push("/");
+      onClose();
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error("Logout error:", error);
       toast.error("Something went wrong during logout.");
     }
   };
 
   const avatarInitial = user?.name?.charAt(0).toUpperCase() || "";
-  const { bg, fg } = getColorByName(user?.name || "Guest");
+  const { bg, fg } = getColorByName(user?.name || "Guest", avatarColors);
 
   const greetingLine = user
     ? `Hi ${getFirstNameCapitalized(user?.name as string)} !`
@@ -86,7 +90,7 @@ export default function UserDrawerMenu() {
     <Avatar
       showFallback
       size="sm"
-      src="https://images.unsplash.com/broken"
+      src={user?.name ? "" : "/user.png"}
       name={avatarInitial}
       onClick={onOpen}
       className="cursor-pointer hover:opacity-80 transition"
@@ -176,7 +180,7 @@ export default function UserDrawerMenu() {
                       <DrawerItem
                         icon={<LogOut size={18} />}
                         label="Sign Out"
-                        onClick={handleLogout}
+                        onClick={handleSignout}
                       />
                     ) : (
                       <DrawerItem
