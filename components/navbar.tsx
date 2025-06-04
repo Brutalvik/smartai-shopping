@@ -36,7 +36,6 @@ export const Navbar = () => {
   const { user } = useUser();
   const router = useRouter();
   const { totalItems } = useCart();
-  console.log("USER ", user);
   const searchInput = (
     <Input
       aria-label="Search"
