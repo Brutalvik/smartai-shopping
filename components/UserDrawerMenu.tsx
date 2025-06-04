@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { toast } from "react-hot-toast";
 import { CDN } from "@/config/config";
+import { getFirstNameCapitalized } from "@/utils/helper";
 
 // 🎨 Color utility
 const avatarColors = [
@@ -58,9 +59,9 @@ export default function UserDrawerMenu() {
   const handleLogout = async () => {
     try {
       await fetch(`${CDN.userAuthApi}/auth/logout`, {
+        method: "POST",
         credentials: "include",
       });
-
       sessionStorage.clear();
       localStorage.removeItem("user"); // optional if used
       toast.success("You've been logged out.");
@@ -74,7 +75,9 @@ export default function UserDrawerMenu() {
   const avatarInitial = user?.name?.charAt(0).toUpperCase() || "";
   const { bg, fg } = getColorByName(user?.name || "Guest");
 
-  const greetingLine = user ? `Hi, ${user?.name}` : `Hi there 👋`;
+  const greetingLine = user
+    ? `Hi ${getFirstNameCapitalized(user?.name as string)} !`
+    : `Hi there 👋`;
   const subline = user?.name
     ? "Ready to explore something exciting?"
     : "Welcome! Sign in to get started";

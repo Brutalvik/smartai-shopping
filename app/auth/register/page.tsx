@@ -57,22 +57,19 @@ export default function Register() {
     }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const res = await fetch(
-          `https://m1pozl1jdg.execute-api.us-east-2.amazonaws.com/auth/register`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: values.email,
-              phone: values.countryCode + values.phone,
-              password: values.password,
-              name: values.name,
-            }),
-          }
-        );
+        const res = await fetch(`${CDN.userAuthApi}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: values.email,
+            phone: values.countryCode + values.phone,
+            password: values.password,
+            name: values.name,
+          }),
+        });
 
         if (res.ok) {
-          const user = await res.json();
+          const { user, isRegistered } = await res.json();
           setUser(user);
           sessionStorage.setItem("user", JSON.stringify(user));
           localStorage.setItem(
