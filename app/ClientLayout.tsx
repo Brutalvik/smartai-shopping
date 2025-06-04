@@ -1,0 +1,29 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname(); // Get the current path
+  const [isAllowed, setIsAllowed] = useState(false);
+
+  useEffect(() => {
+    const ndaAccepted = localStorage.getItem("ndaVerified");
+
+    // Allow access to /nda even if NDA isn't accepted yet
+    if (ndaAccepted === "true" || pathname === "/nda") {
+      setIsAllowed(true);
+    } else {
+      router.push("/nda");
+    }
+  }, [pathname]);
+
+  if (!isAllowed) return null;
+
+  return <>{children}</>;
+}

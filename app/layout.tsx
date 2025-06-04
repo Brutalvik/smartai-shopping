@@ -10,6 +10,7 @@ import { Navbar } from "@/components/navbar";
 import { CartProvider } from "@/context/CartContext";
 import { UserProvider } from "@/context/UserContext";
 import ClientToaster from "@/components/ui/ClientToast/ClientToaster";
+import ClientLayout from "@/app/ClientLayout";
 
 export const metadata: Metadata = {
   title: {
@@ -43,6 +44,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
+        {/* <ClientLayout> */}
         <UserProvider>
           <CartProvider>
             <Providers
@@ -73,6 +75,7 @@ export default function RootLayout({
             </Providers>
           </CartProvider>
         </UserProvider>
+        {/* </ClientLayout> */}
       </body>
     </html>
   );
