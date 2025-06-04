@@ -9,6 +9,7 @@
     "lint": "eslint --fix"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.823.0",
     "@heroui/button": "2.2.19",
     "@heroui/card": "^2.2.18",
     "@heroui/code": "2.2.14",

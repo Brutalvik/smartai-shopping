@@ -1,4 +1,3 @@
-// components/ui/PasswordCard.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,6 +6,17 @@ import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import logo from "@/public/x.png";
+import {
+  CognitoIdentityProviderClient,
+  InitiateAuthCommand,
+} from "@aws-sdk/client-cognito-identity-provider";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { CDN } from "@/config/config";
+
+const client = new CognitoIdentityProviderClient({
+  region: CDN.awsRegion,
+});
 
 export default function PasswordCard({
   email,
@@ -20,22 +30,52 @@ export default function PasswordCard({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError("");
+    setIsSubmitting(true);
 
-    if (!password) {
-      setError("Password is required.");
+    try {
+      const command = new InitiateAuthCommand({
+        AuthFlow: "USER_PASSWORD_AUTH",
+        ClientId: CDN.cognitoClientId!,
+        AuthParameters: {
+          USERNAME: email,
+          PASSWORD: password,
+        },
+      });
+
+      const response = await client.send(command);
+
+      const idToken = response.AuthenticationResult?.IdToken;
+      const accessToken = response.AuthenticationResult?.AccessToken;
+
+      if (idToken && accessToken) {
+        // ✅ Call your Fastify backend to set a secure session cookie
+        await fetch(`${CDN.userAuthApi}/auth/signin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // send cookie back
+          body: JSON.stringify({ idToken }),
+        });
+
+        toast.success("Signed in successfully!");
+        onPasswordSubmit(password);
+        router.push("/");
+      } else {
+        setError("Authentication failed.");
+      }
+    } catch (err: any) {
+      console.error("Sign-in error", err);
+      toast.error("Invalid credentials or error signing in.");
+      setError("Invalid email or password.");
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    // Simulate auth logic
-    await new Promise((res) => setTimeout(res, 1000));
-    onPasswordSubmit(password);
-    setIsSubmitting(false);
   };
 
   return (
