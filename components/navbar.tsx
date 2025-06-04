@@ -108,7 +108,11 @@ export const Navbar = () => {
           <UserDrawerMenu />
         </NavbarItem>
         <NavbarItem className="mt-2">
-          <Badge color="primary" content={totalItems}>
+          <Badge
+            color="primary"
+            content={totalItems}
+            isInvisible={totalItems <= 0}
+          >
             <RiShoppingCart2Line
               fontSize={30}
               className="hover:cursor-pointer"
