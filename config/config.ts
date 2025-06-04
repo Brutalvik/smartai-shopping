@@ -1,3 +1,3 @@
 export const CDN = {
-  userAuthApi: process.env.NEXT_PUBLIC_USER_AUTH_URL,
+  userAuthApi: process.env.NEXT_PUBLIC_AUTH_URL,
 };

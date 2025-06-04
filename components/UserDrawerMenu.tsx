@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
+import { toast } from "react-hot-toast";
+import { CDN } from "@/config/config";
 
 // 🎨 Color utility
 const avatarColors = [
@@ -38,7 +40,6 @@ const avatarColors = [
   { bg: "#1D3557", fg: "#FFFFFF" },
 ];
 
-// Stable hash based on name to pick a color
 function getColorByName(name: string) {
   const code = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
   return avatarColors[code % avatarColors.length];
@@ -54,6 +55,22 @@ export default function UserDrawerMenu() {
     onOpenChange();
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch(`${CDN.userAuthApi}/auth/logout`, {
+        credentials: "include",
+      });
+
+      sessionStorage.clear();
+      localStorage.removeItem("user"); // optional if used
+      toast.success("You've been logged out.");
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Something went wrong during logout.");
+    }
+  };
+
   const avatarInitial = user?.name?.charAt(0).toUpperCase() || "";
   const { bg, fg } = getColorByName(user?.name || "Guest");
 
@@ -62,30 +79,27 @@ export default function UserDrawerMenu() {
     ? "Ready to explore something exciting?"
     : "Welcome! Sign in to get started";
 
-  const UserAvatar = () => {
-    return (
-      <Avatar
-        showFallback
-        size="sm"
-        src="https://images.unsplash.com/broken"
-        name={avatarInitial}
-        onClick={onOpen}
-        className="cursor-pointer hover:opacity-80 transition"
-        classNames={{
-          name: "text-lg font-bold",
-          fallback: "rounded-full",
-        }}
-        style={{
-          backgroundColor: bg,
-          color: fg,
-        }}
-      />
-    );
-  };
+  const UserAvatar = () => (
+    <Avatar
+      showFallback
+      size="sm"
+      src="https://images.unsplash.com/broken"
+      name={avatarInitial}
+      onClick={onOpen}
+      className="cursor-pointer hover:opacity-80 transition"
+      classNames={{
+        name: "text-lg font-bold",
+        fallback: "rounded-full",
+      }}
+      style={{
+        backgroundColor: bg,
+        color: fg,
+      }}
+    />
+  );
 
   return (
     <>
-      {/*avatar in navbar */}
       <UserAvatar />
 
       <Drawer
@@ -104,7 +118,6 @@ export default function UserDrawerMenu() {
             <>
               <DrawerHeader className="flex flex-col items-start gap-2">
                 <div className="flex items-center gap-3">
-                  {/* avatar inside drawer */}
                   <UserAvatar />
                   <div>
                     <p className="text-base font-semibold">{greetingLine}</p>
@@ -160,29 +173,19 @@ export default function UserDrawerMenu() {
                       <DrawerItem
                         icon={<LogOut size={18} />}
                         label="Sign Out"
-                        onClick={() => {
-                          fetch(
-                            `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`,
-                            {
-                              credentials: "include",
-                            }
-                          ).then(() => {
-                            sessionStorage.clear();
-                            router.push("/auth");
-                          });
-                        }}
+                        onClick={handleLogout}
                       />
                     ) : (
                       <DrawerItem
                         icon={<LogIn size={18} />}
                         label="Sign In"
-                        onClick={() => {
-                          router.push("/auth/login");
-                        }}
+                        onClick={() => router.push("/auth/login")}
                       />
                     )}
                   </div>
+
                   <hr className="border-default-200" />
+
                   <DrawerItem
                     icon={<User2Icon size={18} />}
                     label="Register"

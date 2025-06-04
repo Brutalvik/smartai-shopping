@@ -18,6 +18,7 @@ import { Tooltip } from "@heroui/react";
 import { FcInfo } from "react-icons/fc";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
+import { CDN } from "@/config/config";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
 // min 8 characters, 1 upper case letter, 1 lower case letter, 1 numeric digit.
@@ -122,7 +123,7 @@ export default function Register() {
   }, []);
 
   const handleSocialLogin = (provider: "google" | "facebook") => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/social/${provider}`;
+    window.location.href = `${CDN.userAuthApi}/auth/social/${provider}`;
   };
 
   return (
