@@ -136,7 +136,7 @@ export default function EmailEntryCard({
           variant="solid"
           className="w-full"
           onPress={() => {
-            router.push("/register");
+            router.push("/auth/register");
           }}
         >
           Create your XYVO account

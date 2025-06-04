@@ -26,6 +26,8 @@ import { useUser } from "@/context/UserContext";
 import { toast } from "react-hot-toast";
 import { CDN } from "@/config/config";
 import { getColorByName, getFirstNameCapitalized } from "@/utils/helper";
+import { useState } from "react";
+import CustomLoader from "@/components/ui/CustomLoader/CustomLoader";
 
 // 🎨 Color utility
 const avatarColors = [
@@ -45,10 +47,50 @@ export default function UserDrawerMenu() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const router = useRouter();
   const { user, setUser } = useUser();
+  const [loading, setLoading] = useState(false);
 
   const handleNavigate = (path: string) => {
     router.push(path);
     onOpenChange();
+  };
+
+  const handleRegisterClick = async () => {
+    onClose();
+    setLoading(true);
+    setTimeout(() => {
+      try {
+        router.push("/auth/register");
+      } finally {
+        onClose();
+        setLoading(false);
+      }
+    }, 200);
+  };
+
+  const handleSigninClick = async () => {
+    onClose();
+    setLoading(true);
+    setTimeout(() => {
+      try {
+        router.push("/auth/signin");
+      } finally {
+        onClose();
+        setLoading(false);
+      }
+    }, 200);
+  };
+
+  const handleCartClick = async () => {
+    onClose();
+    setLoading(true);
+    setTimeout(() => {
+      try {
+        router.push("/cart");
+      } finally {
+        onClose();
+        setLoading(false);
+      }
+    }, 200);
   };
 
   const handleSignout = async () => {
@@ -105,7 +147,9 @@ export default function UserDrawerMenu() {
     />
   );
 
-  return (
+  return loading ? (
+    <CustomLoader />
+  ) : (
     <>
       <UserAvatar />
 
@@ -186,7 +230,7 @@ export default function UserDrawerMenu() {
                       <DrawerItem
                         icon={<LogIn size={18} />}
                         label="Sign In"
-                        onClick={() => router.push("/auth/signin")}
+                        onClick={handleSigninClick}
                       />
                     )}
                   </div>
@@ -196,10 +240,7 @@ export default function UserDrawerMenu() {
                   <DrawerItem
                     icon={<User2Icon size={18} />}
                     label="Register"
-                    onClick={() => {
-                      router.push("/auth/register");
-                      onClose();
-                    }}
+                    onClick={handleRegisterClick}
                   />
                 </div>
               </DrawerBody>
