@@ -14,7 +14,7 @@ export default function DashboardPage() {
     }
   }, [user]);
 
-  if (!user) return <p className="text-center mt-10">Checking login...</p>;
+  if (!user) return <p className="text-center mt-10">Checking Signin...</p>;
 
   return (
     <div className="p-6 text-white">

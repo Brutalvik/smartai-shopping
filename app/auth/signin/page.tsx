@@ -11,6 +11,7 @@ import { useAppDispatch } from "@/store/hooks";
 import Link from "next/link";
 import { CircularProgress } from "@heroui/progress";
 import { useRouter } from "next/navigation";
+import { CDN } from "@/config/config";
 
 export default function EmailEntryCard() {
   const dispatch = useAppDispatch();
@@ -24,10 +25,10 @@ export default function EmailEntryCard() {
     onSubmit: async (values, { setSubmitting, setFieldError }) => {
       try {
         const redirectUri = `${window.location.origin}/auth/callback`;
-        const cognitoLoginUrl = `https://${process.env.NEXT_PUBLIC_COGNITO_DOMAIN}/login?client_id=${process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+profile&redirect_uri=${redirectUri}`;
+        const cognitoSigninUrl = `https://${CDN.userAuthApi}/signin?client_id=${process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+profile&redirect_uri=${redirectUri}`;
 
-        // Simply redirect to hosted Cognito login (will handle both login and signup)
-        window.location.href = cognitoLoginUrl;
+        // Simply redirect to hosted Cognito Signin (will handle both Signin and signup)
+        window.location.href = cognitoSigninUrl;
       } catch (err) {
         console.error(err);
         setFieldError("email", "Login failed.");

@@ -119,7 +119,7 @@ export default function Register() {
     }
   }, []);
 
-  const handleSocialLogin = (provider: "google" | "facebook") => {
+  const handleSocialSignin = (provider: "google" | "facebook") => {
     window.location.href = `${CDN.userAuthApi}/auth/social/${provider}`;
   };
 

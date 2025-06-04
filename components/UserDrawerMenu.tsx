@@ -58,13 +58,13 @@ export default function UserDrawerMenu() {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${CDN.userAuthApi}/auth/logout`, {
+      await fetch(`${CDN.userAuthApi}/auth/signout`, {
         method: "POST",
         credentials: "include",
       });
       sessionStorage.clear();
       localStorage.removeItem("user"); // optional if used
-      toast.success("You've been logged out.");
+      toast.success("You've been signed out.");
       router.push("/");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -182,7 +182,7 @@ export default function UserDrawerMenu() {
                       <DrawerItem
                         icon={<LogIn size={18} />}
                         label="Sign In"
-                        onClick={() => router.push("/auth/login")}
+                        onClick={() => router.push("/auth/signin")}
                       />
                     )}
                   </div>
