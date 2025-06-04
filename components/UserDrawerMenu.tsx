@@ -50,44 +50,12 @@ export default function UserDrawerMenu() {
   const [loading, setLoading] = useState(false);
 
   const handleNavigate = (path: string) => {
-    router.push(path);
     onOpenChange();
-  };
-
-  const handleRegisterClick = async () => {
-    onClose();
     setLoading(true);
     setTimeout(() => {
       try {
-        router.push("/auth/register");
+        router.push(path);
       } finally {
-        onClose();
-        setLoading(false);
-      }
-    }, 200);
-  };
-
-  const handleSigninClick = async () => {
-    onClose();
-    setLoading(true);
-    setTimeout(() => {
-      try {
-        router.push("/auth/signin");
-      } finally {
-        onClose();
-        setLoading(false);
-      }
-    }, 200);
-  };
-
-  const handleCartClick = async () => {
-    onClose();
-    setLoading(true);
-    setTimeout(() => {
-      try {
-        router.push("/cart");
-      } finally {
-        onClose();
         setLoading(false);
       }
     }, 200);
@@ -147,113 +115,114 @@ export default function UserDrawerMenu() {
     />
   );
 
-  return loading ? (
-    <CustomLoader />
-  ) : (
+  return (
     <>
       <UserAvatar />
-
-      <Drawer
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        size="sm"
-        motionProps={{
-          variants: {
-            enter: { opacity: 1, x: 0 },
-            exit: { x: 100, opacity: 0 },
-          },
-        }}
-      >
-        <DrawerContent>
-          {(onClose) => (
-            <>
-              <DrawerHeader className="flex flex-col items-start gap-2">
-                <div className="flex items-center gap-3">
-                  <UserAvatar />
-                  <div>
-                    <p className="text-base font-semibold">{greetingLine}</p>
-                    <p className="text-xs text-default-500">{subline}</p>
+      {loading ? (
+        <CustomLoader />
+      ) : (
+        <Drawer
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          size="sm"
+          motionProps={{
+            variants: {
+              enter: { opacity: 1, x: 0 },
+              exit: { x: 100, opacity: 0 },
+            },
+          }}
+        >
+          <DrawerContent>
+            {(onClose) => (
+              <>
+                <DrawerHeader className="flex flex-col items-start gap-2">
+                  <div className="flex items-center gap-3">
+                    <UserAvatar />
+                    <div>
+                      <p className="text-base font-semibold">{greetingLine}</p>
+                      <p className="text-xs text-default-500">{subline}</p>
+                    </div>
                   </div>
-                </div>
-              </DrawerHeader>
+                </DrawerHeader>
 
-              <DrawerBody>
-                <div className="space-y-4 text-sm text-default-700">
-                  <div className="space-y-2">
-                    <DrawerItem
-                      icon={<Package size={18} />}
-                      label="My Orders"
-                      onClick={() => handleNavigate("/orders")}
-                    />
-                    <DrawerItem
-                      icon={<Heart size={18} />}
-                      label="Wishlist"
-                      onClick={() => handleNavigate("/wishlist")}
-                    />
-                    <DrawerItem
-                      icon={<ShoppingCart size={18} />}
-                      label="Cart"
-                      onClick={() => handleNavigate("/cart")}
-                    />
-                    <DrawerItem
-                      icon={<User size={18} />}
-                      label="Profile"
-                      onClick={() => handleNavigate("/profile")}
-                    />
-                  </div>
-
-                  <hr className="border-default-200" />
-
-                  <div className="space-y-2">
-                    <DrawerItem
-                      icon={<Store size={18} />}
-                      label="Become a Seller"
-                      onClick={() => handleNavigate("/seller")}
-                    />
-                    <DrawerItem
-                      icon={<Star size={18} />}
-                      label="Join Membership"
-                      onClick={() => handleNavigate("/membership")}
-                    />
-                  </div>
-
-                  <hr className="border-default-200" />
-
-                  <div className="space-y-2">
-                    {user?.name ? (
+                <DrawerBody>
+                  <div className="space-y-4 text-sm text-default-700">
+                    <div className="space-y-2">
                       <DrawerItem
-                        icon={<LogOut size={18} />}
-                        label="Sign Out"
-                        onClick={handleSignout}
+                        icon={<Package size={18} />}
+                        label="My Orders"
+                        onClick={() => handleNavigate("/orders")}
                       />
-                    ) : (
                       <DrawerItem
-                        icon={<LogIn size={18} />}
-                        label="Sign In"
-                        onClick={handleSigninClick}
+                        icon={<Heart size={18} />}
+                        label="Wishlist"
+                        onClick={() => handleNavigate("/wishlist")}
                       />
-                    )}
+                      <DrawerItem
+                        icon={<ShoppingCart size={18} />}
+                        label="Cart"
+                        onClick={() => handleNavigate("/cart")}
+                      />
+                      <DrawerItem
+                        icon={<User size={18} />}
+                        label="Profile"
+                        onClick={() => handleNavigate("/profile")}
+                      />
+                    </div>
+
+                    <hr className="border-default-200" />
+
+                    <div className="space-y-2">
+                      <DrawerItem
+                        icon={<Store size={18} />}
+                        label="Become a Seller"
+                        onClick={() => handleNavigate("/seller")}
+                      />
+                      <DrawerItem
+                        icon={<Star size={18} />}
+                        label="Join Membership"
+                        onClick={() => handleNavigate("/membership")}
+                      />
+                    </div>
+
+                    <hr className="border-default-200" />
+
+                    <div className="space-y-2">
+                      {user?.name ? (
+                        <DrawerItem
+                          icon={<LogOut size={18} />}
+                          label="Sign Out"
+                          onClick={handleSignout}
+                        />
+                      ) : (
+                        <DrawerItem
+                          icon={<LogIn size={18} />}
+                          label="Sign In"
+                          onClick={() => handleNavigate("/auth/signin")}
+                        />
+                      )}
+                    </div>
+
+                    <hr className="border-default-200" />
+
+                    <DrawerItem
+                      icon={<User2Icon size={18} />}
+                      label="Register"
+                      onClick={() => handleNavigate("/auth/register")}
+                    />
                   </div>
+                </DrawerBody>
 
-                  <hr className="border-default-200" />
-
-                  <DrawerItem
-                    icon={<User2Icon size={18} />}
-                    label="Register"
-                    onClick={handleRegisterClick}
-                  />
-                </div>
-              </DrawerBody>
-
-              <DrawerFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-              </DrawerFooter>
-            </>
-          )}
-        </DrawerContent>
-      </Drawer>
+                <DrawerFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Close
+                  </Button>
+                </DrawerFooter>
+              </>
+            )}
+          </DrawerContent>
+        </Drawer>
+      )}
     </>
   );
 }
