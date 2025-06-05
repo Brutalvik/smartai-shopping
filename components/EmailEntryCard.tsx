@@ -32,19 +32,24 @@ export default function EmailEntryCard({
           "ACCESSING THE API...",
           `${CDN.userAuthApi}/auth/checkuser`
         );
-        const res = await fetch(`${CDN.userAuthApi}/auth/checkuser`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email: values.email }),
-        });
+        const res = await fetch(
+          "https://m1pozl1jdg.execute-api.us-east-2.amazonaws.com/auth/checkuser",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: values.email }),
+          }
+        );
 
         const data = await res.json();
 
         if (data.exists) {
           onUserExists(values.email);
         } else {
-          router.push(`/register?email=${encodeURIComponent(values.email)}`);
+          router.push(`register?email=${encodeURIComponent(values.email)}`);
         }
       } catch (err) {
         console.error("Check user error:", err);
