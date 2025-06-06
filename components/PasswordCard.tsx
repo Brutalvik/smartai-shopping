@@ -4,8 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
-import Image from "next/image";
-import logo from "@/public/x.png";
+import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { CDN } from "@/config/config";
@@ -75,66 +74,67 @@ export default function PasswordCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
-      className="max-w-md w-full mx-auto p-8 rounded-2xl shadow-2xl border border-slate-200"
     >
-      <div className="flex justify-center mb-6">
-        <Image src={logo} alt="Xyvo Logo" width={64} height={64} />
-      </div>
+      <Card className="p-4 w-full mx-auto max-w-lg shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+        <CardHeader className="text-xl font-semibold text-center">
+          Enter your password
+        </CardHeader>
 
-      <form onSubmit={formik.handleSubmit} className="space-y-4">
-        <div className="relative">
-          <Input
-            className="w-full"
-            label={`Enter password for ${email}`}
-            id="password"
-            name="password"
-            type={isPasswordVisible ? "text" : "password"}
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            isInvalid={formik.touched.password && !!formik.errors.password}
-            errorMessage={
-              formik.touched.password && formik.errors.password
-                ? formik.errors.password
-                : undefined
-            }
-            variant="bordered"
-            endContent={
-              <button
-                aria-label="toggle password visibility"
-                className="focus:outline-none"
-                type="button"
-                onClick={togglePasswordVisibility}
-              >
-                {isPasswordVisible ? (
-                  <FaEyeSlash className="text-2xl text-default-400 pointer-events-none" />
-                ) : (
-                  <FaEye className="text-2xl text-default-400 pointer-events-none" />
-                )}
-              </button>
-            }
-          />
-        </div>
+        <form onSubmit={formik.handleSubmit}>
+          <CardBody className="space-y-4">
+            <Input
+              className="w-full"
+              label={`Password for ${email}`}
+              id="password"
+              name="password"
+              type={isPasswordVisible ? "text" : "password"}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={formik.touched.password && !!formik.errors.password}
+              errorMessage={
+                formik.touched.password && formik.errors.password
+                  ? formik.errors.password
+                  : undefined
+              }
+              variant="bordered"
+              endContent={
+                <button
+                  aria-label="toggle password visibility"
+                  className="focus:outline-none"
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                >
+                  {isPasswordVisible ? (
+                    <FaEyeSlash className="text-2xl text-default-400 pointer-events-none" />
+                  ) : (
+                    <FaEye className="text-2xl text-default-400 pointer-events-none" />
+                  )}
+                </button>
+              }
+            />
+          </CardBody>
 
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="bordered"
-            onPress={onBack}
-            className="w-1/3"
-          >
-            Back
-          </Button>
-          <Button
-            type="submit"
-            variant="solid"
-            className="w-2/3"
-            isLoading={isSubmitting}
-          >
-            Log in
-          </Button>
-        </div>
-      </form>
+          <CardFooter className="flex gap-2">
+            <Button
+              type="button"
+              variant="bordered"
+              onPress={onBack}
+              className="w-1/3"
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              variant="solid"
+              className="w-2/3"
+              isLoading={isSubmitting}
+            >
+              Log in
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </motion.div>
   );
 }
