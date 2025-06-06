@@ -78,7 +78,7 @@ export default function HeroWithSearch() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <div className="relative w-full h-64 rounded-t-xl overflow-hidden">
+                  <div className="relative w-full h-64 rounded-xl overflow-hidden">
                     <Image
                       src={current.image}
                       alt="Banner"
