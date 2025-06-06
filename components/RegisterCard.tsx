@@ -18,7 +18,7 @@ import { FcInfo, FcGoogle } from "react-icons/fc";
 import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { CDN } from "@/config/config";
 import { Image } from "@heroui/react";
-import { FaUserClock, FaUserPlus } from "react-icons/fa";
+import XLoader from "@/components/ui/XLoader/XLoader";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
 
@@ -119,210 +119,222 @@ export default function RegisterCard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
-        <CardHeader className="flex flex-col items-center justify-center space-y-2">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <Image
-                src="/x.png"
-                alt="XYVO Logo"
-                className="h-10 w-10 object-contain"
-                width={40}
-                height={40}
-              />
-              {/* <h1 className="text-[50px] font-semibold text-default-500">
+      {formik.isSubmitting ? (
+        // Loader view while submitting
+        <div className="w-full h-[400px] flex items-center justify-center">
+          <XLoader />
+        </div>
+      ) : (
+        // Regular card view
+        <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+          <CardHeader className="flex flex-col items-center justify-center space-y-2">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <Image
+                  src="/x.png"
+                  alt="XYVO Logo"
+                  className="h-10 w-10 object-contain"
+                  width={40}
+                  height={40}
+                />
+                {/* <h1 className="text-[50px] font-semibold text-default-500">
                 yvo
               </h1> */}
-            </div>
-            {/* <FaUserShield size={50} className="text-default-500" /> */}
-          </div>
-          <h2 className="text-lg font-medium text-center text-default-600">
-            Sign in
-          </h2>
-        </CardHeader>
-
-        <form onSubmit={formik.handleSubmit}>
-          <CardBody className="space-y-2">
-            <Input
-              id="name"
-              name="name"
-              label="Your name"
-              type="text"
-              variant="bordered"
-              value={formik.values.name}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isInvalid={!!(formik.touched.name && formik.errors.name)}
-              errorMessage={formik.touched.name && formik.errors.name}
-              size="sm"
-            />
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              label="Email"
-              variant="bordered"
-              value={formik.values.email}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isInvalid={!!(formik.touched.email && formik.errors.email)}
-              errorMessage={formik.touched.email && formik.errors.email}
-              size="sm"
-            />
-
-            <div className="flex flex-col sm:flex-row items-center gap-2">
-              <div className="flex items-center gap-2 w-full sm:w-1/3">
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={flag}
-                    initial={{ scale: 0.6, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.6, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-xl"
-                  >
-                    {flag}
-                  </motion.span>
-                </AnimatePresence>
-                <Select
-                  variant="bordered"
-                  size="md"
-                  className="w-full"
-                  selectedKeys={new Set([selectedCode])}
-                  onSelectionChange={(keys) => {
-                    const code = Array.from(keys)[0];
-                    handleCodeChange(code as string);
-                  }}
-                  renderValue={() => <span>{selectedCode}</span>}
-                >
-                  {countryCodes.map((country) =>
-                    country.code === "CA" ? null : (
-                      <SelectItem
-                        key={country.dial_code}
-                        textValue={country.dial_code}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-white/60">
-                            {country.code}
-                          </span>
-                          <span>{country.dial_code}</span>
-                        </div>
-                      </SelectItem>
-                    )
-                  )}
-                </Select>
               </div>
+            </div>
+            <h2 className="text-lg font-medium text-center text-default-600">
+              Sign in
+            </h2>
+          </CardHeader>
+
+          <form onSubmit={formik.handleSubmit}>
+            <CardBody className="space-y-2">
               <Input
-                id="phone"
-                name="phone"
-                label="Phone"
+                id="name"
+                name="name"
+                label="Your name"
+                type="text"
                 variant="bordered"
-                value={formik.values.phone}
-                onChange={handlePhoneChange}
+                value={formik.values.name}
+                onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                isInvalid={!!(formik.touched.phone && formik.errors.phone)}
-                errorMessage={formik.touched.phone && formik.errors.phone}
-                className="w-full sm:w-2/3"
+                isInvalid={!!(formik.touched.name && formik.errors.name)}
+                errorMessage={formik.touched.name && formik.errors.name}
                 size="sm"
               />
-            </div>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                label="Email"
+                variant="bordered"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isInvalid={!!(formik.touched.email && formik.errors.email)}
+                errorMessage={formik.touched.email && formik.errors.email}
+                size="sm"
+              />
 
-            <Input
-              id="password"
-              name="password"
-              type={isPasswordVisible ? "text" : "password"}
-              label="Password"
-              placeholder="At least 8 characters"
-              variant="bordered"
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isInvalid={!!(formik.touched.password && formik.errors.password)}
-              errorMessage={formik.touched.password && formik.errors.password}
-              size="sm"
-              endContent={
-                <button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="h-full flex items-center pr-2"
-                >
-                  {isPasswordVisible ? (
-                    <FaEyeSlash className="text-lg text-default-400 pointer-events-none" />
-                  ) : (
-                    <FaEye className="text-lg text-default-400 pointer-events-none" />
-                  )}
-                </button>
-              }
-            />
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-1/3">
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={flag}
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.6, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-xl"
+                    >
+                      {flag}
+                    </motion.span>
+                  </AnimatePresence>
+                  <Select
+                    variant="bordered"
+                    size="md"
+                    className="w-full"
+                    selectedKeys={new Set([selectedCode])}
+                    onSelectionChange={(keys) => {
+                      const code = Array.from(keys)[0];
+                      handleCodeChange(code as string);
+                    }}
+                    renderValue={() => <span>{selectedCode}</span>}
+                  >
+                    {countryCodes.map((country) =>
+                      country.code === "CA" ? null : (
+                        <SelectItem
+                          key={country.dial_code}
+                          textValue={country.dial_code}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-white/60">
+                              {country.code}
+                            </span>
+                            <span>{country.dial_code}</span>
+                          </div>
+                        </SelectItem>
+                      )
+                    )}
+                  </Select>
+                </div>
+                <Input
+                  id="phone"
+                  name="phone"
+                  label="Phone"
+                  variant="bordered"
+                  value={formik.values.phone}
+                  onChange={handlePhoneChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={!!(formik.touched.phone && formik.errors.phone)}
+                  errorMessage={formik.touched.phone && formik.errors.phone}
+                  className="w-full sm:w-2/3"
+                  size="sm"
+                />
+              </div>
 
-            <div className="flex items-center gap-1 text-xs">
-              <span>Password instructions</span>
-              <Tooltip
-                content={
-                  <div className="px-2 py-1 text-xs">
-                    <strong className="text-blue-500">Password Rules</strong>
-                    <ul className="list-disc pl-4">
-                      <li>Min 8 characters</li>
-                      <li>1 uppercase</li>
-                      <li>1 lowercase</li>
-                      <li>1 number</li>
-                    </ul>
-                  </div>
+              <Input
+                id="password"
+                name="password"
+                type={isPasswordVisible ? "text" : "password"}
+                label="Password"
+                placeholder="At least 8 characters"
+                variant="bordered"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isInvalid={
+                  !!(formik.touched.password && formik.errors.password)
                 }
-              >
-                <FcInfo size={14} className="cursor-pointer" />
-              </Tooltip>
-            </div>
-          </CardBody>
+                errorMessage={formik.touched.password && formik.errors.password}
+                size="sm"
+                endContent={
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="h-full flex items-center pr-2"
+                  >
+                    {isPasswordVisible ? (
+                      <FaEyeSlash className="text-lg text-default-400 pointer-events-none" />
+                    ) : (
+                      <FaEye className="text-lg text-default-400 pointer-events-none" />
+                    )}
+                  </button>
+                }
+              />
 
-          <CardFooter className="flex flex-col space-y-1">
-            {formik.isSubmitting ? (
-              <p>Registring</p>
-            ) : (
-              <Button
-                type="submit"
-                variant="solid"
-                color="primary"
-                isDisabled={formik.isSubmitting}
-                className="w-full"
-              >
-                Continue
-              </Button>
-            )}
+              <div className="flex items-center gap-1 text-xs">
+                <span>Password instructions</span>
+                <Tooltip
+                  content={
+                    <div className="px-2 py-1 text-xs">
+                      <strong className="text-blue-500">Password Rules</strong>
+                      <ul className="list-disc pl-4">
+                        <li>Min 8 characters</li>
+                        <li>1 uppercase</li>
+                        <li>1 lowercase</li>
+                        <li>1 number</li>
+                      </ul>
+                    </div>
+                  }
+                >
+                  <FcInfo size={14} className="cursor-pointer" />
+                </Tooltip>
+              </div>
+            </CardBody>
 
-            <p className="text-xs text-center px-2">
-              By creating an account, you agree to XYVO’s{" "}
-              <Link
-                href="/conditions"
-                className="underline hover:text-blue-500"
-              >
-                Conditions of Use
-              </Link>{" "}
-              and{" "}
-              <Link href="/privacy" className="underline hover:text-blue-500">
-                Privacy Notice
-              </Link>
-              .
-            </p>
+            <CardFooter className="flex flex-col space-y-1">
+              {formik.isSubmitting ? (
+                <p>Registring</p>
+              ) : (
+                <Button
+                  type="submit"
+                  variant="solid"
+                  color="primary"
+                  isDisabled={formik.isSubmitting}
+                  className="w-full"
+                >
+                  Continue
+                </Button>
+              )}
 
-            <div className="text-xs text-center">
-              Already have an account?{" "}
-              <Link href="/auth" className="underline hover:text-blue-500">
-                Sign in
-              </Link>
-            </div>
+              <p className="text-xs text-center px-2">
+                By creating an account, you agree to XYVO’s{" "}
+                <Link
+                  href="/conditions"
+                  className="underline hover:text-blue-500"
+                >
+                  Conditions of Use
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="underline hover:text-blue-500">
+                  Privacy Notice
+                </Link>
+                .
+              </p>
 
-            <div className="mt-3 text-center text-xs text-white/70">
-              or sign up with
-            </div>
+              <div className="text-xs text-center">
+                Already have an account?{" "}
+                <Link href="/auth" className="underline hover:text-blue-500">
+                  Sign in
+                </Link>
+              </div>
 
-            <div className="flex justify-center gap-4 mt-2">
-              <FcGoogle size={30} className="cursor-pointer" />
-              <FaFacebook size={26} className="cursor-pointer text-blue-600" />
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
+              <div className="mt-3 text-center text-xs text-white/70">
+                or sign up with
+              </div>
+
+              <div className="flex justify-center gap-4 mt-2">
+                <FcGoogle size={30} className="cursor-pointer" />
+                <FaFacebook
+                  size={26}
+                  className="cursor-pointer text-blue-600"
+                />
+              </div>
+            </CardFooter>
+          </form>
+        </Card>
+      )}
     </motion.div>
   );
 }
