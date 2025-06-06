@@ -38,7 +38,6 @@ export default function RegisterCard() {
       phone: "",
       name: "",
       password: "",
-      confirmPassword: "",
       countryCode: selectedCode,
     },
     validationSchema: Yup.object({
@@ -50,9 +49,6 @@ export default function RegisterCard() {
         .matches(passwordRules, {
           message: "Please create a stronger password",
         })
-        .required("Required"),
-      confirmPassword: Yup.string()
-        .oneOf([Yup.ref("password")], "Passwords must match")
         .required("Required"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
@@ -121,7 +117,7 @@ export default function RegisterCard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="p-1 w-full max-w-xs sm:max-w-sm mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+      <Card className="p-1 w-full max-w-md sm:max-w-sm mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
         <CardHeader className="text-lg font-bold text-center">
           Create account
         </CardHeader>
@@ -258,40 +254,6 @@ export default function RegisterCard() {
                 <FcInfo size={14} className="cursor-pointer" />
               </Tooltip>
             </div>
-
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={isPasswordVisible ? "text" : "password"}
-              label="Password again"
-              variant="bordered"
-              value={formik.values.confirmPassword}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isInvalid={
-                !!(
-                  formik.touched.confirmPassword &&
-                  formik.errors.confirmPassword
-                )
-              }
-              errorMessage={
-                formik.touched.confirmPassword && formik.errors.confirmPassword
-              }
-              size="sm"
-              endContent={
-                <button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="h-full flex items-center pr-2"
-                >
-                  {isPasswordVisible ? (
-                    <FaEyeSlash className="text-lg text-default-400 pointer-events-none" />
-                  ) : (
-                    <FaEye className="text-lg text-default-400 pointer-events-none" />
-                  )}
-                </button>
-              }
-            />
           </CardBody>
 
           <CardFooter className="flex flex-col space-y-1">
