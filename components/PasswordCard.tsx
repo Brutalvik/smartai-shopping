@@ -9,10 +9,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { CDN } from "@/config/config";
 import { useUser } from "@/context/UserContext";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { getFirstNameCapitalized } from "@/utils/helper";
+import { RiKeyFill } from "react-icons/ri";
+import { Image, Link } from "@heroui/react";
+import { FcGoogle } from "react-icons/fc";
 
 export default function PasswordCard({
   email,
@@ -76,8 +79,25 @@ export default function PasswordCard({
       transition={{ duration: 0.4 }}
     >
       <Card className="p-4 w-full mx-auto max-w-lg shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
-        <CardHeader className="text-xl font-semibold text-center">
-          Enter your password
+        <CardHeader className="flex flex-col items-center justify-center space-y-2">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <Image
+                src="/x.png"
+                alt="XYVO Logo"
+                className="h-10 w-10 object-contain"
+                width={40}
+                height={40}
+              />
+              <h1 className="text-[50px] font-semibold text-default-500">
+                yvo
+              </h1>
+            </div>
+            <RiKeyFill size={50} className="text-default-500" />
+          </div>
+          <h2 className="text-lg font-medium text-center text-default-600">
+            Enter your password
+          </h2>
         </CardHeader>
 
         <form onSubmit={formik.handleSubmit}>
@@ -114,24 +134,63 @@ export default function PasswordCard({
               }
             />
           </CardBody>
+          <CardFooter className="flex flex-col gap-2">
+            <div className="flex w-full gap-2">
+              <Button
+                type="button"
+                variant="bordered"
+                onPress={onBack}
+                className="w-1/3"
+              >
+                Back
+              </Button>
+              <Button
+                type="submit"
+                variant="solid"
+                className="w-2/3"
+                isLoading={isSubmitting}
+              >
+                Log in
+              </Button>
+            </div>
 
-          <CardFooter className="flex gap-2">
-            <Button
-              type="button"
-              variant="bordered"
-              onPress={onBack}
-              className="w-1/3"
-            >
-              Back
-            </Button>
-            <Button
-              type="submit"
-              variant="solid"
-              className="w-2/3"
-              isLoading={isSubmitting}
-            >
-              Log in
-            </Button>
+            <p className="text-[12px] text-center px-2 text-white/70 mt-2">
+              By continuing, you agree to XYVO’s{" "}
+              <Link
+                href="/conditions"
+                className="text-[14px] underline hover:text-blue-500 text-white/70"
+              >
+                Conditions of Use
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/privacy"
+                className="text-[14px] underline hover:text-blue-500 text-white/70"
+              >
+                Privacy Notice
+              </Link>
+              .
+            </p>
+
+            <div className="text-[12px] text-center text-white/80">
+              Don’t have an account?{" "}
+              <Link
+                href="/auth/register"
+                className="text-[14px] underline hover:text-blue-500 text-white/80"
+              >
+                Sign up
+              </Link>
+            </div>
+
+            <div className="mt-3 text-center text-xs text-white/60">
+              or continue with
+            </div>
+
+            <div className="flex justify-center items-center gap-4 mt-2">
+              <FcGoogle size={30} className="cursor-pointer" />
+              <span className="text-white/30 text-sm select-none">|</span>
+              <FaFacebook size={26} className="cursor-pointer text-blue-600" />
+            </div>
           </CardFooter>
         </form>
       </Card>

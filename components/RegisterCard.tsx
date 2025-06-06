@@ -10,19 +10,15 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { toast } from "react-hot-toast";
-import { Select, SelectItem } from "@heroui/react";
+import { Select, SelectItem, Tooltip } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { countryCodes } from "@/data/countryCodes";
 import { getFirstNameCapitalized, getFlagFromPhone } from "@/utils/helper";
-import { Tooltip } from "@heroui/react";
-import { FcInfo } from "react-icons/fc";
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa";
+import { FcInfo, FcGoogle } from "react-icons/fc";
+import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { CDN } from "@/config/config";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
-// min 8 characters, 1 upper case letter, 1 lower case letter, 1 numeric digit.
 
 export default function RegisterCard() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -73,7 +69,7 @@ export default function RegisterCard() {
         });
 
         if (res.ok) {
-          const { user, isRegistered } = await res.json();
+          const { user } = await res.json();
           setUser(user);
           sessionStorage.setItem("user", JSON.stringify(user));
           localStorage.setItem(
@@ -97,7 +93,6 @@ export default function RegisterCard() {
   const handleCodeChange = (code: string) => {
     setSelectedCode(code);
     formik.setFieldValue("countryCode", code);
-
     const selected = countryCodes.find((c) => c.dial_code === code);
     if (selected) setFlag(selected.flag);
   };
@@ -105,13 +100,10 @@ export default function RegisterCard() {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const phone = e.target.value;
     formik.setFieldValue("phone", phone);
-
     const digits = phone.replace(/\D/g, "");
     if (selectedCode === "+1" && digits.length >= 3) {
       const dynamicFlag = getFlagFromPhone(digits);
-      if (dynamicFlag !== flag) {
-        setFlag(dynamicFlag);
-      }
+      if (dynamicFlag !== flag) setFlag(dynamicFlag);
     }
   };
 
@@ -123,28 +115,24 @@ export default function RegisterCard() {
     }
   }, []);
 
-  const handleSocialSignin = (provider: "google" | "facebook") => {
-    window.location.href = `${CDN.userAuthApi}/auth/social/${provider}`;
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="p-2 w-full max-w-md mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
-        <CardHeader className="text-xl font-bold text-center">
+      <Card className="p-1 w-full max-w-xs sm:max-w-sm mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+        <CardHeader className="text-lg font-bold text-center">
           Create account
         </CardHeader>
+
         <form onSubmit={formik.handleSubmit}>
-          <CardBody className="space-y-4">
+          <CardBody className="space-y-2">
             <Input
               id="name"
               name="name"
               label="Your name"
               type="text"
-              placeholder="First and last name"
               variant="bordered"
               value={formik.values.name}
               onChange={formik.handleChange}
@@ -157,7 +145,7 @@ export default function RegisterCard() {
               id="email"
               name="email"
               type="email"
-              label="Mobile number or email"
+              label="Email"
               variant="bordered"
               value={formik.values.email}
               onChange={formik.handleChange}
@@ -167,8 +155,7 @@ export default function RegisterCard() {
               size="sm"
             />
 
-            {/* Flag + Country Code + Phone Number */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
+            <div className="flex flex-col sm:flex-row items-center gap-2">
               <div className="flex items-center gap-2 w-full sm:w-1/3">
                 <AnimatePresence mode="wait">
                   <motion.span
@@ -177,35 +164,30 @@ export default function RegisterCard() {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.6, opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="text-2xl"
+                    className="text-xl"
                   >
                     {flag}
                   </motion.span>
                 </AnimatePresence>
                 <Select
                   variant="bordered"
-                  aria-labelledby="country code"
+                  size="md"
+                  className="w-full"
                   selectedKeys={new Set([selectedCode])}
                   onSelectionChange={(keys) => {
                     const code = Array.from(keys)[0];
                     handleCodeChange(code as string);
                   }}
-                  className="w-full"
-                  renderValue={() => (
-                    <div className="flex items-center gap-2">
-                      <span>{selectedCode}</span>
-                    </div>
-                  )}
-                  size="lg"
+                  renderValue={() => <span>{selectedCode}</span>}
                 >
-                  {countryCodes.map((country, index) =>
+                  {countryCodes.map((country) =>
                     country.code === "CA" ? null : (
                       <SelectItem
                         key={country.dial_code}
                         textValue={country.dial_code}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-sm t<span>{flag}</span>ext-white/60">
+                          <span className="text-xs text-white/60">
                             {country.code}
                           </span>
                           <span>{country.dial_code}</span>
@@ -218,8 +200,7 @@ export default function RegisterCard() {
               <Input
                 id="phone"
                 name="phone"
-                label="Phone Number"
-                placeholder="Enter your number"
+                label="Phone"
                 variant="bordered"
                 value={formik.values.phone}
                 onChange={handlePhoneChange}
@@ -246,43 +227,38 @@ export default function RegisterCard() {
               size="sm"
               endContent={
                 <button
-                  aria-label="toggle password visibility"
-                  className="focus:outline-none"
                   type="button"
                   onClick={togglePasswordVisibility}
+                  className="h-full flex items-center pr-2"
                 >
                   {isPasswordVisible ? (
-                    <FaEyeSlash className="text-2xl text-default-400 pointer-events-none" />
+                    <FaEyeSlash className="text-lg text-default-400 pointer-events-none" />
                   ) : (
-                    <FaEye className="text-2xl text-default-400 pointer-events-none" />
+                    <FaEye className="text-lg text-default-400 pointer-events-none" />
                   )}
                 </button>
               }
             />
-            <div className="flex flex-row items-center gap-2 w-full">
-              <p className="text-xs text-center px-2">Password instructions</p>
-              <span>
-                <Tooltip
-                  content={
-                    <div className="px-1 py-2">
-                      <div className="text-small font-bold text-blue-500">
-                        Password Rules
-                      </div>
-                      <span className="text-tiny">
-                        <ul>
-                          <li>Minimum 8 characters</li>
-                          <li>One uppercase character</li>
-                          <li>One lowercase character</li>
-                          <li>One number</li>
-                        </ul>
-                      </span>
-                    </div>
-                  }
-                >
-                  <FcInfo size={15} className="hover:cursor-pointer" />
-                </Tooltip>
-              </span>
+
+            <div className="flex items-center gap-1 text-xs">
+              <span>Password instructions</span>
+              <Tooltip
+                content={
+                  <div className="px-2 py-1 text-xs">
+                    <strong className="text-blue-500">Password Rules</strong>
+                    <ul className="list-disc pl-4">
+                      <li>Min 8 characters</li>
+                      <li>1 uppercase</li>
+                      <li>1 lowercase</li>
+                      <li>1 number</li>
+                    </ul>
+                  </div>
+                }
+              >
+                <FcInfo size={14} className="cursor-pointer" />
+              </Tooltip>
             </div>
+
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -304,34 +280,33 @@ export default function RegisterCard() {
               size="sm"
               endContent={
                 <button
-                  aria-label="toggle password visibility"
-                  className="focus:outline-none"
                   type="button"
                   onClick={togglePasswordVisibility}
+                  className="h-full flex items-center pr-2"
                 >
                   {isPasswordVisible ? (
-                    <FaEyeSlash className="text-2xl text-default-400 pointer-events-none" />
+                    <FaEyeSlash className="text-lg text-default-400 pointer-events-none" />
                   ) : (
-                    <FaEye className="text-2xl text-default-400 pointer-events-none" />
+                    <FaEye className="text-lg text-default-400 pointer-events-none" />
                   )}
                 </button>
               }
             />
           </CardBody>
 
-          <CardFooter className="flex flex-col space-y-2">
+          <CardFooter className="flex flex-col space-y-1">
             <Button
               type="submit"
               variant="solid"
               color="primary"
               isDisabled={formik.isSubmitting}
               className="w-full"
-              onPress={() => {}}
             >
               {formik.isSubmitting ? "Registering..." : "Continue"}
             </Button>
+
             <p className="text-xs text-center px-2">
-              By creating an account, you agree to XYVO's{" "}
+              By creating an account, you agree to XYVO’s{" "}
               <Link
                 href="/conditions"
                 className="underline hover:text-blue-500"
@@ -344,18 +319,21 @@ export default function RegisterCard() {
               </Link>
               .
             </p>
-            <div className="text-sm text-center">
+
+            <div className="text-xs text-center">
               Already have an account?{" "}
               <Link href="/auth" className="underline hover:text-blue-500">
                 Sign in
               </Link>
             </div>
-            <div className="my-4 text-center text-sm text-white/70">
+
+            <div className="mt-3 text-center text-xs text-white/70">
               or sign up with
             </div>
-            <div className="flex flex-row justify-center items-center gap-4 w-full">
-              <FcGoogle size={35} className="hover:cursor-pointer" />
-              <FaFacebook size={30} className="hover:cursor-pointer" />
+
+            <div className="flex justify-center gap-4 mt-2">
+              <FcGoogle size={30} className="cursor-pointer" />
+              <FaFacebook size={26} className="cursor-pointer text-blue-600" />
             </div>
           </CardFooter>
         </form>
