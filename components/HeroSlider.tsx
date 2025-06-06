@@ -78,13 +78,15 @@ export default function HeroWithSearch() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <Image
-                    src={current.image}
-                    alt="Featured"
-                    layout="fill"
-                    objectFit="cover"
-                    className="rounded-t-xl"
-                  />
+                  <div className="relative w-full h-64 rounded-t-xl overflow-hidden">
+                    <Image
+                      src={current.image}
+                      alt="Banner"
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
                 </motion.div>
               </AnimatePresence>
             </div>

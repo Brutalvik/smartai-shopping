@@ -3,7 +3,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
-import { useAppDispatch } from "@/store/hooks";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Input } from "@heroui/input";
@@ -17,7 +16,6 @@ export default function EmailEntryCard({
 }: {
   onUserExists: (email: string) => void;
 }) {
-  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const formik = useFormik({
@@ -37,8 +35,6 @@ export default function EmailEntryCard({
         });
 
         const { exists } = await res.json();
-        console.log("DATA : ", exists);
-
         if (exists) {
           onUserExists(values.email);
         } else {

@@ -13,10 +13,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const message = localStorage.getItem("toastMessage");
+    const message = localStorage.getItem("successfulSignin");
     if (message) {
       toast.success(message);
-      localStorage.removeItem("toastMessage");
+      localStorage.removeItem("successfulSignin");
     }
   }, []);
 
