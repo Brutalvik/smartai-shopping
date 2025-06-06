@@ -78,7 +78,7 @@ export default function PasswordCard({
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="p-4 w-full max-w-md sm:max-w-lg mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+      <Card className="p-4 w-full max-w-full mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
         <CardHeader className="flex flex-col items-center justify-center space-y-2">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">

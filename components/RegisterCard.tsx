@@ -117,7 +117,7 @@ export default function RegisterCard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="p-1 w-full max-w-md sm:max-w-sm mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+      <Card className="p-2 w-full max-w-full mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
         <CardHeader className="text-lg font-bold text-center">
           Create account
         </CardHeader>
