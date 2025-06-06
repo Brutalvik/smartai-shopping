@@ -18,7 +18,7 @@ import { FcInfo, FcGoogle } from "react-icons/fc";
 import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { CDN } from "@/config/config";
 import { Image } from "@heroui/react";
-import XLoader from "@/components/ui/XLoader/XLoader";
+import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
 
@@ -122,7 +122,7 @@ export default function RegisterCard() {
       {formik.isSubmitting ? (
         // Loader view while submitting
         <div className="w-full h-[400px] flex items-center justify-center">
-          <XLoader />
+          <XyvoLoader />
         </div>
       ) : (
         // Regular card view

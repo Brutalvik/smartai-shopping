@@ -13,7 +13,7 @@ import { Image } from "@heroui/react";
 import { FaUserShield } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import XLoader from "@/components/ui/XLoader/XLoader";
+import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 
 export default function EmailEntryCard({
   onUserExists,
@@ -60,12 +60,10 @@ export default function EmailEntryCard({
       transition={{ duration: 0.4 }}
     >
       {formik.isSubmitting ? (
-        // Loader view while submitting
         <div className="w-full h-[400px] flex items-center justify-center">
-          <XLoader />
+          <XyvoLoader />
         </div>
       ) : (
-        // Regular card view
         <>
           <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
             <CardHeader className="flex flex-col items-center justify-center space-y-2">

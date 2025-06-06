@@ -16,7 +16,7 @@ import { getFirstNameCapitalized } from "@/utils/helper";
 import { RiKeyFill } from "react-icons/ri";
 import { Image, Link } from "@heroui/react";
 import { FcGoogle } from "react-icons/fc";
-import XLoader from "@/components/ui/XLoader/XLoader";
+import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 
 export default function PasswordCard({
   email,
@@ -79,10 +79,9 @@ export default function PasswordCard({
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
     >
-      {formik.isSubmitting ? (
-        // Loader view while submitting
+      {isSubmitting ? (
         <div className="w-full h-[400px] flex items-center justify-center">
-          <XLoader />
+          <XyvoLoader />
         </div>
       ) : (
         <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
@@ -96,9 +95,6 @@ export default function PasswordCard({
                   width={40}
                   height={40}
                 />
-                {/* <h1 className="text-[50px] font-semibold text-default-500">
-                yvo
-              </h1> */}
               </div>
               <RiKeyFill size={50} className="text-default-500" />
             </div>

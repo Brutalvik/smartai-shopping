@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import "./XLoader.css";
+import "./XyvoLoader.css";
 
-export default function XLoader() {
+export default function XyvoLoader() {
   return (
     <div className="loader text-default-500">
       {/* Invisible SVG defs with gradients */}
