@@ -27,7 +27,7 @@ import { toast } from "react-hot-toast";
 import { CDN } from "@/config/config";
 import { getColorByName, getFirstNameCapitalized } from "@/utils/helper";
 import { useState } from "react";
-import CustomLoader from "@/components/ui/CustomLoader/CustomLoader";
+import XLoader from "@/components/ui/XLoader/XLoader";
 
 // 🎨 Color utility
 const avatarColors = [
@@ -119,7 +119,7 @@ export default function UserDrawerMenu() {
     <>
       <UserAvatar />
       {loading ? (
-        <CustomLoader />
+        <XLoader />
       ) : (
         <Drawer
           isOpen={isOpen}

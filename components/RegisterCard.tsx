@@ -17,6 +17,8 @@ import { getFirstNameCapitalized, getFlagFromPhone } from "@/utils/helper";
 import { FcInfo, FcGoogle } from "react-icons/fc";
 import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { CDN } from "@/config/config";
+import { Image } from "@heroui/react";
+import { FaUserClock, FaUserPlus } from "react-icons/fa";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
 
@@ -118,8 +120,25 @@ export default function RegisterCard() {
       transition={{ duration: 0.4 }}
     >
       <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
-        <CardHeader className="text-lg font-bold text-center">
-          Create account
+        <CardHeader className="flex flex-col items-center justify-center space-y-2">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <Image
+                src="/x.png"
+                alt="XYVO Logo"
+                className="h-10 w-10 object-contain"
+                width={40}
+                height={40}
+              />
+              {/* <h1 className="text-[50px] font-semibold text-default-500">
+                yvo
+              </h1> */}
+            </div>
+            {/* <FaUserShield size={50} className="text-default-500" /> */}
+          </div>
+          <h2 className="text-lg font-medium text-center text-default-600">
+            Sign in
+          </h2>
         </CardHeader>
 
         <form onSubmit={formik.handleSubmit}>
@@ -257,15 +276,19 @@ export default function RegisterCard() {
           </CardBody>
 
           <CardFooter className="flex flex-col space-y-1">
-            <Button
-              type="submit"
-              variant="solid"
-              color="primary"
-              isDisabled={formik.isSubmitting}
-              className="w-full"
-            >
-              {formik.isSubmitting ? "Registering..." : "Continue"}
-            </Button>
+            {formik.isSubmitting ? (
+              <p>Registring</p>
+            ) : (
+              <Button
+                type="submit"
+                variant="solid"
+                color="primary"
+                isDisabled={formik.isSubmitting}
+                className="w-full"
+              >
+                Continue
+              </Button>
+            )}
 
             <p className="text-xs text-center px-2">
               By creating an account, you agree to XYVO’s{" "}
