@@ -7,10 +7,7 @@ export default function RegisterPage() {
     <div className="min-h-[90%] flex flex-col lg:flex-row">
       {/* Left side - only visible on large screens and up */}
       <div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center">
-        <div className="text-center text-gray-500 text-xl">
-          {" "}
-          <Image src="/xbagsecure.png" alt="shopping bag" />
-        </div>
+        <Image src="/xbagsecure.png" alt="shopping bag" />
       </div>
 
       {/* Right side - always visible */}

@@ -10,10 +10,10 @@ export default function SigninPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="min-h-[90%] flex flex-col lg:flex-row mt-[3%]">
+    <div className="min-h-[90%] flex flex-col lg:flex-row">
       {/* Left side - only visible on large screens and up */}
       <div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center">
-        <Image src="./xbagsecure.png" alt="shopping bag" />
+        <Image src="/xbagsecure.png" alt="shopping bag" />
       </div>
 
       {/* Right side - always visible */}
