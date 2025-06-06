@@ -3,6 +3,7 @@
 import { useState } from "react";
 import EmailEntryCard from "@/components/EmailEntryCard";
 import PasswordCard from "@/components/PasswordCard";
+import { Image } from "@heroui/react";
 
 export default function SigninPage() {
   const [email, setEmail] = useState("");
@@ -12,7 +13,9 @@ export default function SigninPage() {
     <div className="min-h-[90%] flex flex-col lg:flex-row mt-[3%]">
       {/* Left side - only visible on large screens and up */}
       <div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center">
-        <div className="text-center text-gray-500 text-xl">[Left Content]</div>
+        <div className="text-center text-gray-500 text-xl">
+          <Image src="/xbagsecure.png" alt="shopping bag" />
+        </div>
       </div>
 
       {/* Right side - always visible */}

@@ -40,13 +40,16 @@ export default function PasswordCard({
     }),
     onSubmit: async ({ password }) => {
       setIsSubmitting(true);
+      console.log("step 1");
       try {
+        console.log("step 1-try");
         const res = await fetch(`${CDN.userAuthApi}/auth/signin`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({ email, password }),
         });
+        console.log("accessed api");
 
         const { isLoggedIn, user, error } = await res.json();
 
@@ -62,6 +65,7 @@ export default function PasswordCard({
           toast.error(error || "Invalid credentials.");
         }
       } catch (err) {
+        console.log("GOT ERROR");
         console.error("Sign-in error", err);
         formik.setFieldError("password", "Unexpected error. Please try again.");
         toast.error("Network or server error.");
