@@ -200,11 +200,11 @@ export default function UserDrawerMenu() {
 
                   <hr className="border-default-200" />
 
-                  <DrawerItem
+                  {!user?.name && <DrawerItem
                     icon={<User2Icon size={18} />}
                     label="Register"
                     onClick={() => handleNavigate("/auth/register")}
-                  />
+                  />}
                 </div>
               </DrawerBody>
 
