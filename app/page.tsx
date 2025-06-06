@@ -12,6 +12,14 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    const message = localStorage.getItem("toastMessage");
+    if (message) {
+      toast.success(message);
+      localStorage.removeItem("toastMessage");
+    }
+  }, []);
+
   return (
     <section className="flex flex-col items-center justify-center gap-4 py-4 md:py-4">
       <div className="mt-2">

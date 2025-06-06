@@ -11,14 +11,7 @@ export default function SigninPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       {showPassword ? (
-        <PasswordCard
-          email={email}
-          onPasswordSubmit={(password) => {
-            // TODO: handle final signin
-            console.log("Password submitted:", password);
-          }}
-          onBack={() => setShowPassword(false)}
-        />
+        <PasswordCard email={email} onBack={() => setShowPassword(false)} />
       ) : (
         <EmailEntryCard
           onUserExists={(enteredEmail: string) => {

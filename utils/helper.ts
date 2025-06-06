@@ -1,4 +1,5 @@
 import { canadianAreaCodes } from "@/data/canadianAreaCodes";
+import { createHmac } from "crypto";
 
 export const getFlagFromPhone = (phone: string): string => {
   const areaCode = phone.replace(/\D/g, "").slice(0, 3);
@@ -19,4 +20,14 @@ export function getColorByName(
     0
   );
   return avatarColors[code % avatarColors.length];
+}
+
+export function calculateSecretHash(
+  username: string,
+  clientId: string,
+  clientSecret: string
+) {
+  return createHmac("sha256", clientSecret)
+    .update(username + clientId)
+    .digest("base64");
 }

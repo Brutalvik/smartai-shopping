@@ -26,27 +26,20 @@ export default function EmailEntryCard({
       email: Yup.string().email("Invalid email").required("Email is required"),
     }),
     onSubmit: async (values, { setSubmitting, setFieldError }) => {
-      console.log("LOGIN SCREEN : ", values);
       try {
-        console.log(
-          "ACCESSING THE API...",
-          `${CDN.userAuthApi}/auth/checkuser`
-        );
-        const res = await fetch(
-          "https://m1pozl1jdg.execute-api.us-east-2.amazonaws.com/auth/checkuser",
-          {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: values.email }),
-          }
-        );
+        const res = await fetch(`${CDN.userAuthApi}/auth/checkuser`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: values.email }),
+        });
 
-        const data = await res.json();
+        const { exists } = await res.json();
+        console.log("DATA : ", exists);
 
-        if (data.exists) {
+        if (exists) {
           onUserExists(values.email);
         } else {
           router.push(`register?email=${encodeURIComponent(values.email)}`);

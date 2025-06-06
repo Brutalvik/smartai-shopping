@@ -6,31 +6,23 @@ import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import logo from "@/public/x.png";
-import {
-  CognitoIdentityProviderClient,
-  InitiateAuthCommand,
-} from "@aws-sdk/client-cognito-identity-provider";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { CDN } from "@/config/config";
-
-const client = new CognitoIdentityProviderClient({
-  region: CDN.awsRegion,
-});
+import { useUser } from "@/context/UserContext";
 
 export default function PasswordCard({
   email,
-  onPasswordSubmit,
   onBack,
 }: {
   email: string;
-  onPasswordSubmit: (password: string) => void;
   onBack: () => void;
 }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const { setUser } = useUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,41 +30,27 @@ export default function PasswordCard({
     setIsSubmitting(true);
 
     try {
-      const command = new InitiateAuthCommand({
-        AuthFlow: "USER_PASSWORD_AUTH",
-        ClientId: CDN.cognitoClientId!,
-        AuthParameters: {
-          USERNAME: email,
-          PASSWORD: password,
-        },
+      const res = await fetch(`${CDN.userAuthApi}/auth/signin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
       });
 
-      const response = await client.send(command);
+      const { isLoggedIn, message, user, error } = await res.json();
 
-      const idToken = response.AuthenticationResult?.IdToken;
-      const accessToken = response.AuthenticationResult?.AccessToken;
-
-      if (idToken && accessToken) {
-        // ✅ Call your Fastify backend to set a secure session cookie
-        await fetch(`${CDN.userAuthApi}/auth/signin`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // send cookie back
-          body: JSON.stringify({ idToken }),
-        });
-
-        toast.success("Signed in successfully!");
-        onPasswordSubmit(password);
+      if (res.ok && isLoggedIn) {
+        setUser(user);
+        localStorage.setItem("successfulSignin", `Welcome ${user.name}`);
         router.push("/");
       } else {
-        setError("Authentication failed.");
+        setError(error || "Authentication failed.");
+        toast.error(error || "Invalid credentials.");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Sign-in error", err);
-      toast.error("Invalid credentials or error signing in.");
-      setError("Invalid email or password.");
+      setError("Unexpected error. Please try again.");
+      toast.error("Network or server error.");
     } finally {
       setIsSubmitting(false);
     }
@@ -84,7 +62,7 @@ export default function PasswordCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
-      className="max-w-md w-full mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-slate-200"
+      className="max-w-md w-full mx-auto p-8 rounded-2xl shadow-2xl border border-slate-200"
     >
       <div className="flex justify-center mb-6">
         <Image src={logo} alt="Xyvo Logo" width={64} height={64} />
@@ -102,7 +80,7 @@ export default function PasswordCard({
         <div className="flex gap-2">
           <Button
             type="button"
-            variant="ghost"
+            variant="bordered"
             onPress={onBack}
             className="w-1/3"
           >
