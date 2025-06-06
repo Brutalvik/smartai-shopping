@@ -12,6 +12,10 @@ import { UserProvider } from "@/context/UserContext";
 import ClientToaster from "@/components/ui/ClientToast/ClientToaster";
 import ClientLayout from "@/app/ClientLayout";
 
+//Loader
+import { AppLoaderProvider } from "@/context/AppLoaderContext";
+import AppLoadingWrapper from "@/components/shared/AppLoadingWrapper";
+
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -45,36 +49,42 @@ export default function RootLayout({
         )}
       >
         {/* <ClientLayout> */}
-        <UserProvider>
-          <CartProvider>
-            <Providers
-              themeProps={{ attribute: "class", defaultTheme: "dark" }}
-            >
-              <div className="relative flex flex-col h-screen">
-                {/* Toast client-side only */}
-                <ClientToaster />
+        <AppLoaderProvider>
+          <AppLoadingWrapper>
+            <UserProvider>
+              <CartProvider>
+                <Providers
+                  themeProps={{ attribute: "class", defaultTheme: "dark" }}
+                >
+                  <div className="relative flex flex-col h-screen">
+                    {/* Toast client-side only */}
+                    <ClientToaster />
 
-                <Navbar />
-                <main className="container mx-auto max-w-7xl px-6 flex-grow">
-                  {children}
-                </main>
-                <footer className="w-full flex items-center justify-center py-3 text-xs">
-                  <p>
-                    © {new Date().getFullYear()}{" "}
-                    <span className="font-semibold tracking-wide">Xyvo</span> —
-                    All rights reserved.{" "}
-                    <Link
-                      href="/privacy"
-                      className="text-default-700 underline hover:text-blue-600 text-xs"
-                    >
-                      Privacy Policy
-                    </Link>
-                  </p>
-                </footer>
-              </div>
-            </Providers>
-          </CartProvider>
-        </UserProvider>
+                    <Navbar />
+                    <main className="container mx-auto max-w-7xl px-6 flex-grow">
+                      {children}
+                    </main>
+                    <footer className="w-full flex items-center justify-center py-3 text-xs">
+                      <p>
+                        © {new Date().getFullYear()}{" "}
+                        <span className="font-semibold tracking-wide">
+                          Xyvo
+                        </span>{" "}
+                        — All rights reserved.{" "}
+                        <Link
+                          href="/privacy"
+                          className="text-default-700 underline hover:text-blue-600 text-xs"
+                        >
+                          Privacy Policy
+                        </Link>
+                      </p>
+                    </footer>
+                  </div>
+                </Providers>
+              </CartProvider>
+            </UserProvider>
+          </AppLoadingWrapper>
+        </AppLoaderProvider>
         {/* </ClientLayout> */}
       </body>
     </html>
