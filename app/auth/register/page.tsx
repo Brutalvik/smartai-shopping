@@ -15,9 +15,7 @@ export default function RegisterPage() {
 
       {/* Right side - always visible */}
       <div className="w-full lg:w-1/2 flex items-center justify-center">
-        <div className="w-full max-w-xl">
-          <RegisterCard />
-        </div>
+        <RegisterCard />
       </div>
     </div>
   );
