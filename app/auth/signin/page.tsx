@@ -9,7 +9,7 @@ export default function SigninPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-[90%] flex flex-col lg:flex-row mt-[5%]">
       {/* Left side - only visible on large screens and up */}
       <div className="hidden lg:flex w-full lg:w-1/2 bg-gray-100 items-center justify-center">
         <div className="text-center text-gray-500 text-xl">[Left Content]</div>
