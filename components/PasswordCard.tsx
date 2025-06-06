@@ -13,6 +13,7 @@ import { useUser } from "@/context/UserContext";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { getFirstNameCapitalized } from "@/utils/helper";
 
 export default function PasswordCard({
   email,
@@ -49,7 +50,10 @@ export default function PasswordCard({
 
         if (res.ok && isLoggedIn) {
           setUser(user);
-          localStorage.setItem("successfulSignin", `Welcome ${user.name}`);
+          localStorage.setItem(
+            "successfulSignin",
+            `Welcome ${getFirstNameCapitalized(user.name)}`
+          );
           router.push("/");
         } else {
           formik.setFieldError("password", error || "Authentication failed.");

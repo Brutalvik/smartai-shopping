@@ -61,20 +61,20 @@ export default function EmailEntryCard({
         </CardHeader>
         <form onSubmit={formik.handleSubmit}>
           <CardBody className="space-y-4">
-            <div className="text-sm font-medium text-300">
-              E-mail address or mobile phone number
-            </div>
             <Input
+              isClearable
               id="email"
               name="email"
-              aria-label="Email address or mobile number"
+              aria-label="Email address"
               variant="bordered"
+              className="w-full"
+              label="Email"
+              type="email"
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               isInvalid={!!(formik.touched.email && formik.errors.email)}
               errorMessage={formik.touched.email && formik.errors.email}
-              size="md"
             />
           </CardBody>
           <CardFooter className="flex flex-col space-y-2">
