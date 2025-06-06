@@ -149,13 +149,14 @@ export default function PasswordCard({
                 variant="solid"
                 className="w-2/3"
                 isLoading={isSubmitting}
+                color="primary"
               >
                 Log in
               </Button>
             </div>
 
             <p className="text-[12px] text-center px-2 text-white/70 mt-2">
-              By continuing, you agree to XYVO’s{" "}
+              By continuing, you agree to XYVO&apos;s{" "}
               <Link
                 href="/conditions"
                 className="text-[14px] underline hover:text-blue-500 text-white/70"
@@ -173,7 +174,7 @@ export default function PasswordCard({
             </p>
 
             <div className="text-[12px] text-center text-white/80">
-              Don’t have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/auth/register"
                 className="text-[14px] underline hover:text-blue-500 text-white/80"

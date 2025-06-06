@@ -10,6 +10,10 @@ import { Button } from "@heroui/button";
 import { CircularProgress } from "@heroui/progress";
 import Link from "next/link";
 import { CDN } from "@/config/config";
+import { Image } from "@heroui/react";
+import { FaUserShield } from "react-icons/fa6";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa";
 
 export default function EmailEntryCard({
   onUserExists,
@@ -56,9 +60,27 @@ export default function EmailEntryCard({
       transition={{ duration: 0.4 }}
     >
       <Card className="p-4 w-full max-w-md mx-auto shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
-        <CardHeader className="text-xl font-semibold text-center">
-          Sign in
+        <CardHeader className="flex flex-col items-center justify-center space-y-2">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <Image
+                src="/x.png"
+                alt="XYVO Logo"
+                className="h-10 w-10 object-contain"
+                width={40}
+                height={40}
+              />
+              <h1 className="text-[50px] font-semibold text-default-500">
+                yvo
+              </h1>
+            </div>
+            <FaUserShield size={50} className="text-default-500" />
+          </div>
+          <h2 className="text-lg font-medium text-center text-default-600">
+            Sign in
+          </h2>
         </CardHeader>
+
         <form onSubmit={formik.handleSubmit}>
           <CardBody className="space-y-4">
             <Input
@@ -77,6 +99,7 @@ export default function EmailEntryCard({
               errorMessage={formik.touched.email && formik.errors.email}
             />
           </CardBody>
+
           <CardFooter className="flex flex-col space-y-2">
             <Button
               type="submit"
@@ -90,15 +113,18 @@ export default function EmailEntryCard({
             </Button>
 
             <p className="pt-4 text-xs text-center px-2">
-              By continuing, you agree to XYVO’s{" "}
+              By continuing, you agree to XYVO&apos;s{" "}
               <Link
                 href="/conditions"
-                className="underline hover:text-cyan-500"
+                className="underline hover:text-cyan-500 text-white"
               >
                 Conditions of Use
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="underline hover:text-cyan-500">
+              <Link
+                href="/privacy"
+                className="underline hover:text-cyan-500 text-white"
+              >
                 Privacy Notice
               </Link>
               .
@@ -118,6 +144,16 @@ export default function EmailEntryCard({
               <Link href="#" className="hover:underline">
                 Other issues with Sign-In?
               </Link>
+            </div>
+
+            <div className="mt-3 text-center text-xs text-white/70">
+              or continue with
+            </div>
+
+            <div className="flex justify-center gap-4 mt-2">
+              <FcGoogle size={30} className="cursor-pointer" />
+              <span className="text-white/40">|</span>
+              <FaFacebook size={26} className="cursor-pointer text-blue-600" />
             </div>
           </CardFooter>
         </form>
