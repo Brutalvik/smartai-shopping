@@ -79,7 +79,7 @@ export default function RegisterCard() {
           addToast({
             description: error.message || "Registration Failed",
             color: "danger",
-            timeout: 1000,
+            timeout: 1500,
           })
         }
       } catch (err) {
@@ -87,7 +87,7 @@ export default function RegisterCard() {
         addToast({
           description: "Something went wrong !",
           color: "danger",
-          timeout: 1000,
+          timeout: 1500,
         })
       } finally {
         setSubmitting(false);

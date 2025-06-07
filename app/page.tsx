@@ -10,7 +10,7 @@ export default function Home() {
       addToast({
         description: message,
         color: "success",
-        timeout: 1000,
+        timeout: 1500,
       })
       localStorage.removeItem("accountCreated");
     }
@@ -22,7 +22,7 @@ export default function Home() {
       addToast({
         description: message,
         color: "primary",
-        timeout: 1000,
+        timeout: 1500,
       })
       localStorage.removeItem("successfulSignin");
     }

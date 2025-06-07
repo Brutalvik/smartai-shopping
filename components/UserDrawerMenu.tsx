@@ -70,7 +70,7 @@ export default function UserDrawerMenu() {
         addToast({
           description: "Failed to Signout !",
           color: "danger",
-          timeout: 1000,
+          timeout: 1500,
         })
         return;
       }
@@ -80,9 +80,9 @@ export default function UserDrawerMenu() {
 
       setUser(null);
       addToast({
-        description: "You&apos;ve Signed Out",
+        description: "You have Signed Out",
         color: "default",
-        timeout: 1000,
+        timeout: 1500,
       })
       router.push("/");
       onClose();
@@ -91,7 +91,7 @@ export default function UserDrawerMenu() {
       addToast({
         description: "Something went wrong !",
         color: "danger",
-        timeout: 1000,
+        timeout: 1500,
       })
     }
   };

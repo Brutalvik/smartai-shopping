@@ -63,7 +63,7 @@ export default function PasswordCard({
           addToast({
             description: error || "Invalid Credentials",
             color: "danger",
-            timeout: 1000,
+            timeout: 1500,
           })
         }
       } catch (err) {
@@ -72,7 +72,7 @@ export default function PasswordCard({
         addToast({
           description: "Network or Sever Error",
           color: "danger",
-          timeout: 1000,
+          timeout: 1500,
         })
       } finally {
         setIsSubmitting(false);
