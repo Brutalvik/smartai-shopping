@@ -1,43 +1,10 @@
+// app/layout.tsx
 import "@/styles/globals.css";
-import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
+import AppLayout from "@/components/AppLayout";
+import { fontSans } from "@/config/fonts";
 import clsx from "clsx";
 
-import { Providers } from "./providers";
-import { siteConfig } from "@/config/site";
-import { fontSans } from "@/config/fonts";
-import { Navbar } from "@/components/navbar";
-import { CartProvider } from "@/context/CartContext";
-import { UserProvider } from "@/context/UserContext";
-import ClientLayout from "@/app/ClientLayout";
-
-//Loader
-import { AppLoaderProvider } from "@/context/AppLoaderContext";
-import AppLoadingWrapper from "@/components/shared/AppLoadingWrapper";
-
-export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
-
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html suppressHydrationWarning lang="en">
       <head />
@@ -47,43 +14,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        {/* <ClientLayout> */}
-        <AppLoaderProvider>
-          <AppLoadingWrapper>
-            <UserProvider>
-              <CartProvider>
-                <Providers
-                  themeProps={{ attribute: "class", defaultTheme: "dark" }}
-                >
-                  <div className="relative flex flex-col h-screen">
-                
-
-                    <Navbar />
-                    <main className="container mx-auto max-w-7xl px-6 flex-grow">
-                      {children}
-                    </main>
-                    <footer className="w-full flex items-center justify-center py-3 text-xs">
-                      <p>
-                        © {new Date().getFullYear()}{" "}
-                        <span className="font-semibold tracking-wide">
-                          Xyvo
-                        </span>{" "}
-                        — All rights reserved.{" "}
-                        <Link
-                          href="/privacy"
-                          className="text-default-700 underline hover:text-blue-600 text-xs"
-                        >
-                          Privacy Policy
-                        </Link>
-                      </p>
-                    </footer>
-                  </div>
-                </Providers>
-              </CartProvider>
-            </UserProvider>
-          </AppLoadingWrapper>
-        </AppLoaderProvider>
-        {/* </ClientLayout> */}
+        <AppLayout>{children}</AppLayout>
       </body>
     </html>
   );
