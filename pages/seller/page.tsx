@@ -6,7 +6,7 @@ import ProductForm from "@/components/ProductForm";
 export default function SellerProductUploadPage() {
   return (
     <div className="min-h-screen">
-      <ProductForm />
+      
     </div>
   );
 }

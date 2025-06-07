@@ -1,3 +1,4 @@
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -10,10 +11,15 @@ export function middleware(req: NextRequest) {
     url.searchParams.set("redirect", req.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
-  
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [],
+  matcher: [
+    "/productupload",
+    "/seller/:path*",
+    "/dashboard/:path*",
+    "/orders",
+  ],
 };

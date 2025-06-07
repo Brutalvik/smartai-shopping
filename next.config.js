@@ -8,8 +8,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*", // requests to /api/... will go to Fastify
-        destination: "http://localhost:5000/:path*",
+        source: "/auth/:path*",
+        destination: "https://m1pozl1jdg.execute-api.us-east-2.amazonaws.com/auth/:path*", 
       },
     ];
   },

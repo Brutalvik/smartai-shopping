@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
@@ -13,7 +13,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { getFirstNameCapitalized } from "@/utils/helper";
 import { RiKeyFill } from "react-icons/ri";
-import { Image, Link } from "@heroui/react";
+import { Link } from "@heroui/react";
 import { FcGoogle } from "react-icons/fc";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 import { addToast } from "@heroui/react";
@@ -27,10 +27,18 @@ export default function PasswordCard({
 }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [redirectTo, setRedirectTo] = useState("/");
   const router = useRouter();
   const { setUser } = useUser();
 
   const togglePasswordVisibility = () => setIsPasswordVisible((prev) => !prev);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const redirect = new URLSearchParams(window.location.search).get("redirect");
+      if (redirect) setRedirectTo(redirect);
+    }
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -57,7 +65,7 @@ export default function PasswordCard({
             "successfulSignin",
             `Welcome ${getFirstNameCapitalized(user.name)}`
           );
-          router.push("/");
+          router.replace(redirectTo || "/");
         } else {
           formik.setFieldError("password", error || "Authentication failed.");
           addToast({

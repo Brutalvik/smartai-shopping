@@ -1,5 +1,6 @@
 import { canadianAreaCodes } from "@/data/canadianAreaCodes";
 import { createHmac } from "crypto";
+import jwt from "jsonwebtoken"
 
 export const getFlagFromPhone = (phone: string): string => {
   const areaCode = phone.replace(/\D/g, "").slice(0, 3);
@@ -30,4 +31,16 @@ export function calculateSecretHash(
   return createHmac("sha256", clientSecret)
     .update(username + clientId)
     .digest("base64");
+}
+
+
+
+export function verifyToken(token: string | undefined) {
+  if (!token) return null;
+
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET!);
+  } catch (err) {
+    return null;
+  }
 }
