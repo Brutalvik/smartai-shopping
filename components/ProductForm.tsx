@@ -298,9 +298,9 @@ export default function SellerProductUploadPage() {
           </CardHeader>
           <CardBody className="space-y-4">
             <Input
+              label="Product Title"
               id="title"
               name="title"
-              placeholder="Product Title"
               value={formik.values.title}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -308,6 +308,7 @@ export default function SellerProductUploadPage() {
               errorMessage={formik.errors.title}
             />
             <Textarea
+              label="Description"
               id="description"
               name="description"
               placeholder="Description"
@@ -325,28 +326,44 @@ export default function SellerProductUploadPage() {
                 <Input
                   id="price"
                   name="price"
-                  placeholder="Price ($)"
-                  type="number"
+                  label="Price"
+                  placeholder="0.00"
+                  type="text"
                   inputMode="decimal"
-                  step="0.01"
-                  min="0"
-                  value={JSON.stringify(formik.values.price)}
-                  isInvalid={!!(formik.touched.price && formik.errors.price)}
-                  errorMessage={formik.errors.price}
+                  startContent={
+                    <div className="pointer-events-none flex items-center">
+                      <span className="text-default-400 text-small">$</span>
+                    </div>
+                  }
+                  value={formik.values.price.toLocaleString()}
                   onChange={(e) => {
-                    const val = parseFloat(e.target.value);
-                    if (!isNaN(val)) {
+                    // Let user type freely
+                    const val = e.target.value;
+                    if (/^\d*\.?\d{0,2}$/.test(val) || val === "") {
                       formik.setFieldValue("price", val);
-                    } else {
-                      formik.setFieldValue("price", 0);
                     }
                   }}
-                  onBlur={formik.handleBlur}
+                  onBlur={(e) => {
+                    const num = parseFloat(e.target.value);
+                    if (!isNaN(num)) {
+                      formik.setFieldValue("price", num.toFixed(2));
+                    }
+                  }}
+                  onFocus={(e) => {
+                    // Strip formatting so they can edit easily
+                    const raw = parseFloat(e.target.value);
+                    if (!isNaN(raw)) {
+                      formik.setFieldValue("price", raw.toString());
+                    }
+                  }}
+                  isInvalid={!!(formik.touched.price && formik.errors.price)}
+                  errorMessage={formik.errors.price}
                   className="no-spinner"
                 />
               </div>
               <div className="flex flex-col w-full">
                 <Input
+                  label="Quantity"
                   id="quantity"
                   name="quantity"
                   placeholder="Quantity"
@@ -393,6 +410,7 @@ export default function SellerProductUploadPage() {
             </Select>
             <div>
               <Input
+                label="Tags"
                 id="tags"
                 name="tagsInput"
                 placeholder="Tags (type and press comma, space, or enter)"
