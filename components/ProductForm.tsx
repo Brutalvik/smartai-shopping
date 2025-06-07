@@ -362,13 +362,16 @@ export default function SellerProductUploadPage() {
                           ))}
                         </AnimatePresence>
                         {provided.placeholder}
-                        {imagePreviews.length < 7 && (
-                          <label htmlFor="images" className="ml-auto mt-4 flex items-center gap-2 hover:bg-gray-700 px-4 py-2 border border-gray-300 rounded-md cursor-pointer">
-                            <UploadCloud className="w-4 h-4 text-gray-500" />
-                            <span className="text-sm font-medium">Upload More</span>
-                            <input id="images" name="images" type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
-                          </label>
-                        )}
+                      {imagePreviews.length < 7 && (
+                        <label
+                          htmlFor="images"
+                          className="absolute bottom-4 right-4 flex items-center gap-2 border border-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md cursor-pointer shadow transition-all"
+                        >
+                          <UploadCloud className="w-4 h-4" />
+                          <span className="text-sm font-medium">Upload More</span>
+                          <input id="images" name="images" type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
+                        </label>
+                      )}
                       </div>
                     )}
                   </Droppable>
