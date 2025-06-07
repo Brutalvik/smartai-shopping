@@ -95,7 +95,7 @@ export default function SellerProductUploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white px-4 py-10">
+    <div className="min-h-screen px-4 py-10">
       <h1 className="text-3xl font-bold text-center mb-8">Upload Your Product</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
         <Card className="p-6">
@@ -149,10 +149,10 @@ export default function SellerProductUploadPage() {
               <>
                 <div className="relative w-full h-60 rounded-lg overflow-hidden">
                   <Image src={imagePreviews[carouselIndex]} alt={`carousel-${carouselIndex}`} fill className="object-cover rounded" />
-                  <button onClick={prevImage} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 rounded-full p-2">
+                  <button onClick={prevImage} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-full p-2">
                     <ChevronLeft className="w-6 h-6 text-gray-800" />
                   </button>
-                  <button onClick={nextImage} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 rounded-full p-2">
+                  <button onClick={nextImage} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20  hover:bg-opacity-40 rounded-full p-2">
                     <ChevronRight className="w-6 h-6 text-gray-800" />
                   </button>
                 </div>
@@ -180,7 +180,7 @@ export default function SellerProductUploadPage() {
                                     <Image src={src} alt={`preview-${idx}`} width={60} height={60} className="rounded-md object-cover border" />
                                     <button
                                       onClick={() => handleImageRemove(idx)}
-                                      className="absolute -top-2 -right-2 bg-gray-400 text-white rounded-full p-1 shadow-md"
+                                      className="absolute -top-2 -right-2 bg-gray-500 text-white rounded-full p-1 shadow-md bg-opacity-40 hover:bg-opacity-80"
                                     >
                                       <X className="w-3 h-3" />
                                     </button>
@@ -192,7 +192,7 @@ export default function SellerProductUploadPage() {
                         </AnimatePresence>
                         {provided.placeholder}
                         {imagePreviews.length < 7 && (
-                          <label htmlFor="images" className="ml-auto mt-4 flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 border border-gray-300 rounded-md cursor-pointer">
+                          <label htmlFor="images" className="ml-auto mt-4 flex items-center gap-2 hover:bg-gray-700 px-4 py-2 border border-gray-300 rounded-md cursor-pointer">
                             <UploadCloud className="w-4 h-4 text-gray-500" />
                             <span className="text-sm font-medium">Upload More</span>
                             <input id="images" name="images" type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
