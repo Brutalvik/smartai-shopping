@@ -28,7 +28,7 @@ export default function RegisterCard() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const prefilledEmail = searchParams.get("email") || "";
+  const prefilledEmail = searchParams?.get("email") || "";
   const { setUser } = useUser();
 
   const togglePasswordVisibility = () => setIsPasswordVisible((prev) => !prev);
@@ -44,7 +44,9 @@ export default function RegisterCard() {
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email").required("Required"),
       name: Yup.string().min(2, "Too short").required("Required"),
-      phone: Yup.string().min(10, "Please create a stronger password").required("Required"),
+      phone: Yup.string()
+        .min(10, "Please create a stronger password")
+        .required("Required"),
       password: Yup.string()
         .min(8)
         .matches(passwordRules, {
@@ -80,7 +82,7 @@ export default function RegisterCard() {
             description: error.message || "Registration Failed",
             color: "danger",
             timeout: 1500,
-          })
+          });
         }
       } catch (err) {
         console.error(err);
@@ -88,7 +90,7 @@ export default function RegisterCard() {
           description: "Something went wrong !",
           color: "danger",
           timeout: 1500,
-        })
+        });
       } finally {
         setSubmitting(false);
       }

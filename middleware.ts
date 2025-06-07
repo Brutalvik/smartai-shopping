@@ -8,7 +8,7 @@ export function middleware(req: NextRequest) {
   if (!token) {
     const url = req.nextUrl.clone();
     url.pathname = "/auth/signin";
-    url.searchParams.set("redirect", req.nextUrl.pathname);
+    url?.searchParams.set("redirect", req.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
 
@@ -16,10 +16,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/productupload",
-    "/seller/:path*",
-    "/dashboard/:path*",
-    "/orders",
-  ],
+  matcher: ["/productupload", "/seller/:path*", "/dashboard/:path*", "/orders"],
 };

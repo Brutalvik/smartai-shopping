@@ -287,7 +287,11 @@ export default function SellerProductUploadPage() {
 
   return (
     <div className="min-h-screen">
-      <MultiStepLoader ref={loaderRef} loadingStates={loadingStates} />
+      <MultiStepLoader
+        ref={loaderRef}
+        loadingStates={loadingStates}
+        duration={1000}
+      />
       <h1 className="text-3xl font-bold text-center mb-8">
         Upload Your Product
       </h1>
