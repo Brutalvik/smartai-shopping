@@ -45,7 +45,7 @@ export default function RegisterCard() {
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email").required("Required"),
       name: Yup.string().min(2, "Too short").required("Required"),
-      phone: Yup.string().min(10, "Too short").required("Required"),
+      phone: Yup.string().min(10, "Please create a stronger password").required("Required"),
       password: Yup.string()
         .min(8)
         .matches(passwordRules, {
