@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, ChangeEvent, KeyboardEvent } from "react";
+import { useEffect, useState, ChangeEvent, KeyboardEvent, useRef } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Input, Textarea } from "@heroui/input";
@@ -31,6 +31,14 @@ import ImageConditionsModal from "@/components/ImageConditionsModal";
 import { categories } from "@/data/categories";
 import { CDN } from "@/config/config";
 import { addToast } from "@heroui/react";
+import { MultiStepLoader } from "@/components/ui/MultiStepLoader/MultiStepLoader";
+
+const loadingStates = [
+  { text: "Preparing data..." },
+  { text: "Uploading images to S3..." },
+  { text: "Saving to database..." },
+  { text: "Finishing up..." },
+];
 
 export default function SellerProductUploadPage() {
   const [showImageTerms, setShowImageTerms] = useState(false);
@@ -38,6 +46,7 @@ export default function SellerProductUploadPage() {
   const [draftSaved, setDraftSaved] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [currentTagInput, setCurrentTagInput] = useState("");
+  const loaderRef = useRef<any>(null);
 
   const {
     isOpen: isDraftModalOpen,
@@ -90,65 +99,72 @@ export default function SellerProductUploadPage() {
         .min(3, "At least three images are required")
         .required("Images are required"),
     }),
+
     onSubmit: async (values) => {
       if (!values.isActive) {
         onOpenDraftModal();
-      } else {
-        const formData = new FormData();
+        return;
+      }
 
-        formData.append("title", values.title);
-        formData.append("description", values.description);
-        formData.append("price", values.price.toString());
-        formData.append("quantity", values.quantity.toString());
-        formData.append("category", values.category);
-        formData.append("tags", values.tags.join(","));
-        formData.append("isActive", String(values.isActive));
+      // Step 0: Start the loader
+      loaderRef.current?.start();
+      loaderRef.current?.stepTo(0); // "Preparing data..."
 
-        values.images.forEach((file) => {
-          formData.append("images", file);
-        });
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("description", values.description);
+      formData.append("price", values.price.toString());
+      formData.append("quantity", values.quantity.toString());
+      formData.append("category", values.category);
+      formData.append("tags", values.tags.join(","));
+      formData.append("isActive", String(values.isActive));
+      values.images.forEach((file) => formData.append("images", file));
 
-        console.log(
-          "🧾 formData instanceof FormData:",
-          formData instanceof FormData
-        );
-        console.log("🧾 formData entries:");
-        for (let [key, val] of formData.entries()) {
-          console.log(`${key}:`, val);
-        }
+      try {
+        // Step 1: Uploading to S3
+        loaderRef.current?.stepTo(1);
 
-        try {
-          const response = await fetch(
-            `${CDN.sellerProductsApi}/seller/products`,
-            {
-              method: "POST",
-              credentials: "include",
-              body: formData,
-            }
-          );
-          const result = await response.json();
-
-          if (!response.ok) {
-            addToast({
-              description: `Upload Failed ! ${result?.error}`,
-              color: "danger",
-              timeout: 2000,
-            });
-            return;
+        const response = await fetch(
+          `${CDN.sellerProductsApi}/seller/products`,
+          {
+            method: "POST",
+            credentials: "include",
+            body: formData,
           }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          loaderRef.current?.stop();
           addToast({
-            description: "Upload Success !",
-            color: "success",
-            timeout: 2000,
-          });
-        } catch (err) {
-          console.error("Upload Error", err);
-          addToast({
-            description: "Upload Error !",
+            description: `Upload Failed! ${result?.error || "Server error"}`,
             color: "danger",
             timeout: 2000,
           });
+          return;
         }
+
+        // Step 2: Saving to DB successful
+        loaderRef.current?.stepTo(2);
+
+        addToast({
+          description: "Upload Success!",
+          color: "success",
+          timeout: 2000,
+        });
+
+        // Step 3: Done
+        loaderRef.current?.stepTo(3);
+        setTimeout(() => loaderRef.current?.stop(), 800);
+      } catch (err) {
+        loaderRef.current?.stop();
+        console.error("Upload Error", err);
+        addToast({
+          description: "Upload Error!",
+          color: "danger",
+          timeout: 2000,
+        });
       }
     },
   });
@@ -271,6 +287,7 @@ export default function SellerProductUploadPage() {
 
   return (
     <div className="min-h-screen">
+      <MultiStepLoader ref={loaderRef} loadingStates={loadingStates} />
       <h1 className="text-3xl font-bold text-center mb-8">
         Upload Your Product
       </h1>
