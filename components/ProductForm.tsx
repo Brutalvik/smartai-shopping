@@ -318,20 +318,42 @@ export default function SellerProductUploadPage() {
             ) : (
               <>
                 <div className="relative w-full h-60 rounded-lg overflow-hidden">
-                  {imagePreviews[carouselIndex] && (
-                    <Image src={imagePreviews[carouselIndex]} alt={`carousel-${carouselIndex}`} fill className="object-cover rounded" />
-                  )}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={carouselIndex} // 👈 triggers animation when index changes
+                      initial={{ opacity: 0, scale: 0.97 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 1.02 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={imagePreviews[carouselIndex]}
+                        alt={`carousel-${carouselIndex}`}
+                        fill
+                        className="object-cover rounded"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+
                   {imagePreviews.length > 1 && (
                     <>
-                      <button onClick={prevImage} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-full p-2">
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-full p-2"
+                      >
                         <ChevronLeft className="w-6 h-6 text-gray-800" />
                       </button>
-                      <button onClick={nextImage} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-full p-2">
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-full p-2"
+                      >
                         <ChevronRight className="w-6 h-6 text-gray-800" />
                       </button>
                     </>
                   )}
                 </div>
+
                 <DragDropContext onDragEnd={handleDragEnd}>
                   <Droppable droppableId="images" direction="horizontal">
                     {(provided) => (
@@ -348,7 +370,17 @@ export default function SellerProductUploadPage() {
                                     transition={{ duration: 0.3 }}
                                     className="relative"
                                   >
-                                    <Image src={src} alt={`preview-${idx}`} width={60} height={60} className="rounded-md object-cover border" />
+                                    <Image
+                                      src={src}
+                                      alt={`preview-${idx}`}
+                                      width={60}
+                                      height={60}
+                                      className={`rounded-md object-cover border cursor-pointer ${
+                                        idx === carouselIndex ? "ring-2 ring-blue-500" : ""
+                                      }`}
+                                      onClick={() => setCarouselIndex(idx)}
+                                    />
+
                                     <button
                                       onClick={() => handleImageRemove(idx)}
                                       className="absolute -top-2 -right-2 bg-gray-500 text-white rounded-full p-1 shadow-md bg-opacity-40 hover:bg-opacity-80"
