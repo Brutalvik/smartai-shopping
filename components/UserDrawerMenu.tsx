@@ -80,7 +80,7 @@ export default function UserDrawerMenu() {
 
       setUser(null);
       addToast({
-        description: "You have Signed Out",
+        description: "You Signed Out",
         color: "default",
         timeout: 1500,
       })

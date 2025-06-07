@@ -283,7 +283,7 @@ export default function SellerProductUploadPage() {
             <Select
               id="category"
               name="category"
-              selectedKeys={formik.values.category}
+              selectedKeys={new Set([formik.values.category])}
               onSelectionChange={(key) => formik.setFieldValue("category", key)}
               label="Product Category"
               className="w-full"
