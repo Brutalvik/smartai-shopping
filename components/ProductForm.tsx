@@ -1,197 +1,158 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
-import { useFormik, FormikHelpers } from "formik";
+import { useEffect, useState, ChangeEvent } from "react";
+import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Input, Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
-import {Switch} from "@heroui/switch";
-import { Card, CardBody } from "@heroui/card";
-import { CDN } from "@/config/config";
+import { Switch } from "@heroui/switch";
+import { Card, CardHeader, CardBody } from "@heroui/card";
+import Image from "next/image";
+import { UploadCloud, ChevronLeft, ChevronRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
-
-
-interface ProductFormValues {
-  title: string;
-  description: string;
-  price: string;
-  category: string;
-  tags: string;
-  quantity: string;
-  images: File[];
-  isActive: boolean;
-}
-
-export default function ProductForm() {
+export default function SellerProductUploadPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
-  const formik = useFormik<ProductFormValues>({
+  useEffect(() => {
+    const draft = localStorage.getItem("sellerProductDraft");
+    if (draft) {
+      const parsed = JSON.parse(draft);
+      formik.setValues(parsed);
+    }
+  }, []);
+
+  const formik = useFormik({
     initialValues: {
       title: "",
       description: "",
       price: "",
+      quantity: "",
       category: "",
       tags: "",
-      quantity: "",
-      images: [],
       isActive: true,
+      images: [] as File[],
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
       price: Yup.number().required("Price is required").min(0),
       quantity: Yup.number().required("Quantity is required").min(0),
     }),
-    onSubmit: async (values, { setSubmitting }) => {
-        const formData = new FormData();
-        Object.entries(values).forEach(([key, value]) => {
-            if (key === "images" && Array.isArray(value)) {
-              (value as File[]).forEach((file) => formData.append("images", file));
-            } else {
-              formData.append(key, value as string);
-            }
-          });        
-      
-        try {
-          const res = await fetch(`${CDN.sellerProductsApi}/seller/products`, {
-            method: "POST",
-            body: formData,
-            credentials: "include",
-          });
-      
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Failed to submit");
-      
-          // Optional: show success toast
-          alert("Product submitted successfully!");
-          formik.resetForm();
-          setImagePreviews([]);
-        } catch (error) {
-          alert(`Error: ${(error as Error).message}`);
-        } finally {
-          setSubmitting(false);
-        }
-      }
-      
+    onSubmit: async (values) => {
+      console.log("Submitting", values);
+    },
   });
+
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
     const fileArray = Array.from(files);
-    formik.setFieldValue("images", fileArray);
-    const previews = fileArray.map((file) => URL.createObjectURL(file));
-    setImagePreviews(previews);
+    const newFiles = fileArray.slice(0, 7 - imagePreviews.length);
+    const updatedPreviews = [...imagePreviews, ...newFiles.map((file) => URL.createObjectURL(file))];
+    const updatedFiles = [...formik.values.images, ...newFiles];
+
+    formik.setFieldValue("images", updatedFiles);
+    setImagePreviews(updatedPreviews);
+  };
+
+  const handleDraftSave = () => {
+    const draft = JSON.stringify(formik.values);
+    localStorage.setItem("sellerProductDraft", draft);
+    setDraftSaved(true);
+    setTimeout(() => setDraftSaved(false), 2000);
+  };
+
+  const nextImage = () => {
+    setCarouselIndex((prev) => (prev + 1) % imagePreviews.length);
+  };
+
+  const prevImage = () => {
+    setCarouselIndex((prev) => (prev - 1 + imagePreviews.length) % imagePreviews.length);
   };
 
   return (
-    <Card className="max-w-3xl mx-auto mt-8 p-6 space-y-6 shadow-2xl">
-      <h2 className="text-2xl font-semibold tracking-tight">Add a New Product</h2>
-      <CardBody>
-        <form onSubmit={formik.handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="title">Product Title</label>
-              <Input
-                id="title"
-                name="title"
-                value={formik.values.title}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+    <div className="min-h-screen bg-white px-4 py-10">
+      <h1 className="text-3xl font-bold text-center mb-8">Upload Your Product</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        <Card className="p-6">
+          <CardHeader className="mb-4 font-semibold text-xl">Product Details</CardHeader>
+          <CardBody className="space-y-4">
+            <Input id="title" name="title" placeholder="Product Title" value={formik.values.title} onChange={formik.handleChange} onBlur={formik.handleBlur} />
+            {formik.touched.title && formik.errors.title && <p className="text-sm text-red-500">{formik.errors.title}</p>}
+            <Textarea id="description" name="description" placeholder="Description" value={formik.values.description} onChange={formik.handleChange} rows={4} />
+            <div className="flex gap-4">
+              <Input id="price" name="price" placeholder="Price ($)" type="number" value={formik.values.price} onChange={formik.handleChange} onBlur={formik.handleBlur} />
+              <Input id="quantity" name="quantity" placeholder="Quantity" type="number" value={formik.values.quantity} onChange={formik.handleChange} onBlur={formik.handleBlur} />
+            </div>
+            {(formik.touched.price && formik.errors.price) && <p className="text-sm text-red-500">{formik.errors.price}</p>}
+            {(formik.touched.quantity && formik.errors.quantity) && <p className="text-sm text-red-500">{formik.errors.quantity}</p>}
+            <Input id="category" name="category" placeholder="Category" value={formik.values.category} onChange={formik.handleChange} />
+            <Input id="tags" name="tags" placeholder="Tags (comma-separated)" value={formik.values.tags} onChange={formik.handleChange} />
+            <div className="flex items-center gap-4">
+              <Switch
+                id="isActive"
+                checked={formik.values.isActive}
+                onChange={(e) => formik.setFieldValue("isActive", e.target.checked)}
               />
-              {formik.touched.title && formik.errors.title && (
-                <p className="text-red-500 text-sm mt-1">{formik.errors.title}</p>
-              )}
+              <label htmlFor="isActive">Make this product live</label>
             </div>
-            <div>
-              <label htmlFor="price">Price ($)</label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                value={formik.values.price}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              {formik.touched.price && formik.errors.price && (
-                <p className="text-red-500 text-sm mt-1">{formik.errors.price}</p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="quantity">Quantity</label>
-              <Input
-                id="quantity"
-                name="quantity"
-                type="number"
-                value={formik.values.quantity}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              {formik.touched.quantity && formik.errors.quantity && (
-                <p className="text-red-500 text-sm mt-1">{formik.errors.quantity}</p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="category">Category</label>
-              <Input
-                id="category"
-                name="category"
-                value={formik.values.category}
-                onChange={formik.handleChange}
-              />
-            </div>
-          </div>
+          </CardBody>
+        </Card>
 
-          <div>
-            <label htmlFor="description">Description</label>
-            <Textarea
-              id="description"
-              name="description"
-              rows={4}
-              value={formik.values.description}
-              onChange={formik.handleChange}
-            />
-          </div>
+        <Card className="p-6 relative">
+          <CardHeader className="mb-4 font-semibold text-xl">Product Images</CardHeader>
+          <CardBody className="space-y-6">
+            {imagePreviews.length === 0 ? (
+              <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg h-64 cursor-pointer">
+                <label htmlFor="images" className="flex flex-col items-center">
+                  <UploadCloud className="w-10 h-10 text-gray-400" />
+                  <p className="text-sm mt-2 text-gray-500">Click to upload images</p>
+                  <input id="images" name="images" type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
+                </label>
+              </div>
+            ) : (
+              <>
+                <div className="relative w-full h-60 rounded-lg overflow-hidden">
+                  <Image src={imagePreviews[carouselIndex]} alt={`carousel-${carouselIndex}`} fill className="object-cover rounded" />
+                  <button onClick={prevImage} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 rounded-full p-2">
+                    <ChevronLeft className="w-6 h-6 text-gray-800" />
+                  </button>
+                  <button onClick={nextImage} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 rounded-full p-2">
+                    <ChevronRight className="w-6 h-6 text-gray-800" />
+                  </button>
+                </div>
+                <div className="flex justify-between items-end">
+                  <div className="flex gap-3 flex-wrap mt-4">
+                    <AnimatePresence>
+                      {imagePreviews.map((src, idx) => (
+                        <motion.div key={idx} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.3 }}>
+                          <Image src={src} alt={`preview-${idx}`} width={60} height={60} className="rounded-md object-cover border" />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </div>
 
-          <div>
-            <label htmlFor="tags">Tags (comma separated)</label>
-            <Input
-              id="tags"
-              name="tags"
-              value={formik.values.tags}
-              onChange={formik.handleChange}
-            />
-          </div>
+                  {imagePreviews.length < 7 && (
+                    <label htmlFor="images" className="ml-auto mt-4 flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 border border-gray-300 rounded-md cursor-pointer">
+                      <UploadCloud className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm font-medium">Upload More</span>
+                      <input id="images" name="images" type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
+                    </label>
+                  )}
+                </div>
+              </>
+            )}
+          </CardBody>
+        </Card>
+      </div>
 
-          <div>
-            <label htmlFor="images">Product Images</label>
-            <Input
-              id="images"
-              name="images"
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-            <div className="flex gap-4 mt-4 flex-wrap">
-              {imagePreviews.map((src, i) => (
-                <img key={i} src={src} className="w-24 h-24 object-cover rounded shadow" alt="Preview" />
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Switch
-              checked={formik.values.isActive}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => formik.setFieldValue("isActive", e.target.checked)}
-              id="isActive"
-            />
-            <label htmlFor="isActive">Make this product live</label>
-          </div>
-
-          <Button type="submit" className="w-full mt-4">
-            Submit Product
-          </Button>
-        </form>
-      </CardBody>
-    </Card>
+      <div className="max-w-md mx-auto mt-10 flex flex-col gap-4">
+        <Button type="submit" onPress={formik.submitForm} className="w-full text-lg py-6">Submit Product</Button>
+        <Button variant="bordered" onPress={handleDraftSave} className="w-full">Save Draft</Button>
+        {draftSaved && <p className="text-green-600 text-center">Draft saved locally!</p>}
+      </div>
+    </div>
   );
 }
