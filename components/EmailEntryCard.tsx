@@ -68,7 +68,7 @@ export default function EmailEntryCard({
           <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
             <CardHeader className="flex flex-col items-center justify-center space-y-2">
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
+                {/* <div className="flex items-center gap-1">
                   <Image
                     src="/x.png"
                     alt="XYVO Logo"
@@ -76,7 +76,7 @@ export default function EmailEntryCard({
                     width={40}
                     height={40}
                   />
-                </div>
+                </div> */}
                 <FaUserShield size={50} className="text-default-500" />
               </div>
               <h2 className="text-lg font-medium text-center text-default-600">
@@ -113,18 +113,18 @@ export default function EmailEntryCard({
                   Continue
                 </Button>
 
-                <p className="pt-4 text-xs text-center px-2">
+                <p className="pt-4 text-xs text-center px-2 text-default-500">
                   By continuing, you agree to XYVO&apos;s{" "}
                   <Link
                     href="/conditions"
-                    className="underline hover:text-cyan-500 text-white"
+                    className="underline hover:text-blue-500 text-default-500"
                   >
                     Conditions of Use
                   </Link>{" "}
                   and{" "}
                   <Link
                     href="/privacy"
-                    className="underline hover:text-cyan-500 text-white"
+                    className="underline hover:text-blue-500 text-default-500"
                   >
                     Privacy Notice
                   </Link>

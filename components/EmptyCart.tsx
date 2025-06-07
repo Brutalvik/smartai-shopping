@@ -22,7 +22,7 @@ const EmptyCart = () => {
         Your cart is empty
       </h2>
       <p className="text-default-500 mb-6">
-        Looks like you haven’t added anything yet. Start exploring and add your
+        Looks like you haven&apos;t added anything yet. Start exploring and add your
         favorite items to the cart.
       </p>
 

@@ -95,7 +95,7 @@ export default function PasswordCard({
         <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
           <CardHeader className="flex flex-col items-center justify-center space-y-2">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
+              {/* <div className="flex items-center gap-1">
                 <Image
                   src="/x.png"
                   alt="XYVO Logo"
@@ -103,7 +103,7 @@ export default function PasswordCard({
                   width={40}
                   height={40}
                 />
-              </div>
+              </div> */}
               <RiKeyFill size={50} className="text-default-500" />
             </div>
             <h2 className="text-lg font-medium text-center text-default-600">
@@ -168,29 +168,29 @@ export default function PasswordCard({
                 </Button>
               </div>
 
-              <p className="text-xs text-center px-2 text-white/70 mt-1">
-                By continuing, you agree to XYVO&apos;s{" "}
-                <Link
-                  href="/conditions"
-                  className="underline hover:text-blue-500 text-white/70"
-                >
-                  Conditions of Use
-                </Link>{" "}
-                and{" "}
-                <Link
-                  href="/privacy"
-                  className="underline hover:text-blue-500 text-white/70"
-                >
-                  Privacy Notice
-                </Link>
-                .
-              </p>
+              <p className="pt-4 text-xs text-center px-2 text-default-500">
+                  By continuing, you agree to XYVO&apos;s{" "}
+                  <Link
+                    href="/conditions"
+                    className="text-xs underline hover:text-blue-500 text-default-500 ml-1 mr-1"
+                  >
+                    Conditions of Use
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/privacy"
+                    className="text-xs underline hover:text-blue-500 text-default-500 ml-1 mr-1"
+                  >
+                    Privacy Notice
+                  </Link>
+                  .
+                </p>
 
-              <div className="text-xs text-center text-white/80">
+              <div className="text-xs text-center text-default-500">
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/auth/register"
-                  className="underline hover:text-blue-500 text-white/80"
+                  className="text-xs underline hover:text-blue-500 text-default-500 ml-1 mr-1"
                 >
                   Sign up
                 </Link>
