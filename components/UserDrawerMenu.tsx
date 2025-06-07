@@ -6,6 +6,7 @@ import {
   DrawerHeader,
   DrawerBody,
   DrawerFooter,
+  addToast,
 } from "@heroui/react";
 import { Avatar } from "@heroui/avatar";
 import { Button } from "@heroui/button";
@@ -23,7 +24,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
-import { toast } from "react-hot-toast";
 import { CDN } from "@/config/config";
 import { getColorByName, getFirstNameCapitalized } from "@/utils/helper";
 import { useState } from "react";
@@ -67,7 +67,11 @@ export default function UserDrawerMenu() {
       });
 
       if (!res.ok) {
-        toast.error("Failed to sign out.");
+        addToast({
+          description: "Failed to Signout !",
+          color: "danger",
+          timeout: 1000,
+        })
         return;
       }
 
@@ -75,12 +79,20 @@ export default function UserDrawerMenu() {
       localStorage.removeItem("user");
 
       setUser(null);
-      toast.success("You've been signed out.");
+      addToast({
+        description: "You&apos;ve Signed Out",
+        color: "default",
+        timeout: 1000,
+      })
       router.push("/");
       onClose();
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("Something went wrong during logout.");
+      addToast({
+        description: "Something went wrong !",
+        color: "danger",
+        timeout: 1000,
+      })
     }
   };
 

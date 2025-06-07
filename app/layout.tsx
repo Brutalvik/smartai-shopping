@@ -9,7 +9,6 @@ import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 import { CartProvider } from "@/context/CartContext";
 import { UserProvider } from "@/context/UserContext";
-import ClientToaster from "@/components/ui/ClientToast/ClientToaster";
 import ClientLayout from "@/app/ClientLayout";
 
 //Loader
@@ -57,8 +56,7 @@ export default function RootLayout({
                   themeProps={{ attribute: "class", defaultTheme: "dark" }}
                 >
                   <div className="relative flex flex-col h-screen">
-                    {/* Toast client-side only */}
-                    <ClientToaster />
+                
 
                     <Navbar />
                     <main className="container mx-auto max-w-7xl px-6 flex-grow">

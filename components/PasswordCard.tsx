@@ -6,7 +6,6 @@ import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
 import { CDN } from "@/config/config";
 import { useUser } from "@/context/UserContext";
 import { FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
@@ -17,6 +16,7 @@ import { RiKeyFill } from "react-icons/ri";
 import { Image, Link } from "@heroui/react";
 import { FcGoogle } from "react-icons/fc";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
+import { addToast } from "@heroui/react";
 
 export default function PasswordCard({
   email,
@@ -60,12 +60,20 @@ export default function PasswordCard({
           router.push("/");
         } else {
           formik.setFieldError("password", error || "Authentication failed.");
-          toast.error(error || "Invalid credentials.");
+          addToast({
+            description: error || "Invalid Credentials",
+            color: "danger",
+            timeout: 1000,
+          })
         }
       } catch (err) {
         console.error("Sign-in error", err);
         formik.setFieldError("password", "Unexpected error. Please try again.");
-        toast.error("Network or server error.");
+        addToast({
+          description: "Network or Sever Error",
+          color: "danger",
+          timeout: 1000,
+        })
       } finally {
         setIsSubmitting(false);
       }

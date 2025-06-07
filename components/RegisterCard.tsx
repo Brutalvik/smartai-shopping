@@ -9,8 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
-import { toast } from "react-hot-toast";
-import { Select, SelectItem, Tooltip } from "@heroui/react";
+import { addToast, Select, SelectItem, Tooltip } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { countryCodes } from "@/data/countryCodes";
 import { getFirstNameCapitalized, getFlagFromPhone } from "@/utils/helper";
@@ -71,17 +70,25 @@ export default function RegisterCard() {
           setUser(user);
           sessionStorage.setItem("user", JSON.stringify(user));
           localStorage.setItem(
-            "toastMessage",
+            "accountCreated",
             `Welcome ${getFirstNameCapitalized(values.name)}! Account created successfully.`
           );
           router.push("/");
         } else {
           const error = await res.json();
-          toast.error(error.message || "Registration failed.");
+          addToast({
+            description: error.message || "Registration Failed",
+            color: "danger",
+            timeout: 1000,
+          })
         }
       } catch (err) {
         console.error(err);
-        toast.error("Something went wrong.");
+        addToast({
+          description: "Something went wrong !",
+          color: "danger",
+          timeout: 1000,
+        })
       } finally {
         setSubmitting(false);
       }

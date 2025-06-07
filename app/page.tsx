@@ -1,21 +1,29 @@
 "use client";
 import HeroSection from "@/components/HeroSection";
 import { useEffect } from "react";
-import toast from "react-hot-toast";
+import { addToast } from "@heroui/react";
 
 export default function Home() {
   useEffect(() => {
-    const message = localStorage.getItem("toastMessage");
+    const message = localStorage.getItem("accountCreated");
     if (message) {
-      toast.success(message);
-      localStorage.removeItem("toastMessage");
+      addToast({
+        description: message,
+        color: "success",
+        timeout: 1000,
+      })
+      localStorage.removeItem("accountCreated");
     }
   }, []);
 
   useEffect(() => {
     const message = localStorage.getItem("successfulSignin");
     if (message) {
-      toast.success(message);
+      addToast({
+        description: message,
+        color: "primary",
+        timeout: 1000,
+      })
       localStorage.removeItem("successfulSignin");
     }
   }, []);
