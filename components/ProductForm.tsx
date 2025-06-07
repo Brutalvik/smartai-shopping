@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent, KeyboardEvent } from "react"; // Import KeyboardEvent
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Input, Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Switch } from "@heroui/switch";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
-import { Select, SelectItem } from "@heroui/react";
+import { Select, SelectItem, Chip } from "@heroui/react";
 import Image from "next/image";
 import { UploadCloud, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,6 +20,7 @@ export default function SellerProductUploadPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [draftSaved, setDraftSaved] = useState<boolean>(false);
   const [carouselIndex, setCarouselIndex] = useState<number>(0);
+  const [currentTagInput, setCurrentTagInput] = useState<string>(""); // New state for current tag input
 
   useEffect(() => {
     const draft = localStorage.getItem("sellerProductDraft");
@@ -36,7 +37,7 @@ export default function SellerProductUploadPage() {
       price: 0,
       quantity: 0,
       category: "",
-      tags: "",
+      tags: [] as string[],
       isActive: true,
       images: [] as File[],
     },
@@ -48,16 +49,26 @@ export default function SellerProductUploadPage() {
       price: Yup.number()
         .typeError("Price must be a number")
         .required("Price is required")
-        .min(0.1, "Price must be at least $0.10"),
+        .min(0.1, "Price must be at least $1.00"),
       quantity: Yup.number()
         .typeError("Quantity must be a number")
         .required("Quantity is required")
         .min(1, "Quantity should be at least 1"),
       category: Yup.string().required("Category is required"),
-      tags: Yup.string().required("At least one tag is required"),
+      tags: Yup.array().of(Yup.string()).min(1, "At least one tag is required"),
       images: Yup.array()
-        .of(Yup.mixed())
-        .min(3, "At least three images are required")
+        .of(
+          Yup.mixed<File>()
+            .test("fileSize", "Each image must be less than 5MB", (value) => {
+              if (!value) return true;
+              return value.size <= 5 * 1024 * 1024; // 5 MB
+            })
+            .test("fileType", "Unsupported file format", (value) => {
+              if (!value) return true;
+              return ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(value.type);
+            })
+        )
+        .min(2, "At least three images are required")
         .required("Images are required"),
     }),
     onSubmit: async (values) => {
@@ -68,13 +79,35 @@ export default function SellerProductUploadPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    const fileArray = Array.from(files);
-    const newFiles = fileArray.slice(0, 7 - imagePreviews.length);
-    const updatedPreviews = [...imagePreviews, ...newFiles.map((file) => URL.createObjectURL(file))];
-    const updatedFiles = [...formik.values.images, ...newFiles];
 
-    formik.setFieldValue("images", updatedFiles);
-    setImagePreviews(updatedPreviews);
+    const fileArray = Array.from(files);
+    const validFiles: File[] = [];
+    const newImagePreviews: string[] = [];
+    const errors: string[] = [];
+
+    fileArray.forEach((file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        errors.push(`${file.name} is too large (max 5MB).`);
+      } else if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
+        errors.push(`${file.name} has an unsupported file type.`);
+      } else {
+        validFiles.push(file);
+        newImagePreviews.push(URL.createObjectURL(file));
+      }
+    });
+
+    const combinedFiles = [...formik.values.images, ...validFiles].slice(0, 7);
+    const combinedPreviews = [...imagePreviews, ...newImagePreviews].slice(0, 7);
+
+    formik.setFieldValue("images", combinedFiles);
+    setImagePreviews(combinedPreviews);
+
+    if (errors.length > 0) {
+      formik.setFieldError("images", errors.join(" "));
+    } else if (formik.touched.images && formik.errors.images) {
+      formik.setFieldError("images", undefined);
+    }
+    formik.setFieldTouched("images", true);
   };
 
   const handleDraftSave = () => {
@@ -113,21 +146,57 @@ export default function SellerProductUploadPage() {
     formik.setFieldValue("images", updatedFiles);
   };
 
+  // Modified function for tags input change
+  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setCurrentTagInput(e.target.value);
+  };
+
+  // New function to add tags on key press
+  const handleTagInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "," || e.key === " " || e.key === "Enter") {
+      e.preventDefault(); // Prevent default behavior (e.g., submitting form on Enter)
+      const newTag = currentTagInput.trim();
+      if (newTag && !formik.values.tags.includes(newTag)) { // Add only if not empty and not a duplicate
+        formik.setFieldValue("tags", [...formik.values.tags, newTag]);
+        setCurrentTagInput(""); // Clear input after adding tag
+      }
+    }
+  };
+
+  const handleTagRemove = (tagToRemove: string) => {
+    const updatedTags = formik.values.tags.filter(tag => tag !== tagToRemove);
+    formik.setFieldValue("tags", updatedTags);
+  };
+
   return (
     <div className="min-h-screen px-4 py-10">
       <h1 className="text-3xl font-bold text-center mb-8">Upload Your Product</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        {/* Product Details Card */}
         <Card className="p-6">
           <CardHeader className="mb-4 font-semibold text-xl">Product Details</CardHeader>
           <CardBody className="space-y-4">
-            <Input id="title" name="title" placeholder="Product Title" value={formik.values.title} onChange={formik.handleChange} onBlur={formik.handleBlur} />
-            {formik.touched.title && formik.errors.title && <p className="text-sm text-red-500">{formik.errors.title}</p>}
-            <Textarea id="description" name="description" placeholder="Description" value={formik.values.description} 
-              onChange={formik.handleChange} 
-              rows={4} 
-              isInvalid={(formik.touched.description && formik.errors.description) as boolean}
+            <Input
+              id="title"
+              name="title"
+              placeholder="Product Title"
+              value={formik.values.title}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              isInvalid={!!(formik.touched.title && formik.errors.title)}
+              errorMessage={formik.errors.title}
+            />
+            <Textarea
+              id="description"
+              name="description"
+              placeholder="Description"
+              value={formik.values.description}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              rows={4}
+              isInvalid={!!(formik.touched.description && formik.errors.description)}
               errorMessage={formik.errors.description}
-              />
+            />
             <div className="flex gap-4">
               <div className="flex flex-col w-full">
                 <Input
@@ -168,7 +237,7 @@ export default function SellerProductUploadPage() {
                   onChange={(e) => {
                     const val = e.target.value;
                     if (val === "") {
-                      formik.setFieldValue("quantity", 0); 
+                      formik.setFieldValue("quantity", 0);
                     } else {
                       const parsed = parseInt(val);
                       if (!isNaN(parsed)) {
@@ -187,19 +256,40 @@ export default function SellerProductUploadPage() {
               onSelectionChange={(key) => formik.setFieldValue("category", key)}
               label="Product Category"
               className="w-full"
-              isInvalid={(formik.touched.category && formik.errors.category) as boolean}
+              isInvalid={!!(formik.touched.category && formik.errors.category)}
               errorMessage={formik.errors.category}
             >
               {categories.map((cat) => (
                 <SelectItem key={cat.key}>{cat.label}</SelectItem>
               ))}
             </Select>
-            <Input id="tags" name="tags" placeholder="Tags (comma-separated)" 
-            value={formik.values.tags} 
-            onChange={formik.handleChange} 
-            isInvalid={(formik.touched.tags && formik.errors.tags) as boolean}
-            errorMessage={formik.errors.tags}
-            />
+            <div>
+              <Input
+                id="tags"
+                name="tagsInput" // Use a different name for the input element
+                placeholder="Tags (type and press comma, space, or enter)"
+                value={currentTagInput} // Bind to currentTagInput state
+                onChange={handleTagInputChange}
+                onKeyDown={handleTagInputKeyDown} // Add onKeyDown handler
+                onBlur={() => { // Add any remaining tag on blur
+                  const newTag = currentTagInput.trim();
+                  if (newTag && !formik.values.tags.includes(newTag)) {
+                    formik.setFieldValue("tags", [...formik.values.tags, newTag]);
+                    setCurrentTagInput("");
+                  }
+                  formik.handleBlur({ target: { name: 'tags' } }); // Manually trigger blur for the actual 'tags' field
+                }}
+                isInvalid={!!(formik.touched.tags && formik.errors.tags && formik.values.tags.length === 0)}
+                errorMessage={(formik.touched.tags && formik.errors.tags && formik.values.tags.length === 0) ? formik.errors.tags as string : undefined}
+              />
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formik.values.tags.map((tag, index) => (
+                  <Chip key={tag} onClose={() => handleTagRemove(tag)} variant="flat" color="primary"> {/* Use tag as key, it's unique */}
+                    {tag}
+                  </Chip>
+                ))}
+              </div>
+            </div>
             <div className="flex items-center gap-4">
               <Switch
                 id="isActive"
@@ -210,6 +300,8 @@ export default function SellerProductUploadPage() {
             </div>
           </CardBody>
         </Card>
+
+        {/* Product Images Card */}
         <Card className="p-6 relative">
           <CardHeader className="mb-4 font-semibold text-xl">Product Images</CardHeader>
           <CardBody className="space-y-6">
@@ -236,12 +328,16 @@ export default function SellerProductUploadPage() {
               <>
                 <div className="relative w-full h-60 rounded-lg overflow-hidden">
                   <Image src={imagePreviews[carouselIndex]} alt={`carousel-${carouselIndex}`} fill className="object-cover rounded" />
-                  <button onClick={prevImage} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-full p-2">
-                    <ChevronLeft className="w-6 h-6 text-gray-800" />
-                  </button>
-                  <button onClick={nextImage} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20  hover:bg-opacity-40 rounded-full p-2">
-                    <ChevronRight className="w-6 h-6 text-gray-800" />
-                  </button>
+                  {imagePreviews.length > 1 && (
+                    <>
+                      <button onClick={prevImage} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-full p-2">
+                        <ChevronLeft className="w-6 h-6 text-gray-800" />
+                      </button>
+                      <button onClick={nextImage} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20  hover:bg-opacity-40 rounded-full p-2">
+                        <ChevronRight className="w-6 h-6 text-gray-800" />
+                      </button>
+                    </>
+                  )}
                 </div>
                 <DragDropContext onDragEnd={handleDragEnd}>
                   <Droppable droppableId="images" direction="horizontal">
@@ -291,6 +387,10 @@ export default function SellerProductUploadPage() {
                 </DragDropContext>
               </>
             )}
+            {/* Image validation error message, now inside CardBody */}
+            {formik.touched.images && typeof formik.errors.images === 'string' && (
+              <p className="text-center text-sm text-red-500 mt-2">{formik.errors.images}</p>
+            )}
           </CardBody>
           <CardFooter>
             <p className="text-center text-sm text-gray-600 mt-4">
@@ -303,9 +403,13 @@ export default function SellerProductUploadPage() {
           </CardFooter>
         </Card>
       </div>
-      <div className="text-center text-sm text-red-500 mt-2">
+
+      {/* Global Image Error Message (removed as it's now inside CardBody) */}
+      {/* <div className="text-center text-sm text-red-500 mt-2">
         {formik.touched.images && typeof formik.errors.images === 'string' && formik.errors.images}
-      </div>
+      </div> */}
+
+      {/* Form Actions */}
       <div className="max-w-md mx-auto mt-10 flex flex-col gap-4">
         <Button type="submit" onPress={formik.submitForm} className="w-full text-lg py-6">Submit Product</Button>
         <Button variant="bordered" onPress={handleDraftSave} className="w-full">Save Draft</Button>
