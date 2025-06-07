@@ -175,7 +175,7 @@ export default function SellerProductUploadPage() {
     <div className="min-h-screen px-4 py-10">
       <h1 className="text-3xl font-bold text-center mb-8">Upload Your Product</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-      <Card className="p-6">
+      <Card className="p-6 sm:p-2 w-full">
           <CardHeader className="mb-4 font-semibold text-xl">Product Details</CardHeader>
           <CardBody className="space-y-4">
             <Input
