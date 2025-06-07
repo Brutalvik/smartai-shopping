@@ -105,12 +105,59 @@ export default function SellerProductUploadPage() {
             {formik.touched.title && formik.errors.title && <p className="text-sm text-red-500">{formik.errors.title}</p>}
             <Textarea id="description" name="description" placeholder="Description" value={formik.values.description} onChange={formik.handleChange} rows={4} />
             <div className="flex gap-4">
-              <Input id="price" name="price" placeholder="Price ($)" type="number" value={formik.values.price} onChange={formik.handleChange} onBlur={formik.handleBlur} />
-              <Input id="quantity" name="quantity" placeholder="Quantity" type="number" value={formik.values.quantity} onChange={formik.handleChange} onBlur={formik.handleBlur} />
-            </div>
-            {(formik.touched.price && formik.errors.price) && <p className="text-sm text-red-500">{formik.errors.price}</p>}
-            {(formik.touched.quantity && formik.errors.quantity) && <p className="text-sm text-red-500">{formik.errors.quantity}</p>}
-            <Input id="category" name="category" placeholder="Category" value={formik.values.category} onChange={formik.handleChange} />
+  <div className="flex flex-col w-full">
+    <Input
+      id="price"
+      name="price"
+      placeholder="Price ($)"
+      type="number"
+      inputMode="decimal"
+      step="0.01"
+      min="0"
+      value={formik.values.price}
+      onChange={(e) => {
+        let val = e.target.value;
+        if (/^\d+(\.\d{0,2})?$/.test(val) || val === "") {
+          formik.setFieldValue("price", val);
+        }
+      }}
+      onBlur={() => {
+        const priceNum = parseFloat(formik.values.price);
+        if (!isNaN(priceNum)) {
+          formik.setFieldValue("price", priceNum.toFixed(2));
+        }
+      }}
+      className="no-spinner"
+    />
+    {(formik.touched.price && formik.errors.price) && (
+      <p className="text-sm text-red-500 mt-1">{formik.errors.price}</p>
+    )}
+  </div>
+
+  <div className="flex flex-col w-full">
+    <Input
+      id="quantity"
+      name="quantity"
+      placeholder="Quantity"
+      type="number"
+      min="0"
+      value={formik.values.quantity}
+      onChange={(e) => {
+        const val = parseInt(e.target.value);
+        if (!isNaN(val) && val >= 0) {
+          formik.setFieldValue("quantity", val);
+        } else if (e.target.value === "") {
+          formik.setFieldValue("quantity", "");
+        }
+      }}
+    />
+    {(formik.touched.quantity && formik.errors.quantity) && (
+      <p className="text-sm text-red-500 mt-1">{formik.errors.quantity}</p>
+    )}
+  </div>
+</div>
+
+           <Input id="category" name="category" placeholder="Category" value={formik.values.category} onChange={formik.handleChange} />
             <Input id="tags" name="tags" placeholder="Tags (comma-separated)" value={formik.values.tags} onChange={formik.handleChange} />
             <div className="flex items-center gap-4">
               <Switch
