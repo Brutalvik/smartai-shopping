@@ -2,18 +2,18 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const session = req.cookies.get("session");
+  const token = req.cookies.get("token");
 
-  if (!session) {
+  if (!token) {
     const url = req.nextUrl.clone();
     url.pathname = "/auth/signin";
     url.searchParams.set("redirect", req.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
-
+  
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*"], // Protect what you want
+  matcher: ["/seller-product-upload/:path*"],
 };

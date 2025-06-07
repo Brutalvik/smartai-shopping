@@ -57,7 +57,8 @@ export default function PasswordCard({
             "successfulSignin",
             `Welcome ${getFirstNameCapitalized(user.name)}`
           );
-          router.push("/");
+          const redirectTo = new URLSearchParams(window.location.search).get("redirect") || "/";
+          router.push(`/auth/post-login?redirect=${redirectTo}`);
         } else {
           formik.setFieldError("password", error || "Authentication failed.");
           toast.error(error || "Invalid credentials.");

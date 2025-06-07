@@ -7,6 +7,7 @@ import { Input, Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
 import {Switch} from "@heroui/switch";
 import { Card, CardBody } from "@heroui/card";
+import { CDN } from "@/config/config";
 
 
 
@@ -51,10 +52,10 @@ export default function ProductForm() {
           });        
       
         try {
-          const res = await fetch("/api/seller/products", {
+          const res = await fetch(`${CDN.sellerProductsApi}/seller/products`, {
             method: "POST",
-            credentials: "include",
             body: formData,
+            credentials: "include",
           });
       
           const data = await res.json();
