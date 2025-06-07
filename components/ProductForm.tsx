@@ -21,7 +21,12 @@ import {
 import Image from "next/image";
 import { UploadCloud, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
 import ImageConditionsModal from "@/components/ImageConditionsModal";
 import { categories } from "@/data/categories";
 import { CDN } from "@/config/config";
@@ -34,7 +39,11 @@ export default function SellerProductUploadPage() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [currentTagInput, setCurrentTagInput] = useState("");
 
-  const { isOpen: isDraftModalOpen, onOpen: onOpenDraftModal, onClose: onCloseDraftModal } = useDisclosure();
+  const {
+    isOpen: isDraftModalOpen,
+    onOpen: onOpenDraftModal,
+    onClose: onCloseDraftModal,
+  } = useDisclosure();
 
   const formik = useFormik({
     initialValues: {
@@ -49,17 +58,33 @@ export default function SellerProductUploadPage() {
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
-      description: Yup.string().required("Description is required").min(10, "Description must be at least 10 characters"),
-      price: Yup.number().required("Price is required").min(0.1, "Price must be at least $1.00"),
-      quantity: Yup.number().required("Quantity is required").min(1, "Quantity should be at least 1"),
+      description: Yup.string()
+        .required("Description is required")
+        .min(10, "Description must be at least 10 characters"),
+      price: Yup.number()
+        .required("Price is required")
+        .min(0.1, "Price must be at least $1.00"),
+      quantity: Yup.number()
+        .required("Quantity is required")
+        .min(1, "Quantity should be at least 1"),
       category: Yup.string().required("Category is required"),
       tags: Yup.array().of(Yup.string()).min(1, "At least one tag is required"),
       images: Yup.array()
         .of(
           Yup.mixed<File>()
-            .test("fileSize", "Each image must be less than 5MB", (value) => !value || value.size <= 5 * 1024 * 1024)
-            .test("fileType", "Unsupported file format", (value) =>
-              !value || ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(value.type)
+            .test(
+              "fileSize",
+              "Each image must be less than 5MB",
+              (value) => !value || value.size <= 5 * 1024 * 1024
+            )
+            .test(
+              "fileType",
+              "Unsupported file format",
+              (value) =>
+                !value ||
+                ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(
+                  value.type
+                )
             )
         )
         .min(3, "At least three images are required")
@@ -69,7 +94,6 @@ export default function SellerProductUploadPage() {
       if (!values.isActive) {
         onOpenDraftModal();
       } else {
-        console.log("Product is active. Preparing to publish:", values);
         const formData = new FormData();
 
         formData.append("title", values.title);
@@ -79,44 +103,51 @@ export default function SellerProductUploadPage() {
         formData.append("category", values.category);
         formData.append("tags", values.tags.join(","));
         formData.append("isActive", String(values.isActive));
-      
+
         values.images.forEach((file) => {
           formData.append("images", file);
         });
-      
+
+        console.log(
+          "🧾 formData instanceof FormData:",
+          formData instanceof FormData
+        );
+        console.log("🧾 formData entries:");
+        for (let [key, val] of formData.entries()) {
+          console.log(`${key}:`, val);
+        }
+
         try {
-          const response = await fetch(`${CDN.sellerProductsApi}/seller/products`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              // Do NOT set Content-Type manually for multipart
-              // 'Content-Type': 'multipart/form-data' → browser handles this
-            },
-            body: formData,
-          });
+          const response = await fetch(
+            `${CDN.sellerProductsApi}/seller/products`,
+            {
+              method: "POST",
+              credentials: "include",
+              body: formData,
+            }
+          );
           const result = await response.json();
-          console.log("RESULT FROM API :", result)
-      
+
           if (!response.ok) {
             addToast({
               description: `Upload Failed ! ${result?.error}`,
               color: "danger",
               timeout: 2000,
-            }) 
+            });
             return;
           }
           addToast({
             description: "Upload Success !",
             color: "success",
             timeout: 2000,
-          }) 
+          });
         } catch (err) {
           console.error("Upload Error", err);
           addToast({
             description: "Upload Error !",
             color: "danger",
             timeout: 2000,
-          })     
+          });
         }
       }
     },
@@ -143,7 +174,11 @@ export default function SellerProductUploadPage() {
     fileArray.forEach((file) => {
       if (file.size > 5 * 1024 * 1024) {
         errors.push(`${file.name} is too large (max 5MB).`);
-      } else if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
+      } else if (
+        !["image/jpeg", "image/png", "image/gif", "image/webp"].includes(
+          file.type
+        )
+      ) {
         errors.push(`${file.name} has an unsupported file type.`);
       } else {
         validFiles.push(file);
@@ -152,14 +187,20 @@ export default function SellerProductUploadPage() {
     });
 
     const combinedFiles = [...formik.values.images, ...validFiles].slice(0, 7);
-    const combinedPreviews = [...imagePreviews, ...newImagePreviews].slice(0, 7);
+    const combinedPreviews = [...imagePreviews, ...newImagePreviews].slice(
+      0,
+      7
+    );
 
     formik.setFieldValue("images", combinedFiles);
     setImagePreviews(combinedPreviews);
 
     if (errors.length > 0) {
       formik.setFieldError("images", errors.join(" "));
-    } else if (formik.errors.images && typeof formik.errors.images === "string") {
+    } else if (
+      formik.errors.images &&
+      typeof formik.errors.images === "string"
+    ) {
       formik.setFieldError("images", undefined);
     }
 
@@ -188,8 +229,12 @@ export default function SellerProductUploadPage() {
     setTimeout(() => setDraftSaved(false), 2000);
   };
 
-  const nextImage = () => setCarouselIndex((prev) => (prev + 1) % imagePreviews.length);
-  const prevImage = () => setCarouselIndex((prev) => (prev - 1 + imagePreviews.length) % imagePreviews.length);
+  const nextImage = () =>
+    setCarouselIndex((prev) => (prev + 1) % imagePreviews.length);
+  const prevImage = () =>
+    setCarouselIndex(
+      (prev) => (prev - 1 + imagePreviews.length) % imagePreviews.length
+    );
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -203,7 +248,8 @@ export default function SellerProductUploadPage() {
     formik.setFieldValue("images", updatedFiles);
   };
 
-  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) => setCurrentTagInput(e.target.value);
+  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) =>
+    setCurrentTagInput(e.target.value);
 
   const handleTagInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "," || e.key === " " || e.key === "Enter") {
@@ -217,15 +263,22 @@ export default function SellerProductUploadPage() {
   };
 
   const handleTagRemove = (tagToRemove: string) => {
-    formik.setFieldValue("tags", formik.values.tags.filter((tag) => tag !== tagToRemove));
+    formik.setFieldValue(
+      "tags",
+      formik.values.tags.filter((tag) => tag !== tagToRemove)
+    );
   };
 
   return (
     <div className="min-h-screen">
-      <h1 className="text-3xl font-bold text-center mb-8">Upload Your Product</h1>
+      <h1 className="text-3xl font-bold text-center mb-8">
+        Upload Your Product
+      </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
-      <Card className="w-full">
-          <CardHeader className="mb-4 font-semibold text-xl">Product Details</CardHeader>
+        <Card className="w-full">
+          <CardHeader className="mb-4 font-semibold text-xl">
+            Product Details
+          </CardHeader>
           <CardBody className="space-y-4">
             <Input
               id="title"
@@ -245,7 +298,9 @@ export default function SellerProductUploadPage() {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               rows={4}
-              isInvalid={!!(formik.touched.description && formik.errors.description)}
+              isInvalid={
+                !!(formik.touched.description && formik.errors.description)
+              }
               errorMessage={formik.errors.description}
             />
             <div className="flex gap-4">
@@ -283,7 +338,9 @@ export default function SellerProductUploadPage() {
                   step="1"
                   inputMode="numeric"
                   value={String(formik.values.quantity)}
-                  isInvalid={!!(formik.touched.quantity && formik.errors.quantity)}
+                  isInvalid={
+                    !!(formik.touched.quantity && formik.errors.quantity)
+                  }
                   errorMessage={formik.errors.quantity}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -328,17 +385,37 @@ export default function SellerProductUploadPage() {
                 onBlur={() => {
                   const newTag = currentTagInput.trim();
                   if (newTag && !formik.values.tags.includes(newTag)) {
-                    formik.setFieldValue("tags", [...formik.values.tags, newTag]);
+                    formik.setFieldValue("tags", [
+                      ...formik.values.tags,
+                      newTag,
+                    ]);
                     setCurrentTagInput("");
                   }
-                  formik.handleBlur({ target: { name: 'tags' } });
+                  formik.handleBlur({ target: { name: "tags" } });
                 }}
-                isInvalid={!!(formik.touched.tags && formik.errors.tags && formik.values.tags.length === 0)}
-                errorMessage={(formik.touched.tags && formik.errors.tags && formik.values.tags.length === 0) ? formik.errors.tags as string : undefined}
+                isInvalid={
+                  !!(
+                    formik.touched.tags &&
+                    formik.errors.tags &&
+                    formik.values.tags.length === 0
+                  )
+                }
+                errorMessage={
+                  formik.touched.tags &&
+                  formik.errors.tags &&
+                  formik.values.tags.length === 0
+                    ? (formik.errors.tags as string)
+                    : undefined
+                }
               />
               <div className="flex flex-wrap gap-2 mt-2">
                 {formik.values.tags.map((tag, index) => (
-                  <Chip key={tag} onClose={() => handleTagRemove(tag)} variant="flat" color="primary">
+                  <Chip
+                    key={tag}
+                    onClose={() => handleTagRemove(tag)}
+                    variant="flat"
+                    color="primary"
+                  >
                     {tag}
                   </Chip>
                 ))}
@@ -348,7 +425,9 @@ export default function SellerProductUploadPage() {
               <Switch
                 id="isActive"
                 checked={formik.values.isActive}
-                onChange={(e) => formik.setFieldValue("isActive", e.target.checked)}
+                onChange={(e) =>
+                  formik.setFieldValue("isActive", e.target.checked)
+                }
               />
               <label htmlFor="isActive">Publish Now</label>
             </div>
@@ -356,13 +435,28 @@ export default function SellerProductUploadPage() {
         </Card>
 
         <Card className="p-2 relative">
-          <CardHeader className="mb-4 font-semibold text-xl">Product Images</CardHeader>
+          <CardHeader className="mb-4 font-semibold text-xl">
+            Product Images
+          </CardHeader>
           <CardBody className="space-y-6">
             {imagePreviews.length === 0 ? (
-              <label htmlFor="images" className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg h-64 cursor-pointer">
+              <label
+                htmlFor="images"
+                className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg h-64 cursor-pointer"
+              >
                 <UploadCloud className="w-10 h-10 text-gray-400" />
-                <p className="text-sm mt-2 text-gray-500">Click to upload images</p>
-                <input id="images" name="images" type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
+                <p className="text-sm mt-2 text-gray-500">
+                  Click to upload images
+                </p>
+                <input
+                  id="images"
+                  name="images"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
               </label>
             ) : (
               <>
@@ -406,12 +500,21 @@ export default function SellerProductUploadPage() {
                 <DragDropContext onDragEnd={handleDragEnd}>
                   <Droppable droppableId="images" direction="horizontal">
                     {(provided) => (
-                      <div className="flex gap-3 flex-wrap mt-4" ref={provided.innerRef} {...provided.droppableProps}>
+                      <div
+                        className="flex gap-3 flex-wrap mt-4"
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                      >
                         <AnimatePresence>
                           {imagePreviews.map((src, idx) => (
                             <Draggable key={src} draggableId={src} index={idx}>
                               {(provided) => (
-                                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="relative">
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className="relative"
+                                >
                                   <motion.div
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -425,7 +528,9 @@ export default function SellerProductUploadPage() {
                                       width={60}
                                       height={60}
                                       className={`rounded-md object-cover border cursor-pointer ${
-                                        idx === carouselIndex ? "ring-2 ring-blue-500" : ""
+                                        idx === carouselIndex
+                                          ? "ring-2 ring-blue-500"
+                                          : ""
                                       }`}
                                       onClick={() => setCarouselIndex(idx)}
                                     />
@@ -443,55 +548,107 @@ export default function SellerProductUploadPage() {
                           ))}
                         </AnimatePresence>
                         {provided.placeholder}
-                      {imagePreviews.length < 7 && (
-                        <label
-                          htmlFor="images"
-                          className="absolute bottom-4 right-4 flex items-center gap-2 border border-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md cursor-pointer shadow transition-all"
-                        >
-                          <UploadCloud className="w-4 h-4" />
-                          <span className="text-sm font-medium">Upload More</span>
-                          <input id="images" name="images" type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
-                        </label>
-                      )}
+                        {imagePreviews.length < 7 && (
+                          <label
+                            htmlFor="images"
+                            className="absolute bottom-4 right-4 flex items-center gap-2 border border-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md cursor-pointer shadow transition-all"
+                          >
+                            <UploadCloud className="w-4 h-4" />
+                            <span className="text-sm font-medium">
+                              Upload More
+                            </span>
+                            <input
+                              id="images"
+                              name="images"
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className="hidden"
+                              onChange={handleImageChange}
+                            />
+                          </label>
+                        )}
                       </div>
                     )}
                   </Droppable>
                 </DragDropContext>
               </>
             )}
-            {formik.touched.images && typeof formik.errors.images === "string" && (
-              <p className="text-center text-sm text-red-500 mt-2">{formik.errors.images}</p>
-            )}
+            {formik.touched.images &&
+              typeof formik.errors.images === "string" && (
+                <p className="text-center text-sm text-red-500 mt-2">
+                  {formik.errors.images}
+                </p>
+              )}
           </CardBody>
           <CardFooter>
             <p className="text-center text-sm text-gray-600 mt-4">
-              By uploading images, you confirm that you are the lawful owner or have appropriate rights to use them and{" "}
-              <span onClick={() => setShowImageTerms(true)} className="underline cursor-pointer text-gray-700 hover:text-blue-600 transition-colors">
+              By uploading images, you confirm that you are the lawful owner or
+              have appropriate rights to use them and{" "}
+              <span
+                onClick={() => setShowImageTerms(true)}
+                className="underline cursor-pointer text-gray-700 hover:text-blue-600 transition-colors"
+              >
                 agree to the image usage terms
-              </span>.
+              </span>
+              .
             </p>
-            <ImageConditionsModal open={showImageTerms} onClose={() => setShowImageTerms(false)} />
+            <ImageConditionsModal
+              open={showImageTerms}
+              onClose={() => setShowImageTerms(false)}
+            />
           </CardFooter>
         </Card>
       </div>
 
       <div className="max-w-md mx-auto mt-10 flex flex-col gap-4">
-        <Button type="submit" onPress={formik.submitForm} className="w-full text-lg py-6">Submit Product</Button>
-        <Button variant="bordered" onPress={handleDraftSave} className="w-full">Save Draft</Button>
-        {draftSaved && <p className="text-green-600 text-center">Draft saved locally!</p>}
+        <Button
+          type="submit"
+          onPress={formik.submitForm}
+          className="w-full text-lg py-6"
+        >
+          Submit Product
+        </Button>
+        <Button variant="bordered" onPress={handleDraftSave} className="w-full">
+          Save Draft
+        </Button>
+        {draftSaved && (
+          <p className="text-green-600 text-center">Draft saved locally!</p>
+        )}
       </div>
 
       <Modal isOpen={isDraftModalOpen} onOpenChange={onCloseDraftModal}>
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="text-xl font-semibold">Product in Draft Mode</ModalHeader>
+              <ModalHeader className="text-xl font-semibold">
+                Product in Draft Mode
+              </ModalHeader>
               <ModalBody>
-                <p>This product is currently set to be a draft. Would you like to publish it now or save it as a draft?</p>
+                <p>
+                  This product is currently set to be a draft. Would you like to
+                  publish it now or save it as a draft?
+                </p>
               </ModalBody>
               <ModalFooter>
-                <Button variant="bordered" onPress={() => { onClose(); handleDraftSave(); }}>Save Draft</Button>
-                <Button onPress={() => { onClose(); formik.setFieldValue("isActive", true); formik.submitForm(); }}>Publish</Button>
+                <Button
+                  variant="bordered"
+                  onPress={() => {
+                    onClose();
+                    handleDraftSave();
+                  }}
+                >
+                  Save Draft
+                </Button>
+                <Button
+                  onPress={() => {
+                    onClose();
+                    formik.setFieldValue("isActive", true);
+                    formik.submitForm();
+                  }}
+                >
+                  Publish
+                </Button>
               </ModalFooter>
             </>
           )}
