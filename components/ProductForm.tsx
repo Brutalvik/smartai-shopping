@@ -6,16 +6,20 @@ import * as Yup from "yup";
 import { Input, Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Switch } from "@heroui/switch";
-import { Card, CardHeader, CardBody } from "@heroui/card";
+import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
+import { Select, SelectItem } from "@heroui/react";
 import Image from "next/image";
 import { UploadCloud, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import ImageConditionsModal from "@/components/ImageConditionsModal";
+import { categories } from "@/data/categories";
 
 export default function SellerProductUploadPage() {
+  const [showImageTerms, setShowImageTerms] = useState<boolean>(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [draftSaved, setDraftSaved] = useState(false);
-  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [draftSaved, setDraftSaved] = useState<boolean>(false);
+  const [carouselIndex, setCarouselIndex] = useState<number>(0);
 
   useEffect(() => {
     const draft = localStorage.getItem("sellerProductDraft");
@@ -29,8 +33,8 @@ export default function SellerProductUploadPage() {
     initialValues: {
       title: "",
       description: "",
-      price: "",
-      quantity: "",
+      price: 0,
+      quantity: 0,
       category: "",
       tags: "",
       isActive: true,
@@ -38,8 +42,23 @@ export default function SellerProductUploadPage() {
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
-      price: Yup.number().required("Price is required").min(0),
-      quantity: Yup.number().required("Quantity is required").min(0),
+      description: Yup.string()
+        .required("Description is required")
+        .min(10, "Description must be at least 10 characters"),
+      price: Yup.number()
+        .typeError("Price must be a number")
+        .required("Price is required")
+        .min(0.1, "Price must be at least $0.10"),
+      quantity: Yup.number()
+        .typeError("Quantity must be a number")
+        .required("Quantity is required")
+        .min(1, "Quantity should be at least 1"),
+      category: Yup.string().required("Category is required"),
+      tags: Yup.string().required("At least one tag is required"),
+      images: Yup.array()
+        .of(Yup.mixed())
+        .min(3, "At least three images are required")
+        .required("Images are required"),
     }),
     onSubmit: async (values) => {
       console.log("Submitting", values);
@@ -103,62 +122,84 @@ export default function SellerProductUploadPage() {
           <CardBody className="space-y-4">
             <Input id="title" name="title" placeholder="Product Title" value={formik.values.title} onChange={formik.handleChange} onBlur={formik.handleBlur} />
             {formik.touched.title && formik.errors.title && <p className="text-sm text-red-500">{formik.errors.title}</p>}
-            <Textarea id="description" name="description" placeholder="Description" value={formik.values.description} onChange={formik.handleChange} rows={4} />
+            <Textarea id="description" name="description" placeholder="Description" value={formik.values.description} 
+              onChange={formik.handleChange} 
+              rows={4} 
+              isInvalid={(formik.touched.description && formik.errors.description) as boolean}
+              errorMessage={formik.errors.description}
+              />
             <div className="flex gap-4">
-  <div className="flex flex-col w-full">
-    <Input
-      id="price"
-      name="price"
-      placeholder="Price ($)"
-      type="number"
-      inputMode="decimal"
-      step="0.01"
-      min="0"
-      value={formik.values.price}
-      onChange={(e) => {
-        let val = e.target.value;
-        if (/^\d+(\.\d{0,2})?$/.test(val) || val === "") {
-          formik.setFieldValue("price", val);
-        }
-      }}
-      onBlur={() => {
-        const priceNum = parseFloat(formik.values.price);
-        if (!isNaN(priceNum)) {
-          formik.setFieldValue("price", priceNum.toFixed(2));
-        }
-      }}
-      className="no-spinner"
-    />
-    {(formik.touched.price && formik.errors.price) && (
-      <p className="text-sm text-red-500 mt-1">{formik.errors.price}</p>
-    )}
-  </div>
-
-  <div className="flex flex-col w-full">
-    <Input
-      id="quantity"
-      name="quantity"
-      placeholder="Quantity"
-      type="number"
-      min="0"
-      value={formik.values.quantity}
-      onChange={(e) => {
-        const val = parseInt(e.target.value);
-        if (!isNaN(val) && val >= 0) {
-          formik.setFieldValue("quantity", val);
-        } else if (e.target.value === "") {
-          formik.setFieldValue("quantity", "");
-        }
-      }}
-    />
-    {(formik.touched.quantity && formik.errors.quantity) && (
-      <p className="text-sm text-red-500 mt-1">{formik.errors.quantity}</p>
-    )}
-  </div>
-</div>
-
-           <Input id="category" name="category" placeholder="Category" value={formik.values.category} onChange={formik.handleChange} />
-            <Input id="tags" name="tags" placeholder="Tags (comma-separated)" value={formik.values.tags} onChange={formik.handleChange} />
+              <div className="flex flex-col w-full">
+                <Input
+                  id="price"
+                  name="price"
+                  placeholder="Price ($)"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.01"
+                  min="0"
+                  value={JSON.stringify(formik.values.price)}
+                  isInvalid={!!(formik.touched.price && formik.errors.price)}
+                  errorMessage={formik.errors.price}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val)) {
+                      formik.setFieldValue("price", val);
+                    } else {
+                      formik.setFieldValue("price", 0);
+                    }
+                  }}
+                  onBlur={formik.handleBlur}
+                  className="no-spinner"
+                />
+              </div>
+              <div className="flex flex-col w-full">
+                <Input
+                  id="quantity"
+                  name="quantity"
+                  placeholder="Quantity"
+                  type="number"
+                  min="1"
+                  step="1"
+                  inputMode="numeric"
+                  value={String(formik.values.quantity)}
+                  isInvalid={!!(formik.touched.quantity && formik.errors.quantity)}
+                  errorMessage={formik.errors.quantity}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "") {
+                      formik.setFieldValue("quantity", 0); 
+                    } else {
+                      const parsed = parseInt(val);
+                      if (!isNaN(parsed)) {
+                        formik.setFieldValue("quantity", parsed);
+                      }
+                    }
+                  }}
+                  onBlur={formik.handleBlur}
+                />
+              </div>
+            </div>
+            <Select
+              id="category"
+              name="category"
+              selectedKeys={formik.values.category}
+              onSelectionChange={(key) => formik.setFieldValue("category", key)}
+              label="Product Category"
+              className="w-full"
+              isInvalid={(formik.touched.category && formik.errors.category) as boolean}
+              errorMessage={formik.errors.category}
+            >
+              {categories.map((cat) => (
+                <SelectItem key={cat.key}>{cat.label}</SelectItem>
+              ))}
+            </Select>
+            <Input id="tags" name="tags" placeholder="Tags (comma-separated)" 
+            value={formik.values.tags} 
+            onChange={formik.handleChange} 
+            isInvalid={(formik.touched.tags && formik.errors.tags) as boolean}
+            errorMessage={formik.errors.tags}
+            />
             <div className="flex items-center gap-4">
               <Switch
                 id="isActive"
@@ -169,7 +210,6 @@ export default function SellerProductUploadPage() {
             </div>
           </CardBody>
         </Card>
-
         <Card className="p-6 relative">
           <CardHeader className="mb-4 font-semibold text-xl">Product Images</CardHeader>
           <CardBody className="space-y-6">
@@ -252,9 +292,20 @@ export default function SellerProductUploadPage() {
               </>
             )}
           </CardBody>
+          <CardFooter>
+            <p className="text-center text-sm text-gray-600 mt-4">
+              By uploading images, you confirm that you are the lawful owner or have appropriate rights to use them and&nbsp;
+              <span onClick={() => setShowImageTerms(true)} className="underline cursor-pointer text-gray-700 hover:text-blue-600 transition-colors">
+                agree to the image usage terms
+              </span>.
+            </p>
+            <ImageConditionsModal open={showImageTerms} onClose={() => setShowImageTerms(false)} />
+          </CardFooter>
         </Card>
       </div>
-
+      <div className="text-center text-sm text-red-500 mt-2">
+        {formik.touched.images && typeof formik.errors.images === 'string' && formik.errors.images}
+      </div>
       <div className="max-w-md mx-auto mt-10 flex flex-col gap-4">
         <Button type="submit" onPress={formik.submitForm} className="w-full text-lg py-6">Submit Product</Button>
         <Button variant="bordered" onPress={handleDraftSave} className="w-full">Save Draft</Button>
