@@ -172,10 +172,10 @@ export default function SellerProductUploadPage() {
   };
 
   return (
-    <div className="min-h-screen px-4 py-10">
+    <div className="min-h-screen">
       <h1 className="text-3xl font-bold text-center mb-8">Upload Your Product</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-      <Card className="p-6 sm:p-2 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
+      <Card className="w-full">
           <CardHeader className="mb-4 font-semibold text-xl">Product Details</CardHeader>
           <CardBody className="space-y-4">
             <Input
@@ -306,7 +306,7 @@ export default function SellerProductUploadPage() {
           </CardBody>
         </Card>
 
-        <Card className="p-6 relative">
+        <Card className="p-2 relative">
           <CardHeader className="mb-4 font-semibold text-xl">Product Images</CardHeader>
           <CardBody className="space-y-6">
             {imagePreviews.length === 0 ? (
