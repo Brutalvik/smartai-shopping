@@ -31,15 +31,18 @@ const ImageConditionsModal: React.FC<ImageConditionsModalProps> = ({ open, onClo
           <Image
             src="/xyvo.png"
             alt="Xyvo Logo"
-            width={28}
-            height={28}
+            width={90}
+            height={90}
             className="rounded-md"
           />
-          Image Upload Terms
+     
         </ModalHeader>
 
         {/* Modal body */}
-        <ModalBody className="space-y-4 text-sm text-gray-700 leading-relaxed">
+        <ModalBody className="space-y-4 text-sm text-default-400 leading-relaxed">
+          <div className="flex items-center justify-center">
+            <p className="font-bold text-default-400">Image Upload Terms</p>
+          </div>
           <p>
             By uploading images to <strong>Xyvo</strong>, you affirm and agree that you are solely and fully responsible
             for the content you submit. You further confirm that:

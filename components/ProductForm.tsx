@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState, ChangeEvent, KeyboardEvent } from "react"; // Import KeyboardEvent
+import { useEffect, useState, ChangeEvent, KeyboardEvent } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Input, Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Switch } from "@heroui/switch";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
-import { Select, SelectItem, Chip } from "@heroui/react";
+// Import Modal components from @heroui/react
+import { Select, SelectItem, Chip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import Image from "next/image";
 import { UploadCloud, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,7 +21,10 @@ export default function SellerProductUploadPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [draftSaved, setDraftSaved] = useState<boolean>(false);
   const [carouselIndex, setCarouselIndex] = useState<number>(0);
-  const [currentTagInput, setCurrentTagInput] = useState<string>(""); // New state for current tag input
+  const [currentTagInput, setCurrentTagInput] = useState<string>("");
+
+  // Use heroui's useDisclosure hook for the draft modal
+  const {isOpen: isDraftModalOpen, onOpen: onOpenDraftModal, onClose: onCloseDraftModal} = useDisclosure();
 
   useEffect(() => {
     const draft = localStorage.getItem("sellerProductDraft");
@@ -38,7 +42,7 @@ export default function SellerProductUploadPage() {
       quantity: 0,
       category: "",
       tags: [] as string[],
-      isActive: true,
+      isActive: false, // Default to false for draft mode
       images: [] as File[],
     },
     validationSchema: Yup.object({
@@ -72,7 +76,36 @@ export default function SellerProductUploadPage() {
         .required("Images are required"),
     }),
     onSubmit: async (values) => {
-      console.log("Submitting", values);
+      // If product is not active, open the draft modal
+      if (!values.isActive) {
+        onOpenDraftModal();
+      } else {
+        // This is where your actual POST request for publishing would go
+        console.log("Product is active. Preparing to publish:", values);
+        // Example of a POST request (commented out as requested):
+        /*
+        try {
+          const response = await fetch('/api/products', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(values),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log("Product published successfully:", result);
+          // Optionally, redirect user or show success message
+        } catch (error) {
+          console.error("Error publishing product:", error);
+          // Handle error, show user a message
+        }
+        */
+      }
     },
   });
 
@@ -146,19 +179,17 @@ export default function SellerProductUploadPage() {
     formik.setFieldValue("images", updatedFiles);
   };
 
-  // Modified function for tags input change
   const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCurrentTagInput(e.target.value);
   };
 
-  // New function to add tags on key press
   const handleTagInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "," || e.key === " " || e.key === "Enter") {
-      e.preventDefault(); // Prevent default behavior (e.g., submitting form on Enter)
+      e.preventDefault();
       const newTag = currentTagInput.trim();
-      if (newTag && !formik.values.tags.includes(newTag)) { // Add only if not empty and not a duplicate
+      if (newTag && !formik.values.tags.includes(newTag)) {
         formik.setFieldValue("tags", [...formik.values.tags, newTag]);
-        setCurrentTagInput(""); // Clear input after adding tag
+        setCurrentTagInput("");
       }
     }
   };
@@ -266,25 +297,25 @@ export default function SellerProductUploadPage() {
             <div>
               <Input
                 id="tags"
-                name="tagsInput" // Use a different name for the input element
+                name="tagsInput"
                 placeholder="Tags (type and press comma, space, or enter)"
-                value={currentTagInput} // Bind to currentTagInput state
+                value={currentTagInput}
                 onChange={handleTagInputChange}
-                onKeyDown={handleTagInputKeyDown} // Add onKeyDown handler
-                onBlur={() => { // Add any remaining tag on blur
+                onKeyDown={handleTagInputKeyDown}
+                onBlur={() => {
                   const newTag = currentTagInput.trim();
                   if (newTag && !formik.values.tags.includes(newTag)) {
                     formik.setFieldValue("tags", [...formik.values.tags, newTag]);
                     setCurrentTagInput("");
                   }
-                  formik.handleBlur({ target: { name: 'tags' } }); // Manually trigger blur for the actual 'tags' field
+                  formik.handleBlur({ target: { name: 'tags' } });
                 }}
                 isInvalid={!!(formik.touched.tags && formik.errors.tags && formik.values.tags.length === 0)}
                 errorMessage={(formik.touched.tags && formik.errors.tags && formik.values.tags.length === 0) ? formik.errors.tags as string : undefined}
               />
               <div className="flex flex-wrap gap-2 mt-2">
                 {formik.values.tags.map((tag, index) => (
-                  <Chip key={tag} onClose={() => handleTagRemove(tag)} variant="flat" color="primary"> {/* Use tag as key, it's unique */}
+                  <Chip key={tag} onClose={() => handleTagRemove(tag)} variant="flat" color="primary">
                     {tag}
                   </Chip>
                 ))}
@@ -296,7 +327,7 @@ export default function SellerProductUploadPage() {
                 checked={formik.values.isActive}
                 onChange={(e) => formik.setFieldValue("isActive", e.target.checked)}
               />
-              <label htmlFor="isActive">Make this product live</label>
+              <label htmlFor="isActive">Publish Now</label>
             </div>
           </CardBody>
         </Card>
@@ -404,17 +435,43 @@ export default function SellerProductUploadPage() {
         </Card>
       </div>
 
-      {/* Global Image Error Message (removed as it's now inside CardBody) */}
-      {/* <div className="text-center text-sm text-red-500 mt-2">
-        {formik.touched.images && typeof formik.errors.images === 'string' && formik.errors.images}
-      </div> */}
-
       {/* Form Actions */}
       <div className="max-w-md mx-auto mt-10 flex flex-col gap-4">
         <Button type="submit" onPress={formik.submitForm} className="w-full text-lg py-6">Submit Product</Button>
         <Button variant="bordered" onPress={handleDraftSave} className="w-full">Save Draft</Button>
         {draftSaved && <p className="text-green-600 text-center">Draft saved locally!</p>}
       </div>
+
+      {/* Draft Mode Confirmation Modal (using heroui Modal) */}
+      <Modal isOpen={isDraftModalOpen} onOpenChange={onCloseDraftModal}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 text-xl font-semibold text-grey-400">Product in Draft Mode</ModalHeader>
+              <ModalBody>
+                <p className="text-gray-400">
+                  This product is currently set to be a draft. Would you like to publish it now or save it as a draft?
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="bordered" onPress={() => {
+                  onClose(); // Close the modal
+                  handleDraftSave(); // Save as draft
+                }}>
+                  Save Draft
+                </Button>
+                <Button onPress={() => {
+                  onClose(); // Close the modal
+                  formik.setFieldValue("isActive", true); // Set to active
+                  formik.submitForm(); // Re-submit the form, which will now proceed to the 'publish' logic
+                }}>
+                  Publish
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
