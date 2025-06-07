@@ -24,6 +24,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import ImageConditionsModal from "@/components/ImageConditionsModal";
 import { categories } from "@/data/categories";
+import { CDN } from "@/config/config";
+import { addToast } from "@heroui/react";
 
 export default function SellerProductUploadPage() {
   const [showImageTerms, setShowImageTerms] = useState(false);
@@ -68,7 +70,54 @@ export default function SellerProductUploadPage() {
         onOpenDraftModal();
       } else {
         console.log("Product is active. Preparing to publish:", values);
-        // API logic...
+        const formData = new FormData();
+
+        formData.append("title", values.title);
+        formData.append("description", values.description);
+        formData.append("price", values.price.toString());
+        formData.append("quantity", values.quantity.toString());
+        formData.append("category", values.category);
+        formData.append("tags", values.tags.join(","));
+        formData.append("isActive", String(values.isActive));
+      
+        values.images.forEach((file) => {
+          formData.append("images", file);
+        });
+      
+        try {
+          const response = await fetch(`${CDN.sellerProductsApi}/seller/products`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              // Do NOT set Content-Type manually for multipart
+              // 'Content-Type': 'multipart/form-data' → browser handles this
+            },
+            body: formData,
+          });
+          const result = await response.json();
+          console.log("RESULT FROM API :", result)
+      
+          if (!response.ok) {
+            addToast({
+              description: `Upload Failed ! ${result?.error}`,
+              color: "danger",
+              timeout: 2000,
+            }) 
+            return;
+          }
+          addToast({
+            description: "Upload Success !",
+            color: "success",
+            timeout: 2000,
+          }) 
+        } catch (err) {
+          console.error("Upload Error", err);
+          addToast({
+            description: "Upload Error !",
+            color: "danger",
+            timeout: 2000,
+          })     
+        }
       }
     },
   });
