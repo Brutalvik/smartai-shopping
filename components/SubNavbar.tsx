@@ -16,16 +16,13 @@ const categories = [
   "Best Sellers",
   "Electronics",
   "Deals Store",
-  "New Releases",
-  "Home",
-  "Books",
   "Fashion",
   "Sports & Outdoors",
   "Home Improvement",
   "Toys & Games",
   "Music",
   "Health & Household",
-  "Discover Canada Showcase",
+  "Discover",
 ];
 
 export default function SubNavbar() {
@@ -141,7 +138,6 @@ export default function SubNavbar() {
                 )}
               >
                 {category}
-                {isElite && <span className="ml-1">✨</span>}
                 {isElite && (
                   <ChevronDown className="inline w-4 h-4 ml-1 text-yellow-400" />
                 )}
