@@ -115,6 +115,7 @@ export default function RegisterCard() {
   };
 
   useEffect(() => {
+    formik.resetForm();
     const initialCountry = countryCodes.find((c) => c.dial_code === "+1");
     if (initialCountry) {
       setFlag(initialCountry.flag);
