@@ -101,7 +101,7 @@ export default function SubNavbar() {
   }, []);
 
   return (
-    <div className="w-full z-40 backdrop-blur-sm text-default-7 00 text-sm border-b border-white/10">
+    <div className="w-full z-10 backdrop-blur-sm text-default-7 00 text-sm border-b border-white/10">
       <div className="w-full">
         <div
           ref={containerRef}
