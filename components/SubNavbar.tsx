@@ -21,7 +21,9 @@ const categories = [
   "Home Improvement",
   "Toys & Games",
   "Music",
-  "Health & Household",
+  "Health ",
+  "Household",
+  "Camping",
   "Discover",
 ];
 
@@ -92,10 +94,10 @@ export default function SubNavbar() {
     window.addEventListener("resize", handleWindowResize);
     setTimeout(calculate, 100); // initial render after layout
 
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", handleWindowResize);
-    };
+    // return () => {
+    //   resizeObserver.disconnect();
+    //   window.removeEventListener("resize", handleWindowResize);
+    // };
   }, []);
 
   return (
@@ -134,7 +136,7 @@ export default function SubNavbar() {
                   isHidden && "hidden",
                   isElite
                     ? "text-yellow-300 font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent drop-shadow hover:scale-105"
-                    : "hover:text-yellow-200"
+                    : "hover:text-blue-400"
                 )}
               >
                 {category}

@@ -11,7 +11,7 @@ export default function Home() {
         description: message,
         color: "success",
         timeout: 1500,
-      })
+      });
       localStorage.removeItem("accountCreated");
     }
   }, []);
@@ -23,7 +23,7 @@ export default function Home() {
         description: message,
         color: "primary",
         timeout: 1500,
-      })
+      });
       localStorage.removeItem("successfulSignin");
     }
   }, []);
