@@ -16,6 +16,7 @@ import AuthFormLayout from "@/components/auth/AuthFormLayout";
 import PhoneInput from "@/components/auth/PhoneInput";
 import PasswordInput from "@/components/auth/PasswordInput";
 import PasswordTooltip from "@/components/ui/PasswordTooltip/PasswordTooltip";
+import { Image } from "@heroui/react";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
 
@@ -113,141 +114,162 @@ export default function SellerRegistrationCard() {
           <XyvoLoader />
         </div>
       ) : (
-        <AuthFormLayout
-          title="Become a XYVO Seller"
-          subtitle="Register your business"
-          alternativeAuthLink={{
-            text: "Already have a seller account?",
-            href: "/auth/seller-login",
-            linkText: "Sign in",
-          }}
-          showSocials={false}
+        <div
+          className={
+            "min-h-[90%] flex flex-col lg:flex-row transition-opacity duration-500"
+          }
         >
-          <form onSubmit={formik.handleSubmit}>
-            <div className="space-y-2">
-              <Input
-                id="businessName"
-                name="businessName"
-                label="Business Name"
-                type="text"
-                variant="bordered"
-                value={formik.values.businessName}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={
-                  !!(formik.touched.businessName && formik.errors.businessName)
-                }
-                errorMessage={
-                  formik.touched.businessName
-                    ? formik.errors.businessName
-                    : undefined
-                }
-                size="sm"
-              />
-              <div className="flex gap-2">
-                <Input
-                  id="firstName"
-                  name="firstName"
-                  label="First Name (Contact Person)"
-                  type="text"
-                  variant="bordered"
-                  value={formik.values.firstName}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  isInvalid={
-                    !!(formik.touched.firstName && formik.errors.firstName)
-                  }
-                  errorMessage={
-                    formik.touched.firstName
-                      ? formik.errors.firstName
-                      : undefined
-                  }
-                  size="sm"
-                />
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  label="Last Name (Contact Person)"
-                  type="text"
-                  variant="bordered"
-                  value={formik.values.lastName}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  isInvalid={
-                    !!(formik.touched.lastName && formik.errors.lastName)
-                  }
-                  errorMessage={
-                    formik.touched.lastName ? formik.errors.lastName : undefined
-                  }
-                  size="sm"
-                />
-              </div>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                label="Business Email"
-                variant="bordered"
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={!!(formik.touched.email && formik.errors.email)}
-                errorMessage={
-                  formik.touched.email ? formik.errors.email : undefined
-                }
-                size="sm"
-              />
+          {/* Left image side */}
+          <div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center">
+            <Image src="/xbagsecure.png" alt="shopping bag" />
+          </div>
 
-              <PhoneInput
-                id="phone"
-                name="phone"
-                value={formik.values.phone}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={!!(formik.touched.phone && formik.errors.phone)}
-                errorMessage={
-                  formik.touched.phone ? formik.errors.phone : undefined
-                }
-                setFormikFieldValue={formik.setFieldValue}
-                formikCountryCode={formik.values.countryCode}
-                size="sm"
-              />
+          {/* Right register form side */}
+          <div className="w-full lg:w-1/2 flex items-center justify-center">
+            <AuthFormLayout
+              title="Become a XYVO Seller"
+              subtitle="Register your business"
+              alternativeAuthLink={{
+                text: "Already have a seller account?",
+                href: "/auth/seller-login",
+                linkText: "Sign in",
+              }}
+              showSocials={false}
+            >
+              <form onSubmit={formik.handleSubmit}>
+                <div className="space-y-2">
+                  <Input
+                    id="businessName"
+                    name="businessName"
+                    label="Business Name"
+                    type="text"
+                    variant="bordered"
+                    value={formik.values.businessName}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    isInvalid={
+                      !!(
+                        formik.touched.businessName &&
+                        formik.errors.businessName
+                      )
+                    }
+                    errorMessage={
+                      formik.touched.businessName
+                        ? formik.errors.businessName
+                        : undefined
+                    }
+                    size="sm"
+                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="firstName"
+                      name="firstName"
+                      label="First Name (Contact Person)"
+                      type="text"
+                      variant="bordered"
+                      value={formik.values.firstName}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      isInvalid={
+                        !!(formik.touched.firstName && formik.errors.firstName)
+                      }
+                      errorMessage={
+                        formik.touched.firstName
+                          ? formik.errors.firstName
+                          : undefined
+                      }
+                      size="sm"
+                    />
+                    <Input
+                      id="lastName"
+                      name="lastName"
+                      label="Last Name (Contact Person)"
+                      type="text"
+                      variant="bordered"
+                      value={formik.values.lastName}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      isInvalid={
+                        !!(formik.touched.lastName && formik.errors.lastName)
+                      }
+                      errorMessage={
+                        formik.touched.lastName
+                          ? formik.errors.lastName
+                          : undefined
+                      }
+                      size="sm"
+                    />
+                  </div>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    label="Business Email"
+                    variant="bordered"
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    isInvalid={!!(formik.touched.email && formik.errors.email)}
+                    errorMessage={
+                      formik.touched.email ? formik.errors.email : undefined
+                    }
+                    size="sm"
+                  />
 
-              <PasswordInput
-                id="password"
-                name="password"
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={
-                  !!(formik.touched.password && formik.errors.password)
-                }
-                errorMessage={
-                  formik.touched.password ? formik.errors.password : undefined
-                }
-                size="sm"
-              />
+                  <PhoneInput
+                    id="phone"
+                    name="phone"
+                    value={formik.values.phone}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    isInvalid={!!(formik.touched.phone && formik.errors.phone)}
+                    errorMessage={
+                      formik.touched.phone ? formik.errors.phone : undefined
+                    }
+                    setFormikFieldValue={formik.setFieldValue}
+                    formikCountryCode={formik.values.countryCode}
+                    size="sm"
+                  />
 
-              <PasswordTooltip />
-            </div>
+                  <PasswordInput
+                    id="password"
+                    name="password"
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    isInvalid={
+                      !!(formik.touched.password && formik.errors.password)
+                    }
+                    errorMessage={
+                      formik.touched.password
+                        ? formik.errors.password
+                        : undefined
+                    }
+                    size="sm"
+                  />
 
-            <div className="flex flex-col space-y-1 mt-4">
-              {formik.isSubmitting ? (
-                <p>Registering Seller...</p>
-              ) : (
-                <Button
-                  type="submit"
-                  variant="solid"
-                  color="primary"
-                  isDisabled={formik.isSubmitting}
-                  className="w-full"
-                >
-                  Register Business
-                </Button>
-              )}
-            </div>
-          </form>
-        </AuthFormLayout>
+                  <PasswordTooltip />
+                </div>
+
+                <div className="flex flex-col space-y-1 mt-4">
+                  {formik.isSubmitting ? (
+                    <p>Registering Seller...</p>
+                  ) : (
+                    <Button
+                      type="submit"
+                      variant="solid"
+                      color="primary"
+                      isDisabled={formik.isSubmitting}
+                      className="w-full"
+                    >
+                      Register Business
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </AuthFormLayout>
+          </div>
+        </div>
       )}
     </motion.div>
   );

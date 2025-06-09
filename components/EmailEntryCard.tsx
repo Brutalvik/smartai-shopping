@@ -70,7 +70,7 @@ export default function EmailEntryCard({
   }, [userAccounts, enteredEmail, onUserExists]);
 
   const renderEmailForm = () => (
-    <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+    <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
       <CardHeader className="flex flex-col items-center justify-center space-y-2">
         <div className="flex items-center gap-4">
           <FaUserShield size={50} className="text-default-500" />
@@ -158,7 +158,7 @@ export default function EmailEntryCard({
   );
 
   const renderAccountChoice = () => (
-    <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+    <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
       <CardHeader className="flex flex-col items-center justify-center space-y-2">
         <FaUserShield size={50} className="text-default-500" />
         <h2 className="text-lg font-medium text-center text-default-600">
@@ -204,7 +204,7 @@ export default function EmailEntryCard({
   );
 
   const renderSignupChoice = () => (
-    <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
+    <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
       <CardHeader className="flex flex-col items-center justify-center space-y-2">
         <FaUserShield size={50} className="text-default-500" />
         <h2 className="text-lg font-medium text-center text-default-600">

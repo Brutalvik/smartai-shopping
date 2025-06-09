@@ -3,6 +3,7 @@
 import { useState } from "react";
 import EmailEntryCard from "@/components/EmailEntryCard";
 import PasswordCard from "@/components/PasswordCard";
+import { Image } from "@heroui/react";
 
 interface AccountInfo {
   type: "Customer" | "Seller";
@@ -32,19 +33,31 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      {currentStep === "email" && (
-        <EmailEntryCard onUserExists={handleUserExists} />
-      )}
+    <div
+      className={
+        "min-h-[90%] flex flex-col lg:flex-row transition-opacity duration-500"
+      }
+    >
+      {/* Left image side */}
+      <div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center">
+        <Image src="/xbagsecure.png" alt="shopping bag" />
+      </div>
 
-      {currentStep === "password" && (
-        <PasswordCard
-          email={emailForLogin}
-          userPoolId={userPoolIdForLogin}
-          accountType={accountTypeForLogin}
-          onBack={handleGoBack}
-        />
-      )}
+      {/* Right register form side */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center">
+        {currentStep === "email" && (
+          <EmailEntryCard onUserExists={handleUserExists} />
+        )}
+
+        {currentStep === "password" && (
+          <PasswordCard
+            email={emailForLogin}
+            userPoolId={userPoolIdForLogin}
+            accountType={accountTypeForLogin}
+            onBack={handleGoBack}
+          />
+        )}
+      </div>
     </div>
   );
 }
