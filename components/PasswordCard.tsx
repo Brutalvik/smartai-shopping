@@ -9,16 +9,26 @@ import { useUser } from "@/context/UserContext";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { getFirstNameCapitalized } from "@/utils/helper";
-import { addToast } from "@heroui/react";
+import { addToast, user } from "@heroui/react";
 import PasswordInput from "@/components/auth/PasswordInput";
 import AuthFormLayout from "@/components/auth/AuthFormLayout";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 
+interface AccountInfo {
+  type: "Customer" | "Seller";
+  poolId: string;
+  email: string;
+}
+
 export default function PasswordCard({
   email,
+  userPoolId,
+  accountType,
   onBack,
 }: {
-  email: string;
+  email: AccountInfo["email"];
+  userPoolId: AccountInfo["poolId"];
+  accountType: AccountInfo["type"];
   onBack: () => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,7 +59,7 @@ export default function PasswordCard({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, userPoolId, accountType }),
         });
 
         const { isLoggedIn, user, error } = await res.json();
@@ -97,14 +107,14 @@ export default function PasswordCard({
       ) : (
         <AuthFormLayout
           title="Enter your password"
-          subtitle={`for ${email}`}
+          subtitle={`for ${email} (${accountType})`}
           alternativeAuthLink={{
             text: "Don't have an account?",
             href: "/auth/register",
             linkText: "Sign up",
           }}
           showSocials={true}
-          showKeyIcon={true} // Pass the new prop here
+          showKeyIcon={true}
         >
           <form onSubmit={formik.handleSubmit}>
             <div className="space-y-3">

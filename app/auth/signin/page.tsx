@@ -3,32 +3,48 @@
 import { useState } from "react";
 import EmailEntryCard from "@/components/EmailEntryCard";
 import PasswordCard from "@/components/PasswordCard";
-import { Image } from "@heroui/react";
 
-export default function SigninPage() {
-  const [email, setEmail] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+interface AccountInfo {
+  type: "Customer" | "Seller";
+  poolId: string;
+}
+
+export default function AuthPage() {
+  const [currentStep, setCurrentStep] = useState<"email" | "password">("email");
+  const [emailForLogin, setEmailForLogin] = useState<string>("");
+  const [userPoolIdForLogin, setUserPoolIdForLogin] = useState<string>("");
+  const [accountTypeForLogin, setAccountTypeForLogin] = useState<
+    "Customer" | "Seller"
+  >("Customer");
+
+  const handleUserExists = (email: string, accountInfo: AccountInfo) => {
+    setEmailForLogin(email);
+    setUserPoolIdForLogin(accountInfo.poolId);
+    setAccountTypeForLogin(accountInfo.type);
+    setCurrentStep("password");
+  };
+
+  const handleGoBack = () => {
+    setCurrentStep("email");
+    setEmailForLogin("");
+    setUserPoolIdForLogin("");
+    setAccountTypeForLogin("Customer");
+  };
 
   return (
-    <div className="min-h-[90%] flex flex-col lg:flex-row transition-opacity duration-500">
-      {/* Left image */}
-      <div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center">
-        <Image src="/xbagsecure.png" alt="shopping bag" />
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-center p-24">
+      {currentStep === "email" && (
+        <EmailEntryCard onUserExists={handleUserExists} />
+      )}
 
-      {/* Right form (email/password) */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center">
-        {showPassword ? (
-          <PasswordCard email={email} onBack={() => setShowPassword(false)} />
-        ) : (
-          <EmailEntryCard
-            onUserExists={(enteredEmail: string) => {
-              setEmail(enteredEmail);
-              setShowPassword(true);
-            }}
-          />
-        )}
-      </div>
+      {currentStep === "password" && (
+        <PasswordCard
+          email={emailForLogin}
+          userPoolId={userPoolIdForLogin}
+          accountType={accountTypeForLogin}
+          onBack={handleGoBack}
+        />
+      )}
     </div>
   );
 }
