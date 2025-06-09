@@ -16,7 +16,8 @@ import AuthFormLayout from "@/components/auth/AuthFormLayout";
 import PhoneInput from "@/components/auth/PhoneInput";
 import PasswordInput from "@/components/auth/PasswordInput";
 import PasswordTooltip from "@/components/ui/PasswordTooltip/PasswordTooltip";
-import { passwordRules } from "@/utils/helper";
+
+const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
 
 export default function SellerRegistrationCard() {
   const router = useRouter();
@@ -28,14 +29,16 @@ export default function SellerRegistrationCard() {
     initialValues: {
       email: prefilledEmail,
       phone: "",
-      name: "",
+      firstName: "",
+      lastName: "",
       password: "",
       countryCode: "+1",
       businessName: "",
     },
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email").required("Required"),
-      name: Yup.string().min(2, "Too short").required("Required"),
+      firstName: Yup.string().min(2, "Too short").required("Required"),
+      lastName: Yup.string().min(2, "Too short").required("Required"),
       phone: Yup.string()
         .min(10, "Please enter a valid phone number")
         .required("Required"),
@@ -46,7 +49,7 @@ export default function SellerRegistrationCard() {
             "Password must contain at least one uppercase letter, one lowercase letter, and one number.",
         })
         .required("Required"),
-      businessName: Yup.string().min(3, "Too short").required("Required"),
+      businessName: Yup.string().min(2, "Too short").required("Required"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
@@ -56,8 +59,9 @@ export default function SellerRegistrationCard() {
           body: JSON.stringify({
             email: values.email,
             phone: values.countryCode + values.phone,
+            firstName: values.firstName,
+            lastName: values.lastName,
             password: values.password,
-            name: values.name,
             businessName: values.businessName,
           }),
         });
@@ -68,7 +72,7 @@ export default function SellerRegistrationCard() {
           sessionStorage.setItem("user", JSON.stringify(user));
           localStorage.setItem(
             "accountCreated",
-            `Welcome ${getFirstNameCapitalized(values.name)}! Seller account created successfully.`
+            `Welcome ${getFirstNameCapitalized(values.firstName)}! Seller account created successfully.`
           );
           router.push("/");
         } else {
@@ -110,14 +114,14 @@ export default function SellerRegistrationCard() {
         </div>
       ) : (
         <AuthFormLayout
-          title="Become a XYVO Seller" // Updated title
-          subtitle="Register your business" // New subtitle
+          title="Become a XYVO Seller"
+          subtitle="Register your business"
           alternativeAuthLink={{
             text: "Already have a seller account?",
-            href: "/auth/seller-login", // Adjusted link
+            href: "/auth/seller-login",
             linkText: "Sign in",
           }}
-          showSocials={false} // Often disabled for business registrations
+          showSocials={false}
         >
           <form onSubmit={formik.handleSubmit}>
             <div className="space-y-2">
@@ -140,26 +144,49 @@ export default function SellerRegistrationCard() {
                 }
                 size="sm"
               />
-              <Input
-                id="name"
-                name="name"
-                label="Your Name (Contact Person)" // Clarified label
-                type="text"
-                variant="bordered"
-                value={formik.values.name}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={!!(formik.touched.name && formik.errors.name)}
-                errorMessage={
-                  formik.touched.name ? formik.errors.name : undefined
-                }
-                size="sm"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  label="First Name (Contact Person)"
+                  type="text"
+                  variant="bordered"
+                  value={formik.values.firstName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={
+                    !!(formik.touched.firstName && formik.errors.firstName)
+                  }
+                  errorMessage={
+                    formik.touched.firstName
+                      ? formik.errors.firstName
+                      : undefined
+                  }
+                  size="sm"
+                />
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  label="Last Name (Contact Person)"
+                  type="text"
+                  variant="bordered"
+                  value={formik.values.lastName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={
+                    !!(formik.touched.lastName && formik.errors.lastName)
+                  }
+                  errorMessage={
+                    formik.touched.lastName ? formik.errors.lastName : undefined
+                  }
+                  size="sm"
+                />
+              </div>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                label="Business Email" // Clarified label
+                label="Business Email"
                 variant="bordered"
                 value={formik.values.email}
                 onChange={formik.handleChange}
