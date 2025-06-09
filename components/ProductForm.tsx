@@ -1,3 +1,4 @@
+// pages/seller/products/upload.tsx
 "use client";
 
 import { useEffect, useState, ChangeEvent, KeyboardEvent, useRef } from "react";
@@ -34,10 +35,10 @@ import { addToast } from "@heroui/react";
 import { MultiStepLoader } from "@/components/ui/MultiStepLoader/MultiStepLoader";
 
 const loadingStates = [
-  { text: "Preparing data..." },
-  { text: "Uploading images to S3..." },
-  { text: "Saving to database..." },
-  { text: "Finishing up..." },
+  { text: "Preparing product data..." }, // More descriptive
+  { text: "Uploading product data and images..." },
+  { text: "Saving product to database..." },
+  { text: "Product upload complete!" },
 ];
 
 export default function SellerProductUploadPage() {
@@ -72,10 +73,10 @@ export default function SellerProductUploadPage() {
         .min(10, "Description must be at least 10 characters"),
       price: Yup.number()
         .required("Price is required")
-        .min(0.1, "Price must be at least $1.00"),
+        .min(0.1, "Price must be at least $0.10"), // Changed minimum price from $1.00 to $0.10
       quantity: Yup.number()
         .required("Quantity is required")
-        .min(1, "Quantity should be at least 1"),
+        .min(0, "Quantity cannot be negative"), // Aligned with backend: min 0
       category: Yup.string().required("Category is required"),
       tags: Yup.array().of(Yup.string()).min(1, "At least one tag is required"),
       images: Yup.array()
@@ -106,14 +107,14 @@ export default function SellerProductUploadPage() {
         return;
       }
 
-      // Step 0: Start the loader
       loaderRef.current?.start();
-      loaderRef.current?.stepTo(0); // "Preparing data..."
+      loaderRef.current?.stepTo(0); // "Preparing product data..."
 
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.description);
-      formData.append("price", values.price.toString());
+      // Ensure price and quantity are sent as strings for backend Zod validation
+      formData.append("price", values.price.toFixed(2)); // Use toFixed(2) to ensure 2 decimal places
       formData.append("quantity", values.quantity.toString());
       formData.append("category", values.category);
       formData.append("tags", values.tags.join(","));
@@ -121,8 +122,7 @@ export default function SellerProductUploadPage() {
       values.images.forEach((file) => formData.append("images", file));
 
       try {
-        // Step 1: Uploading to S3
-        loaderRef.current?.stepTo(1);
+        loaderRef.current?.stepTo(1); // "Uploading product data and images..."
 
         const response = await fetch(
           `${CDN.sellerProductsApi}/seller/products`,
@@ -137,33 +137,57 @@ export default function SellerProductUploadPage() {
 
         if (!response.ok) {
           loaderRef.current?.stop();
+          // IMPROVEMENT: Enhanced error message parsing based on backend's centralized error handler
+          let errorMessage = "Product upload failed!";
+          if (
+            result.message === "Validation Failed" &&
+            result.details &&
+            Array.isArray(result.details)
+          ) {
+            // Join Zod errors for a more descriptive message
+            errorMessage = `Validation failed: ${result.details
+              .map(
+                (err: any) =>
+                  `${err.path ? err.path.join(".") + ": " : ""}${err.message}`
+              )
+              .join(", ")}`;
+          } else if (result.message) {
+            errorMessage = result.message;
+          } else if (result.error) {
+            errorMessage = result.error;
+          }
+
           addToast({
-            description: `Upload Failed! ${result?.error || "Server error"}`,
+            description: errorMessage,
             color: "danger",
-            timeout: 2000,
+            timeout: 5000, // Increased timeout for detailed errors
           });
           return;
         }
 
-        // Step 2: Saving to DB successful
-        loaderRef.current?.stepTo(2);
+        loaderRef.current?.stepTo(2); // "Saving product to database..."
 
         addToast({
-          description: "Upload Success!",
+          description: "Product uploaded successfully!",
           color: "success",
           timeout: 2000,
         });
 
-        // Step 3: Done
-        loaderRef.current?.stepTo(3);
-        setTimeout(() => loaderRef.current?.stop(), 800);
+        loaderRef.current?.stepTo(3); // "Product upload complete!"
+        setTimeout(() => {
+          loaderRef.current?.stop();
+          formik.resetForm(); // Reset the form after successful upload
+          setImagePreviews([]); // Clear image previews
+          setCarouselIndex(0);
+        }, 800);
       } catch (err) {
         loaderRef.current?.stop();
-        console.error("Upload Error", err);
+        console.error("Upload Error:", err);
         addToast({
-          description: "Upload Error!",
+          description:
+            "An unexpected error occurred during upload! Check console for details.",
           color: "danger",
-          timeout: 2000,
+          timeout: 5000,
         });
       }
     },
@@ -243,6 +267,12 @@ export default function SellerProductUploadPage() {
     localStorage.setItem("sellerProductDraft", draft);
     setDraftSaved(true);
     setTimeout(() => setDraftSaved(false), 2000);
+    addToast({
+      // Added toast for draft save
+      description: "Draft saved locally!",
+      color: "default",
+      timeout: 2000,
+    });
   };
 
   const nextImage = () =>
@@ -332,33 +362,35 @@ export default function SellerProductUploadPage() {
                   name="price"
                   label="Price"
                   placeholder="0.00"
-                  type="text"
+                  type="text" // Keep as text to precisely control input
                   inputMode="decimal"
                   startContent={
                     <div className="pointer-events-none flex items-center">
                       <span className="text-default-400 text-small">$</span>
                     </div>
                   }
-                  value={formik.values.price.toLocaleString()}
+                  // Show empty string when price is 0 for better user input
+                  value={
+                    formik.values.price === 0 ? "" : String(formik.values.price)
+                  }
                   onChange={(e) => {
-                    // Let user type freely
                     const val = e.target.value;
-                    if (/^\d*\.?\d{0,2}$/.test(val) || val === "") {
-                      formik.setFieldValue("price", val);
+                    // Allow empty string, or numbers with up to 2 decimal places using '.'
+                    if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
+                      formik.setFieldValue(
+                        "price",
+                        val === "" ? 0 : parseFloat(val)
+                      );
                     }
                   }}
                   onBlur={(e) => {
                     const num = parseFloat(e.target.value);
                     if (!isNaN(num)) {
-                      formik.setFieldValue("price", num.toFixed(2));
+                      formik.setFieldValue("price", parseFloat(num.toFixed(2))); // Ensure 2 decimal places and convert back to number
+                    } else if (e.target.value === "") {
+                      formik.setFieldValue("price", 0); // If empty, set to 0
                     }
-                  }}
-                  onFocus={(e) => {
-                    // Strip formatting so they can edit easily
-                    const raw = parseFloat(e.target.value);
-                    if (!isNaN(raw)) {
-                      formik.setFieldValue("price", raw.toString());
-                    }
+                    formik.handleBlur(e); // Ensure Formik's blur handling is called
                   }}
                   isInvalid={!!(formik.touched.price && formik.errors.price)}
                   errorMessage={formik.errors.price}
@@ -372,7 +404,7 @@ export default function SellerProductUploadPage() {
                   name="quantity"
                   placeholder="Quantity"
                   type="number"
-                  min="1"
+                  min="0" // Aligned with backend: min 0
                   step="1"
                   inputMode="numeric"
                   value={String(formik.values.quantity)}
@@ -386,7 +418,8 @@ export default function SellerProductUploadPage() {
                       formik.setFieldValue("quantity", 0);
                     } else {
                       const parsed = parseInt(val);
-                      if (!isNaN(parsed)) {
+                      if (!isNaN(parsed) && parsed >= 0) {
+                        // Ensure parsed quantity is not negative
                         formik.setFieldValue("quantity", parsed);
                       }
                     }
@@ -430,13 +463,14 @@ export default function SellerProductUploadPage() {
                     ]);
                     setCurrentTagInput("");
                   }
+                  // Explicitly mark tags field as touched on blur
                   formik.handleBlur({ target: { name: "tags" } });
                 }}
                 isInvalid={
                   !!(
                     formik.touched.tags &&
                     formik.errors.tags &&
-                    formik.values.tags.length === 0
+                    formik.values.tags.length === 0 // Only show error if no tags and validation failed
                   )
                 }
                 errorMessage={
@@ -502,7 +536,7 @@ export default function SellerProductUploadPage() {
                 <div className="relative w-full h-60 rounded-lg overflow-hidden">
                   <AnimatePresence mode="wait">
                     <motion.div
-                      key={carouselIndex} // 👈 triggers animation when index changes
+                      key={carouselIndex}
                       initial={{ opacity: 0, scale: 0.97 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 1.02 }}
