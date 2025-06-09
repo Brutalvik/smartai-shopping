@@ -71,7 +71,7 @@ export default function UserDrawerMenu() {
           description: "Failed to Signout !",
           color: "danger",
           timeout: 1500,
-        })
+        });
         return;
       }
 
@@ -83,7 +83,7 @@ export default function UserDrawerMenu() {
         description: "You Signed Out",
         color: "default",
         timeout: 1500,
-      })
+      });
       router.push("/");
       onClose();
     } catch (error) {
@@ -92,7 +92,7 @@ export default function UserDrawerMenu() {
         description: "Something went wrong !",
         color: "danger",
         timeout: 1500,
-      })
+      });
     }
   };
 
@@ -183,7 +183,7 @@ export default function UserDrawerMenu() {
                     <DrawerItem
                       icon={<Store size={18} />}
                       label="Become a Seller"
-                      onClick={() => handleNavigate("/seller")}
+                      onClick={() => handleNavigate("/auth/seller-register")}
                     />
                     <DrawerItem
                       icon={<Star size={18} />}
@@ -212,11 +212,13 @@ export default function UserDrawerMenu() {
 
                   <hr className="border-default-200" />
 
-                  {!user?.name && <DrawerItem
-                    icon={<User2Icon size={18} />}
-                    label="Register"
-                    onClick={() => handleNavigate("/auth/register")}
-                  />}
+                  {!user?.name && (
+                    <DrawerItem
+                      icon={<User2Icon size={18} />}
+                      label="Register"
+                      onClick={() => handleNavigate("/auth/register")}
+                    />
+                  )}
                 </div>
               </DrawerBody>
 

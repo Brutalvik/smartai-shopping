@@ -18,6 +18,7 @@ import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { CDN } from "@/config/config";
 import { Image } from "@heroui/react";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
+import PasswordTooltip from "@/components/ui/PasswordTooltip/PasswordTooltip";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
 
@@ -273,24 +274,7 @@ export default function RegisterCard() {
                 }
               />
 
-              <div className="flex items-center gap-1 text-xs">
-                <span>Password instructions</span>
-                <Tooltip
-                  content={
-                    <div className="px-2 py-1 text-xs">
-                      <strong className="text-blue-500">Password Rules</strong>
-                      <ul className="list-disc pl-4">
-                        <li>Min 8 characters</li>
-                        <li>1 uppercase</li>
-                        <li>1 lowercase</li>
-                        <li>1 number</li>
-                      </ul>
-                    </div>
-                  }
-                >
-                  <FcInfo size={14} className="cursor-pointer" />
-                </Tooltip>
-              </div>
+              <PasswordTooltip />
             </CardBody>
 
             <CardFooter className="flex flex-col space-y-1">
