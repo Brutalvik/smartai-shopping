@@ -9,11 +9,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
-import { addToast, Select, SelectItem, Tooltip } from "@heroui/react";
+import { addToast, Select, SelectItem } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { countryCodes } from "@/data/countryCodes";
 import { getFirstNameCapitalized, getFlagFromPhone } from "@/utils/helper";
-import { FcInfo, FcGoogle } from "react-icons/fc";
+import { FcGoogle } from "react-icons/fc";
 import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { CDN } from "@/config/config";
 import { Image } from "@heroui/react";
@@ -46,12 +46,13 @@ export default function RegisterCard() {
       email: Yup.string().email("Invalid email").required("Required"),
       name: Yup.string().min(2, "Too short").required("Required"),
       phone: Yup.string()
-        .min(10, "Please create a stronger password")
+        .min(10, "Please enter a valid phone number")
         .required("Required"),
       password: Yup.string()
-        .min(8)
+        .min(8, "Password must be at least 8 characters")
         .matches(passwordRules, {
-          message: "Please create a stronger password",
+          message:
+            "Password must contain at least one uppercase letter, one lowercase letter, and one number.",
         })
         .required("Required"),
     }),
@@ -78,19 +79,20 @@ export default function RegisterCard() {
           );
           router.push("/");
         } else {
-          const error = await res.json();
+          const errorData = await res.json();
           addToast({
-            description: error.message || "Registration Failed",
+            description:
+              errorData.message || "Registration failed. Please try again.",
             color: "danger",
-            timeout: 1500,
+            timeout: 3000,
           });
         }
       } catch (err) {
-        console.error(err);
+        console.error("Client-side registration error:", err);
         addToast({
-          description: "Something went wrong !",
+          description: "An unexpected error occurred. Please try again later.",
           color: "danger",
-          timeout: 1500,
+          timeout: 3000,
         });
       } finally {
         setSubmitting(false);
@@ -98,19 +100,34 @@ export default function RegisterCard() {
     },
   });
 
+  interface CountryCode {
+    name: string;
+    dial_code: string;
+    code: string;
+    flag: string;
+  }
+
   const handleCodeChange = (code: string) => {
     setSelectedCode(code);
     formik.setFieldValue("countryCode", code);
-    const selected = countryCodes.find((c) => c.dial_code === code);
+    const selected: CountryCode | undefined = countryCodes.find(
+      (c: CountryCode) => c.dial_code === code
+    );
     if (selected) setFlag(selected.flag);
   };
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const phone = e.target.value;
+  interface PhoneChangeEvent {
+    target: {
+      value: string;
+    };
+  }
+
+  const handlePhoneChange = (e: PhoneChangeEvent) => {
+    const phone: string = e.target.value;
     formik.setFieldValue("phone", phone);
-    const digits = phone.replace(/\D/g, "");
+    const digits: string = phone.replace(/\D/g, "");
     if (selectedCode === "+1" && digits.length >= 3) {
-      const dynamicFlag = getFlagFromPhone(digits);
+      const dynamicFlag: string = getFlagFromPhone(digits);
       if (dynamicFlag !== flag) setFlag(dynamicFlag);
     }
   };
@@ -131,12 +148,10 @@ export default function RegisterCard() {
       transition={{ duration: 0.4 }}
     >
       {formik.isSubmitting ? (
-        // Loader view while submitting
         <div className="w-full h-[400px] flex items-center justify-center">
           <XyvoLoader />
         </div>
       ) : (
-        // Regular card view
         <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
           <CardHeader className="flex flex-col items-center justify-center space-y-2">
             <div className="flex items-center gap-4">
@@ -148,13 +163,10 @@ export default function RegisterCard() {
                   width={40}
                   height={40}
                 />
-                {/* <h1 className="text-[50px] font-semibold text-default-500">
-                yvo
-              </h1> */}
               </div>
             </div>
             <h2 className="text-lg font-medium text-center text-default-600">
-              Sign in
+              Sign up for XYVO
             </h2>
           </CardHeader>
 
@@ -208,7 +220,7 @@ export default function RegisterCard() {
                     selectedKeys={new Set([selectedCode])}
                     onSelectionChange={(keys) => {
                       const code = Array.from(keys)[0];
-                      handleCodeChange(code as string);
+                      handleCodeChange(String(code));
                     }}
                     renderValue={() => <span>{selectedCode}</span>}
                   >
@@ -233,6 +245,7 @@ export default function RegisterCard() {
                   id="phone"
                   name="phone"
                   label="Phone"
+                  type="text"
                   variant="bordered"
                   value={formik.values.phone}
                   onChange={handlePhoneChange}
@@ -279,7 +292,7 @@ export default function RegisterCard() {
 
             <CardFooter className="flex flex-col space-y-1">
               {formik.isSubmitting ? (
-                <p>Registring</p>
+                <p>Registering...</p>
               ) : (
                 <Button
                   type="submit"
