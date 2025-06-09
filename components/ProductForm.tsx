@@ -73,10 +73,10 @@ export default function SellerProductUploadPage() {
         .min(10, "Description must be at least 10 characters"),
       price: Yup.number()
         .required("Price is required")
-        .min(0.1, "Price must be at least $0.10"), // Changed minimum price from $1.00 to $0.10
+        .min(0.1, "Price must be at least $0.10"),
       quantity: Yup.number()
         .required("Quantity is required")
-        .min(0, "Quantity cannot be negative"), // Aligned with backend: min 0
+        .min(0, "Quantity cannot be negative"),
       category: Yup.string().required("Category is required"),
       tags: Yup.array().of(Yup.string()).min(1, "At least one tag is required"),
       images: Yup.array()
@@ -113,8 +113,7 @@ export default function SellerProductUploadPage() {
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.description);
-      // Ensure price and quantity are sent as strings for backend Zod validation
-      formData.append("price", values.price.toFixed(2)); // Use toFixed(2) to ensure 2 decimal places
+      formData.append("price", values.price.toFixed(2));
       formData.append("quantity", values.quantity.toString());
       formData.append("category", values.category);
       formData.append("tags", values.tags.join(","));
@@ -137,14 +136,12 @@ export default function SellerProductUploadPage() {
 
         if (!response.ok) {
           loaderRef.current?.stop();
-          // IMPROVEMENT: Enhanced error message parsing based on backend's centralized error handler
           let errorMessage = "Product upload failed!";
           if (
             result.message === "Validation Failed" &&
             result.details &&
             Array.isArray(result.details)
           ) {
-            // Join Zod errors for a more descriptive message
             errorMessage = `Validation failed: ${result.details
               .map(
                 (err: any) =>
@@ -362,20 +359,22 @@ export default function SellerProductUploadPage() {
                   name="price"
                   label="Price"
                   placeholder="0.00"
-                  type="text" // Keep as text to precisely control input
+                  type="number"
                   inputMode="decimal"
+                  step="0.01"
+                  min="0"
                   startContent={
                     <div className="pointer-events-none flex items-center">
                       <span className="text-default-400 text-small">$</span>
                     </div>
                   }
-                  // Show empty string when price is 0 for better user input
                   value={
-                    formik.values.price === 0 ? "" : String(formik.values.price)
+                    formik.values.price === 0
+                      ? ""
+                      : formik.values.price.toString()
                   }
                   onChange={(e) => {
                     const val = e.target.value;
-                    // Allow empty string, or numbers with up to 2 decimal places using '.'
                     if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
                       formik.setFieldValue(
                         "price",
@@ -384,13 +383,13 @@ export default function SellerProductUploadPage() {
                     }
                   }}
                   onBlur={(e) => {
+                    formik.handleBlur(e);
                     const num = parseFloat(e.target.value);
-                    if (!isNaN(num)) {
-                      formik.setFieldValue("price", parseFloat(num.toFixed(2))); // Ensure 2 decimal places and convert back to number
+                    if (!isNaN(num) && num >= 0) {
+                      formik.setFieldValue("price", parseFloat(num.toFixed(2)));
                     } else if (e.target.value === "") {
-                      formik.setFieldValue("price", 0); // If empty, set to 0
+                      formik.setFieldValue("price", 0);
                     }
-                    formik.handleBlur(e); // Ensure Formik's blur handling is called
                   }}
                   isInvalid={!!(formik.touched.price && formik.errors.price)}
                   errorMessage={formik.errors.price}
@@ -428,13 +427,24 @@ export default function SellerProductUploadPage() {
                 />
               </div>
             </div>
+            // ... (inside your SellerProductUploadPage component)
             <Select
               id="category"
               name="category"
               selectedKeys={new Set([formik.values.category])}
               onSelectionChange={(keys) => {
-                const selectedKey = Array.from(keys).at(0) || "";
-                formik.setFieldValue("category", selectedKey);
+                const selectedKey = Array.from(keys).at(0);
+                if (selectedKey) {
+                  const selectedCategory = categories.find(
+                    (cat) => cat.key === selectedKey
+                  );
+                  formik.setFieldValue(
+                    "category",
+                    selectedCategory ? selectedCategory.label : ""
+                  );
+                } else {
+                  formik.setFieldValue("category", "");
+                }
               }}
               label="Product Category"
               className="w-full"
