@@ -1,4 +1,3 @@
-// components/auth/AuthFormLayout.tsx
 "use client";
 
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
@@ -7,6 +6,7 @@ import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { RiKeyFill } from "react-icons/ri"; // Import RiKeyFill
 
 interface AuthFormLayoutProps {
   title: string;
@@ -18,6 +18,7 @@ interface AuthFormLayoutProps {
     href: string;
     linkText: string;
   };
+  showKeyIcon?: boolean; // New prop
 }
 
 export default function AuthFormLayout({
@@ -26,6 +27,7 @@ export default function AuthFormLayout({
   children,
   showSocials = true,
   alternativeAuthLink,
+  showKeyIcon = false, // Default to false
 }: AuthFormLayoutProps) {
   return (
     <motion.div
@@ -36,15 +38,19 @@ export default function AuthFormLayout({
       <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
         <CardHeader className="flex flex-col items-center justify-center space-y-2">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <Image
-                src="/x.png"
-                alt="XYVO Logo"
-                className="h-10 w-10 object-contain"
-                width={40}
-                height={40}
-              />
-            </div>
+            {showKeyIcon ? ( // Conditionally render RiKeyFill
+              <RiKeyFill size={50} className="text-default-500" />
+            ) : (
+              <div className="flex items-center gap-1">
+                <Image
+                  src="/x.png"
+                  alt="XYVO Logo"
+                  className="h-10 w-10 object-contain"
+                  width={40}
+                  height={40}
+                />
+              </div>
+            )}
           </div>
           <h2 className="text-lg font-medium text-center text-default-600">
             {title}
@@ -56,7 +62,7 @@ export default function AuthFormLayout({
 
         <CardFooter className="flex flex-col space-y-1">
           <p className="text-xs text-center px-2">
-            By creating an account, you agree to XYVO’s{" "}
+            By continuing, you agree to XYVO&apos;s{" "}
             <Link href="/conditions" className="underline hover:text-blue-500">
               Conditions of Use
             </Link>{" "}
@@ -82,7 +88,7 @@ export default function AuthFormLayout({
           {showSocials && (
             <>
               <div className="mt-3 text-center text-xs text-white/70">
-                or sign up with
+                or continue with
               </div>
               <div className="flex justify-center gap-4 mt-2">
                 <FcGoogle size={30} className="cursor-pointer" />

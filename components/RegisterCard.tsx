@@ -1,38 +1,29 @@
 "use client";
 
-import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { useUser } from "@/context/UserContext";
-import { addToast, Select, SelectItem } from "@heroui/react";
-import { useState, useEffect } from "react";
-import { countryCodes } from "@/data/countryCodes";
-import { getFirstNameCapitalized, getFlagFromPhone } from "@/utils/helper";
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
+import { addToast } from "@heroui/react";
+import { useEffect } from "react";
+import { getFirstNameCapitalized } from "@/utils/helper";
 import { CDN } from "@/config/config";
-import { Image } from "@heroui/react";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
-import PasswordTooltip from "@/components/ui/PasswordTooltip/PasswordTooltip";
+import AuthFormLayout from "@/components/auth/AuthFormLayout";
+import PhoneInput from "@/components/auth/PhoneInput";
+import PasswordInput from "@/components/auth/PasswordInput";
+import PasswordTooltip from "@/components/ui/PasswordTooltip/PasswordTooltip"; // Corrected import path
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
 
 export default function RegisterCard() {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [selectedCode, setSelectedCode] = useState("+1");
-  const [flag, setFlag] = useState("🇺🇸");
-
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledEmail = searchParams?.get("email") || "";
   const { setUser } = useUser();
-
-  const togglePasswordVisibility = () => setIsPasswordVisible((prev) => !prev);
 
   const formik = useFormik({
     initialValues: {
@@ -40,7 +31,7 @@ export default function RegisterCard() {
       phone: "",
       name: "",
       password: "",
-      countryCode: selectedCode,
+      countryCode: "+1",
     },
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email").required("Required"),
@@ -84,7 +75,7 @@ export default function RegisterCard() {
             description:
               errorData.message || "Registration failed. Please try again.",
             color: "danger",
-            timeout: 3000,
+            timeout: 5000,
           });
         }
       } catch (err) {
@@ -100,45 +91,8 @@ export default function RegisterCard() {
     },
   });
 
-  interface CountryCode {
-    name: string;
-    dial_code: string;
-    code: string;
-    flag: string;
-  }
-
-  const handleCodeChange = (code: string) => {
-    setSelectedCode(code);
-    formik.setFieldValue("countryCode", code);
-    const selected: CountryCode | undefined = countryCodes.find(
-      (c: CountryCode) => c.dial_code === code
-    );
-    if (selected) setFlag(selected.flag);
-  };
-
-  interface PhoneChangeEvent {
-    target: {
-      value: string;
-    };
-  }
-
-  const handlePhoneChange = (e: PhoneChangeEvent) => {
-    const phone: string = e.target.value;
-    formik.setFieldValue("phone", phone);
-    const digits: string = phone.replace(/\D/g, "");
-    if (selectedCode === "+1" && digits.length >= 3) {
-      const dynamicFlag: string = getFlagFromPhone(digits);
-      if (dynamicFlag !== flag) setFlag(dynamicFlag);
-    }
-  };
-
   useEffect(() => {
     formik.resetForm();
-    const initialCountry = countryCodes.find((c) => c.dial_code === "+1");
-    if (initialCountry) {
-      setFlag(initialCountry.flag);
-      formik.setFieldValue("countryCode", "+1");
-    }
   }, []);
 
   return (
@@ -152,26 +106,18 @@ export default function RegisterCard() {
           <XyvoLoader />
         </div>
       ) : (
-        <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 mt-[5vh] shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
-          <CardHeader className="flex flex-col items-center justify-center space-y-2">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <Image
-                  src="/x.png"
-                  alt="XYVO Logo"
-                  className="h-10 w-10 object-contain"
-                  width={40}
-                  height={40}
-                />
-              </div>
-            </div>
-            <h2 className="text-lg font-medium text-center text-default-600">
-              Sign up for XYVO
-            </h2>
-          </CardHeader>
-
+        <AuthFormLayout
+          title="Sign up for XYVO"
+          subtitle=""
+          alternativeAuthLink={{
+            text: "Already have an account?",
+            href: "/auth",
+            linkText: "Sign in",
+          }}
+          showSocials={true}
+        >
           <form onSubmit={formik.handleSubmit}>
-            <CardBody className="space-y-2">
+            <div className="space-y-2">
               <Input
                 id="name"
                 name="name"
@@ -182,7 +128,9 @@ export default function RegisterCard() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={!!(formik.touched.name && formik.errors.name)}
-                errorMessage={formik.touched.name && formik.errors.name}
+                errorMessage={
+                  formik.touched.name ? formik.errors.name : undefined
+                }
                 size="sm"
               />
               <Input
@@ -195,102 +143,46 @@ export default function RegisterCard() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={!!(formik.touched.email && formik.errors.email)}
-                errorMessage={formik.touched.email && formik.errors.email}
+                errorMessage={
+                  formik.touched.email ? formik.errors.email : undefined
+                }
                 size="sm"
               />
 
-              <div className="flex flex-col sm:flex-row items-center gap-2">
-                <div className="flex items-center gap-2 w-full sm:w-1/3">
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={flag}
-                      initial={{ scale: 0.6, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.6, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="text-xl"
-                    >
-                      {flag}
-                    </motion.span>
-                  </AnimatePresence>
-                  <Select
-                    variant="bordered"
-                    size="md"
-                    className="w-full"
-                    selectedKeys={new Set([selectedCode])}
-                    onSelectionChange={(keys) => {
-                      const code = Array.from(keys)[0];
-                      handleCodeChange(String(code));
-                    }}
-                    renderValue={() => <span>{selectedCode}</span>}
-                  >
-                    {countryCodes.map((country) =>
-                      country.code === "CA" ? null : (
-                        <SelectItem
-                          key={country.dial_code}
-                          textValue={country.dial_code}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-white/60">
-                              {country.code}
-                            </span>
-                            <span>{country.dial_code}</span>
-                          </div>
-                        </SelectItem>
-                      )
-                    )}
-                  </Select>
-                </div>
-                <Input
-                  id="phone"
-                  name="phone"
-                  label="Phone"
-                  type="text"
-                  variant="bordered"
-                  value={formik.values.phone}
-                  onChange={handlePhoneChange}
-                  onBlur={formik.handleBlur}
-                  isInvalid={!!(formik.touched.phone && formik.errors.phone)}
-                  errorMessage={formik.touched.phone && formik.errors.phone}
-                  className="w-full sm:w-2/3"
-                  size="sm"
-                />
-              </div>
+              <PhoneInput
+                id="phone"
+                name="phone"
+                value={formik.values.phone}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isInvalid={!!(formik.touched.phone && formik.errors.phone)}
+                errorMessage={
+                  formik.touched.phone ? formik.errors.phone : undefined
+                }
+                setFormikFieldValue={formik.setFieldValue}
+                formikCountryCode={formik.values.countryCode}
+                size="sm"
+              />
 
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type={isPasswordVisible ? "text" : "password"}
-                label="Password"
-                placeholder="At least 8 characters"
-                variant="bordered"
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
                   !!(formik.touched.password && formik.errors.password)
                 }
-                errorMessage={formik.touched.password && formik.errors.password}
-                size="sm"
-                endContent={
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="h-full flex items-center pr-2"
-                  >
-                    {isPasswordVisible ? (
-                      <FaEyeSlash className="text-lg text-default-400 pointer-events-none" />
-                    ) : (
-                      <FaEye className="text-lg text-default-400 pointer-events-none" />
-                    )}
-                  </button>
+                errorMessage={
+                  formik.touched.password ? formik.errors.password : undefined
                 }
+                size="sm"
               />
 
               <PasswordTooltip />
-            </CardBody>
+            </div>
 
-            <CardFooter className="flex flex-col space-y-1">
+            <div className="flex flex-col space-y-1 mt-4">
               {formik.isSubmitting ? (
                 <p>Registering...</p>
               ) : (
@@ -304,43 +196,9 @@ export default function RegisterCard() {
                   Continue
                 </Button>
               )}
-
-              <p className="text-xs text-center px-2">
-                By creating an account, you agree to XYVO’s{" "}
-                <Link
-                  href="/conditions"
-                  className="underline hover:text-blue-500"
-                >
-                  Conditions of Use
-                </Link>{" "}
-                and{" "}
-                <Link href="/privacy" className="underline hover:text-blue-500">
-                  Privacy Notice
-                </Link>
-                .
-              </p>
-
-              <div className="text-xs text-center">
-                Already have an account?{" "}
-                <Link href="/auth" className="underline hover:text-blue-500">
-                  Sign in
-                </Link>
-              </div>
-
-              <div className="mt-3 text-center text-xs text-white/70">
-                or sign up with
-              </div>
-
-              <div className="flex justify-center gap-4 mt-2">
-                <FcGoogle size={30} className="cursor-pointer" />
-                <FaFacebook
-                  size={26}
-                  className="cursor-pointer text-blue-600"
-                />
-              </div>
-            </CardFooter>
+            </div>
           </form>
-        </Card>
+        </AuthFormLayout>
       )}
     </motion.div>
   );

@@ -1,4 +1,3 @@
-// components/auth/PhoneInput.tsx
 "use client";
 
 import { Input } from "@heroui/input";
@@ -24,7 +23,7 @@ interface PhoneInputProps {
     value: any,
     shouldValidate?: boolean
   ) => void;
-  formikCountryCode: string; // The countryCode value from Formik's state
+  formikCountryCode: string;
 }
 
 export default function PhoneInput({
@@ -101,8 +100,8 @@ export default function PhoneInput({
           className="w-full"
           selectedKeys={new Set([selectedCode])}
           onSelectionChange={(keys) => {
-            const code = Array.from(keys)[0];
-            handleCodeChange(code as string);
+            const code = String(Array.from(keys)[0]);
+            handleCodeChange(code);
           }}
           renderValue={() => <span>{selectedCode}</span>}
           aria-label="Country Code"

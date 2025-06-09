@@ -1,9 +1,6 @@
-// components/auth/PasswordInput.tsx
 "use client";
 
 import { Input } from "@heroui/input";
-import { Tooltip } from "@heroui/react";
-import { FcInfo } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
 
