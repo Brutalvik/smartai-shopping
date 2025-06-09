@@ -7,7 +7,6 @@ import AppLoadingWrapper from "@/components/shared/AppLoadingWrapper";
 import { AppLoaderProvider } from "@/context/AppLoaderContext";
 import { fontSans } from "@/config/fonts";
 import clsx from "clsx";
-import SubNavbar from "./SubNavbar";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -26,7 +25,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               >
                 <div className="relative flex flex-col min-h-screen font-sans antialiased">
                   <Navbar />
-                  <SubNavbar />
                   <main className="container mx-auto max-w-fit px-6 flex-grow">
                     {children}
                   </main>
