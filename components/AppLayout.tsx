@@ -27,7 +27,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <div className="relative flex flex-col min-h-screen font-sans antialiased">
                   <Navbar />
                   <SubNavbar />
-                  <main className="container mx-auto max-w-7xl px-6 flex-grow">
+                  <main className="container mx-auto max-w-fit px-6 flex-grow">
                     {children}
                   </main>
                   <footer className="w-full flex items-center justify-center py-3 text-xs">

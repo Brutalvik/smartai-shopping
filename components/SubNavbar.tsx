@@ -101,11 +101,11 @@ export default function SubNavbar() {
   }, []);
 
   return (
-    <div className="w-full z-10 backdrop-blur-sm text-default-7 00 text-sm border-b border-white/10">
+    <div className="w-full z-40 backdrop-blur-sm text-default-7 00 text-sm border-b border-white/10">
       <div className="w-full">
         <div
           ref={containerRef}
-          className="flex items-center gap-3 py-2 pl-2 pr-6 w-full flex-nowrap"
+          className="flex items-center gap-3 py-2 px-5 w-full flex-nowrap"
         >
           {/* ALL Button */}
           <Button

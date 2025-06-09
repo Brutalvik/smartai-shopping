@@ -50,8 +50,9 @@ export const Navbar = () => {
   );
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar maxWidth="full" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
+        {/* Adjusted NavbarBrand for left alignment and 10px margin */}
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Logo />
@@ -77,7 +78,8 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
+        // Adjusted NavbarContent for right alignment and 10px margin for desktop view
+        className="hidden sm:flex basis-1/5 sm:basis-full pr-[10px]"
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2">
@@ -123,7 +125,11 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
+      <NavbarContent
+        // Adjusted NavbarContent for right alignment and 10px margin for mobile view
+        className="sm:hidden basis-1 pr-[10px]"
+        justify="end"
+      >
         <ThemeSwitch />
         <NavbarItem>
           <UserDrawerMenu />
