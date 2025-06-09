@@ -183,7 +183,7 @@ export default function UserDrawerMenu() {
                     <DrawerItem
                       icon={<Store size={18} />}
                       label="Become a Seller"
-                      onClick={() => handleNavigate("/auth/seller-register")}
+                      onClick={() => handleNavigate("/auth/register-seller")}
                     />
                     <DrawerItem
                       icon={<Star size={18} />}

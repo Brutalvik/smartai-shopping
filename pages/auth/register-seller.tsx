@@ -18,7 +18,7 @@ import PasswordInput from "@/components/auth/PasswordInput";
 import PasswordTooltip from "@/components/ui/PasswordTooltip/PasswordTooltip";
 import { passwordRules } from "@/utils/helper";
 
-export default function RegisterCard() {
+export default function SellerRegistrationCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledEmail = searchParams?.get("email") || "";
@@ -31,6 +31,7 @@ export default function RegisterCard() {
       name: "",
       password: "",
       countryCode: "+1",
+      businessName: "",
     },
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email").required("Required"),
@@ -45,10 +46,11 @@ export default function RegisterCard() {
             "Password must contain at least one uppercase letter, one lowercase letter, and one number.",
         })
         .required("Required"),
+      businessName: Yup.string().min(3, "Too short").required("Required"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const res = await fetch(`${CDN.userAuthApi}/auth/register`, {
+        const res = await fetch(`${CDN.userAuthApi}/auth/register-seller`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -56,6 +58,7 @@ export default function RegisterCard() {
             phone: values.countryCode + values.phone,
             password: values.password,
             name: values.name,
+            businessName: values.businessName,
           }),
         });
 
@@ -65,20 +68,21 @@ export default function RegisterCard() {
           sessionStorage.setItem("user", JSON.stringify(user));
           localStorage.setItem(
             "accountCreated",
-            `Welcome ${getFirstNameCapitalized(values.name)}! Account created successfully.`
+            `Welcome ${getFirstNameCapitalized(values.name)}! Seller account created successfully.`
           );
           router.push("/");
         } else {
           const errorData = await res.json();
           addToast({
             description:
-              errorData.message || "Registration failed. Please try again.",
+              errorData.message ||
+              "Seller registration failed. Please try again.",
             color: "danger",
-            timeout: 5000,
+            timeout: 3000,
           });
         }
       } catch (err) {
-        console.error("Client-side registration error:", err);
+        console.error("Client-side seller registration error:", err);
         addToast({
           description: "An unexpected error occurred. Please try again later.",
           color: "danger",
@@ -106,21 +110,40 @@ export default function RegisterCard() {
         </div>
       ) : (
         <AuthFormLayout
-          title="Sign up for XYVO"
-          subtitle=""
+          title="Become a XYVO Seller" // Updated title
+          subtitle="Register your business" // New subtitle
           alternativeAuthLink={{
-            text: "Already have an account?",
-            href: "/auth",
+            text: "Already have a seller account?",
+            href: "/auth/seller-login", // Adjusted link
             linkText: "Sign in",
           }}
-          showSocials={true}
+          showSocials={false} // Often disabled for business registrations
         >
           <form onSubmit={formik.handleSubmit}>
             <div className="space-y-2">
               <Input
+                id="businessName"
+                name="businessName"
+                label="Business Name"
+                type="text"
+                variant="bordered"
+                value={formik.values.businessName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isInvalid={
+                  !!(formik.touched.businessName && formik.errors.businessName)
+                }
+                errorMessage={
+                  formik.touched.businessName
+                    ? formik.errors.businessName
+                    : undefined
+                }
+                size="sm"
+              />
+              <Input
                 id="name"
                 name="name"
-                label="Your name"
+                label="Your Name (Contact Person)" // Clarified label
                 type="text"
                 variant="bordered"
                 value={formik.values.name}
@@ -136,7 +159,7 @@ export default function RegisterCard() {
                 id="email"
                 name="email"
                 type="email"
-                label="Email"
+                label="Business Email" // Clarified label
                 variant="bordered"
                 value={formik.values.email}
                 onChange={formik.handleChange}
@@ -183,7 +206,7 @@ export default function RegisterCard() {
 
             <div className="flex flex-col space-y-1 mt-4">
               {formik.isSubmitting ? (
-                <p>Registering...</p>
+                <p>Registering Seller...</p>
               ) : (
                 <Button
                   type="submit"
@@ -192,7 +215,7 @@ export default function RegisterCard() {
                   isDisabled={formik.isSubmitting}
                   className="w-full"
                 >
-                  Continue
+                  Register Business
                 </Button>
               )}
             </div>
