@@ -51,9 +51,7 @@ const ProductScroller: React.FC<ProductScrollerProps> = ({
   };
 
   return (
-    <div
-      className={clsx("relative w-full py-4 px-4 z-20 mt-[-10%]", className)}
-    >
+    <div className={clsx("relative w-full py-4 px-4 z-20 mt-0", className)}>
       {/* Left Chevron */}
       <button
         className="absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full"
