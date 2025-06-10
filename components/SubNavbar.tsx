@@ -37,7 +37,6 @@ export default function SubNavbar() {
     const container = containerRef.current;
     if (!container) return;
 
-    // Temporarily show all items to measure widths
     for (const category of categories) {
       const el = itemRefs.current[category];
       if (el) el.style.display = "inline-flex";
@@ -48,20 +47,76 @@ export default function SubNavbar() {
     const newVisible: string[] = [];
     const newOverflow: string[] = [];
 
-    for (const category of categories) {
+    let moreButtonWidth = 0;
+    const moreButtonEl = container.querySelector(
+      ".more-button-placeholder"
+    ) as HTMLElement;
+    if (moreButtonEl) {
+      moreButtonWidth = moreButtonEl.offsetWidth + 12;
+    } else {
+      moreButtonWidth = 120;
+    }
+
+    const allButtonEl = container.querySelector(
+      ".all-button-placeholder"
+    ) as HTMLElement;
+    let allButtonWidth = 0;
+    if (allButtonEl) {
+      allButtonWidth = allButtonEl.offsetWidth + 12;
+    } else {
+      allButtonWidth = 60;
+    }
+
+    totalWidth += allButtonWidth;
+
+    for (let i = 0; i < categories.length; i++) {
+      const category = categories[i];
       const el = itemRefs.current[category];
       if (!el) continue;
 
-      const itemWidth = el.offsetWidth + 12; // include margin
-      if (totalWidth + itemWidth + 120 < containerWidth) {
-        totalWidth += itemWidth;
+      const itemWidth = el.offsetWidth + 12;
+
+      const remainingContainerWidth = containerWidth - totalWidth;
+
+      const willNeedMoreButtonSpace =
+        newOverflow.length > 0 ||
+        (i === categories.length - 1 &&
+          remainingContainerWidth < itemWidth + moreButtonWidth) ||
+        (i === categories.length - 2 &&
+          remainingContainerWidth <
+            itemWidth +
+              (itemRefs.current[categories[i + 1]]?.offsetWidth || 0) +
+              12 +
+              moreButtonWidth);
+
+      if (
+        totalWidth +
+          itemWidth +
+          (willNeedMoreButtonSpace ? moreButtonWidth : 0) <=
+        containerWidth
+      ) {
         newVisible.push(category);
+        totalWidth += itemWidth;
       } else {
         newOverflow.push(category);
       }
     }
 
-    // Now re-hide overflow items
+    // START OF MODIFIED SECTION
+    let itemsToForceIntoOverflow = 2; // Target: at least 2 items in overflow
+    while (
+      newVisible.length > 1 &&
+      newOverflow.length < itemsToForceIntoOverflow
+    ) {
+      const lastVisibleCategory = newVisible.pop();
+      if (lastVisibleCategory) {
+        newOverflow.unshift(lastVisibleCategory);
+      } else {
+        break;
+      }
+    }
+    // END OF MODIFIED SECTION
+
     for (const category of categories) {
       const el = itemRefs.current[category];
       if (el)
@@ -94,10 +149,10 @@ export default function SubNavbar() {
     window.addEventListener("resize", handleWindowResize);
     setTimeout(calculate, 100); // initial render after layout
 
-    // return () => {
-    //   resizeObserver.disconnect();
-    //   window.removeEventListener("resize", handleWindowResize);
-    // };
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", handleWindowResize);
+    };
   }, []);
 
   return (

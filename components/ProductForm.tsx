@@ -427,7 +427,6 @@ export default function SellerProductUploadPage() {
                 />
               </div>
             </div>
-            // ... (inside your SellerProductUploadPage component)
             <Select
               id="category"
               name="category"
