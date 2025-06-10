@@ -33,9 +33,9 @@ export default function Home() {
   return (
     <div className="w-full">
       <SubNavbar />
-      <Banner />
       <section className="flex flex-col items-center justify-center gap-4 py-4 md:py-4">
-        {/* <HeroSection /> */}
+        <Banner />
+        <HeroSection />
       </section>
     </div>
   );
