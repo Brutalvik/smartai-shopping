@@ -25,8 +25,25 @@ const ProductScroller: React.FC<ProductScrollerProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const maxScrollLeft = el.scrollWidth - el.clientWidth;
+    const isAtStart = el.scrollLeft <= 0;
+    const isAtEnd = el.scrollLeft >= maxScrollLeft - 1;
+
+    if (
+      (direction === "left" && isAtStart) ||
+      (direction === "right" && isAtEnd)
+    ) {
+      el.classList.add(
+        direction === "left" ? "animate-bounce-right" : "animate-bounce-left"
+      );
+      setTimeout(() => {
+        el.classList.remove("animate-bounce-left", "animate-bounce-right");
+      }, 300);
+    } else {
+      el.scrollBy({
         left: direction === "left" ? -300 : 300,
         behavior: "smooth",
       });
@@ -34,7 +51,9 @@ const ProductScroller: React.FC<ProductScrollerProps> = ({
   };
 
   return (
-    <div className={clsx("relative w-full py-4 px-4", className)}>
+    <div
+      className={clsx("relative w-full py-4 px-4 z-20 mt-[-10%]", className)}
+    >
       {/* Left Chevron */}
       <button
         className="absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full"
@@ -61,7 +80,7 @@ const ProductScroller: React.FC<ProductScrollerProps> = ({
             radius="lg"
             isHoverable
             shadow="lg"
-            className="relative cursor-pointer w-[75vw] sm:w-[45vw] md:w-[30vw] lg:w-[20vw] h-[25vh] shrink-0 bg-white/10 backdrop-blur-md border border-white/10 dark:border-white/20"
+            className="relative cursor-pointer w-[65vw] sm:w-[40vw] md:w-[28vw] lg:w-[18vw] h-[20vh] shrink-0 bg-white/10 backdrop-blur-md border border-white/10 dark:border-white/20"
             classNames={{
               base: "transition-transform hover:scale-[1.03] shadow-lg hover:shadow-2xl",
               body: "relative flex items-center justify-center h-full",

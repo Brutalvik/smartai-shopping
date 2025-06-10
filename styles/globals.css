@@ -19,3 +19,37 @@ body {
 .animate-banner-scroll {
   animation: banner-scroll linear infinite;
 }
+
+@layer utilities {
+  .animate-bounce-left {
+    animation: bounce-left 300ms ease;
+  }
+
+  .animate-bounce-right {
+    animation: bounce-right 300ms ease;
+  }
+
+  @keyframes bounce-left {
+    0% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-10px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes bounce-right {
+    0% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(10px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+}
