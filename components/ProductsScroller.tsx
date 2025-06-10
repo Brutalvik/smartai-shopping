@@ -80,7 +80,7 @@ const ProductScroller: React.FC<ProductScrollerProps> = ({
             radius="lg"
             isHoverable
             shadow="lg"
-            className="relative cursor-pointer w-[65vw] sm:w-[40vw] md:w-[28vw] lg:w-[18vw] h-[20vh] shrink-0 bg-white/10 backdrop-blur-md border border-white/10 dark:border-white/20"
+            className="relative cursor-pointer w-[65vw] sm:w-[40vw] md:w-[28vw] lg:w-[18vw] h-[20vh] shrink-0 bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/30"
             classNames={{
               base: "transition-transform hover:scale-[1.03] shadow-lg hover:shadow-2xl",
               body: "relative flex items-center justify-center h-full",
@@ -89,15 +89,18 @@ const ProductScroller: React.FC<ProductScrollerProps> = ({
             }}
           >
             <CardBody>
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-contain rounded-lg"
-              />
+              <div className="w-full h-full p-[3px]">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover rounded-lg"
+                  width={500}
+                  height={500}
+                />
+              </div>
             </CardBody>
             <CardFooter>
-              <span className="text-white font-semibold text-sm bg-black/50 px-2 py-1 rounded-md">
+              <span className="text-white font-semibold text-sm bg-black/70 px-2 py-1 rounded-md">
                 {product.price}
               </span>
               <button className="bg-green-500 text-white p-1 rounded-full hover:bg-green-600">
