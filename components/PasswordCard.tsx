@@ -8,7 +8,7 @@ import { CDN } from "@/config/config";
 import { useUser } from "@/context/UserContext";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { getFirstNameCapitalized } from "@/utils/helper";
+import { getInitial } from "@/utils/helper";
 import { addToast, user } from "@heroui/react";
 import PasswordInput from "@/components/auth/PasswordInput";
 import AuthFormLayout from "@/components/auth/AuthFormLayout";
@@ -68,11 +68,18 @@ export default function PasswordCard({
           setUser(user);
           localStorage.setItem(
             "successfulSignin",
-            `Welcome ${getFirstNameCapitalized(user.name)}`
+            `Welcome ${getInitial(user.name)}`
           );
           router.replace(redirectTo || "/");
         } else {
-          formik.setFieldError("password", error || "Authentication failed.");
+          if (error === "NotAuthorizedException") {
+            formik.setFieldError("password", "Wrong Password !.");
+            return addToast({
+              description: "Wrong Password !",
+              color: "danger",
+              timeout: 2000,
+            });
+          }
           addToast({
             description: error || "Invalid Credentials",
             color: "danger",

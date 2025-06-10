@@ -13,7 +13,7 @@ import NextLink from "next/link";
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SearchIcon, Logo } from "@/components/icons";
-import UserDrawerMenu from "@/components/UserDrawerMenu";
+import UserDrawerMenu from "@/components/Drawer/UserDrawerMenu";
 import { Badge } from "@heroui/badge";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
