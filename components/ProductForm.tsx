@@ -121,7 +121,7 @@ export default function SellerProductUploadPage() {
       values.images.forEach((file) => formData.append("images", file));
 
       try {
-        loaderRef.current?.stepTo(1); // "Uploading product data and images..."
+        loaderRef.current?.stepTo(1);
 
         const response = await fetch(
           `${CDN.sellerProductsApi}/seller/products`,
