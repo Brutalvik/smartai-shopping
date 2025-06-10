@@ -51,7 +51,7 @@ export const Navbar = () => {
           />
         </NavbarItem>
         <NavbarItem>
-          <div className="flex flex-row gap-2">
+          <div className="hidden lg:flex flex-row gap-2">
             <ThemeSwitch />
             <UserDrawerMenu />
             <Badge
@@ -69,7 +69,7 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="sm:hidden basis-1 pr-[10px]" justify="end">
+      <NavbarContent className="lg:hidden basis-1 pr-[10px]" justify="end">
         <ThemeSwitch />
         <NavbarItem>
           <UserDrawerMenu />
