@@ -60,7 +60,7 @@ const ImageBanner: React.FC<ImageBannerProps> = ({
           priority={idx === currentIndex}
           className={clsx(
             "object-cover absolute transition-opacity duration-1000 ease-in-out",
-            idx === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+            idx === currentIndex ? "opacity-100" : "opacity-0"
           )}
         />
       ))}
