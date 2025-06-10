@@ -9,6 +9,7 @@ import clsx from "clsx";
 
 import { SunFilledIcon, MoonFilledIcon } from "@/components/icons";
 import CustomThemeSwitch from "@/components/ui/CustomThemeSwitch/CustomThemeSwitch";
+import { Moon, SunMedium } from "lucide-react";
 
 export interface ThemeSwitchProps {
   className?: string;
@@ -71,10 +72,11 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
           ),
         })}
       >
-        <CustomThemeSwitch
-          checked={!isSelected ? true : false}
-          onToggle={onChange}
-        />
+        {!isSelected ? (
+          <Moon onChange={onChange} />
+        ) : (
+          <SunMedium onChange={onChange} />
+        )}
       </div>
     </Component>
   );

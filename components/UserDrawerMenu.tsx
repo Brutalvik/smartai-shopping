@@ -21,6 +21,7 @@ import {
   LogOut,
   Store,
   User2Icon,
+  Upload,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
@@ -41,11 +42,15 @@ const avatarColors = [
   { bg: "#1D3557", fg: "#FFFFFF" },
 ];
 
+const SELLER = "Sellers";
+
 export default function UserDrawerMenu() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const router = useRouter();
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(false);
+
+  console.log(user);
 
   const handleNavigate = (path: string) => {
     onOpenChange();
@@ -109,11 +114,10 @@ export default function UserDrawerMenu() {
   const UserAvatar = () => (
     <Avatar
       showFallback
-      size="sm"
       src={user?.name ? "" : "/user.png"}
       name={avatarInitial}
       onClick={onOpen}
-      className="cursor-pointer hover:opacity-80 transition"
+      className="w-6 h-6 text-tiny cursor-pointer hover:opacity-80 transition"
       classNames={{
         name: "text-lg font-bold",
         fallback: "rounded-full",
@@ -158,7 +162,7 @@ export default function UserDrawerMenu() {
                     <DrawerItem
                       icon={<Package size={18} />}
                       label="My Orders"
-                      onClick={() => handleNavigate("/orders")}
+                      onClick={() => handleNavigate("/")}
                     />
                     <DrawerItem
                       icon={<Heart size={18} />}
