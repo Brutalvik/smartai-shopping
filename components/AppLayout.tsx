@@ -17,25 +17,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Providers
               themeProps={{ attribute: "class", defaultTheme: "dark" }}
             >
-              <div
-                className={clsx(
-                  "min-h-screen text-foreground bg-background font-sans antialiased",
-                  fontSans.variable
-                )}
-              >
-                <div className="relative flex flex-col min-h-screen font-sans antialiased">
-                  <Navbar />
-                  <main className="container mx-auto max-w-fit px-6 flex-grow">
-                    {children}
-                  </main>
-                  <footer className="w-full flex items-center justify-center py-3 text-xs">
-                    <p>
-                      © {new Date().getFullYear()}{" "}
-                      <span className="font-semibold">Xyvo</span> — All rights
-                      reserved.
-                    </p>
-                  </footer>
-                </div>
+              <div className="relative flex flex-col min-h-screen font-sans antialiased">
+                <Navbar />
+                <main className="container mx-auto max-w-fit px-6 flex-grow">
+                  {children}
+                </main>
+                <footer className="w-full flex items-center justify-center py-3 text-xs">
+                  <p>
+                    © {new Date().getFullYear()}{" "}
+                    <span className="font-semibold">Xyvo</span> — All rights
+                    reserved.
+                  </p>
+                </footer>
               </div>
             </Providers>
           </CartProvider>

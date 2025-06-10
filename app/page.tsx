@@ -3,6 +3,7 @@ import HeroSection from "@/components/HeroSection";
 import { useEffect } from "react";
 import { addToast } from "@heroui/react";
 import SubNavbar from "@/components/SubNavbar";
+import Banner from "@/components/Banner/Banner";
 
 export default function Home() {
   useEffect(() => {
@@ -30,11 +31,12 @@ export default function Home() {
   }, []);
 
   return (
-    <>
+    <div className="w-full">
       <SubNavbar />
+      <Banner />
       <section className="flex flex-col items-center justify-center gap-4 py-4 md:py-4">
-        <HeroSection />
+        {/* <HeroSection /> */}
       </section>
-    </>
+    </div>
   );
 }

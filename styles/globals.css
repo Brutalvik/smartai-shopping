@@ -3,7 +3,19 @@
 @tailwind utilities;
 
 body {
-    --font-sans: "Inter", sans-serif;
-    font-family: var(--font-sans);
+  --font-sans: "Inter", sans-serif;
+  font-family: var(--font-sans);
+}
+
+@keyframes banner-scroll {
+  0% {
+    transform: translateX(0%);
   }
-  
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-banner-scroll {
+  animation: banner-scroll linear infinite;
+}

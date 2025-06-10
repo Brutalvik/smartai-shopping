@@ -4,7 +4,11 @@ import AppLayout from "@/components/AppLayout";
 import { fontSans } from "@/config/fonts";
 import clsx from "clsx";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html suppressHydrationWarning lang="en">
       <head />

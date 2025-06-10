@@ -110,7 +110,7 @@ export default function PhoneInput({
             country.code === "CA" ? null : (
               <SelectItem key={country.dial_code} textValue={country.dial_code}>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-white/60">{country.code}</span>
+                  <span className="text-xs">{country.code}</span>
                   <span>{country.dial_code}</span>
                 </div>
               </SelectItem>

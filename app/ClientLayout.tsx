@@ -15,7 +15,6 @@ export default function ClientLayout({
   useEffect(() => {
     const ndaAccepted = localStorage.getItem("ndaVerified");
 
-    // Allow access to /nda even if NDA isn't accepted yet
     if (ndaAccepted === "true" || pathname === "/nda") {
       setIsAllowed(true);
     } else {
