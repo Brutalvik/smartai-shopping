@@ -32,6 +32,17 @@ export default function SubNavbar() {
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [visibleItems, setVisibleItems] = useState<string[]>([]);
   const [overflowItems, setOverflowItems] = useState<string[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const calculate = () => {
     const container = containerRef.current;
@@ -40,6 +51,23 @@ export default function SubNavbar() {
     for (const category of categories) {
       const el = itemRefs.current[category];
       if (el) el.style.display = "inline-flex";
+    }
+
+    if (isMobile) {
+      const newVisible = categories.slice(0, 2);
+      const newOverflow = categories.slice(2);
+
+      for (const category of categories) {
+        const el = itemRefs.current[category];
+        if (el)
+          el.style.display = newOverflow.includes(category)
+            ? "none"
+            : "inline-flex";
+      }
+
+      setVisibleItems(newVisible);
+      setOverflowItems(newOverflow);
+      return;
     }
 
     const containerWidth = container.offsetWidth;
@@ -102,8 +130,8 @@ export default function SubNavbar() {
       }
     }
 
-    // START OF MODIFIED SECTION
-    let itemsToForceIntoOverflow = 2; // Target: at least 2 items in overflow
+    // Ensure at least 2 items in overflow on non-mobile views
+    let itemsToForceIntoOverflow = 2;
     while (
       newVisible.length > 1 &&
       newOverflow.length < itemsToForceIntoOverflow
@@ -115,7 +143,6 @@ export default function SubNavbar() {
         break;
       }
     }
-    // END OF MODIFIED SECTION
 
     for (const category of categories) {
       const el = itemRefs.current[category];
@@ -132,7 +159,7 @@ export default function SubNavbar() {
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       requestAnimationFrame(() => {
-        setTimeout(calculate, 0); // ensures layout settles
+        setTimeout(calculate, 0);
       });
     });
 
@@ -147,16 +174,16 @@ export default function SubNavbar() {
     }
 
     window.addEventListener("resize", handleWindowResize);
-    setTimeout(calculate, 100); // initial render after layout
+    setTimeout(calculate, 100);
 
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener("resize", handleWindowResize);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
-    <div className="w-full z-40 backdrop-blur-sm text-default-7 00 text-sm border-b border-white/10">
+    <div className="w-full z-40 backdrop-blur-sm text-default-700 text-sm border-b border-white/10">
       <div className="w-full">
         <div
           ref={containerRef}
@@ -167,10 +194,9 @@ export default function SubNavbar() {
             variant="ghost"
             size="sm"
             onPress={() => {
-              // TODO: Drawer trigger
               console.log("Open drawer");
             }}
-            className="flex items-center gap-1 font-semibold shrink-0"
+            className="flex items-center gap-1 font-semibold shrink-0 all-button-placeholder"
           >
             <span className="text-xl">☰</span> All
           </Button>
@@ -209,7 +235,7 @@ export default function SubNavbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex items-center gap-1 text-default-500 font-medium hover:text-blue-200 shrink-0"
+                  className="flex items-center gap-1 text-default-500 font-medium hover:text-blue-200 shrink-0 more-button-placeholder"
                 >
                   More <ChevronDown className="w-4 h-4" />
                 </Button>
