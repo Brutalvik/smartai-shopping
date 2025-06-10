@@ -50,8 +50,6 @@ export default function UserDrawerMenu() {
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(false);
 
-  console.log(user);
-
   const handleNavigate = (path: string) => {
     onOpenChange();
     setLoading(true);

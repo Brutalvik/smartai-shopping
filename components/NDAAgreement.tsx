@@ -36,11 +36,7 @@ export default function NdaAgreementModal() {
         }
       );
 
-      console.log("RES : ", res);
-
       const data = await res.json();
-
-      console.log(data);
 
       if (res.ok) {
         setMessage("📨 Verification code sent to your email.");
