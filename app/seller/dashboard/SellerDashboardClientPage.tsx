@@ -10,22 +10,33 @@ import {
   ModalFooter,
   Button,
 } from "@heroui/react";
-import { Loader2, Trash2, Pencil } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
-import { decodeProductIdForDisplay } from "@/utils/product-utils";
-import ProductForm from "@/pages/seller/products/ProductForm";
-import DashboardHeader from "@/pages/seller/dashboard/DashboardHeader";
-import SellerProductsTable from "@/pages/seller/products/SellerProductsTable";
+import ProductForm from "@/components/seller/ProductForm";
+import DashboardHeader from "@/components/seller/DashboardHeader";
+import SellerProductsTable from "@/components/seller/SellerProductsTable";
 
-export default function SellerDashboardPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
+interface SellerDashboardClientPageProps {
+  initialProducts: Product[];
+  initialLastEvaluatedKey: Record<string, any> | undefined;
+  initialHasMore: boolean;
+  sellerId: string;
+}
+
+export default function SellerDashboardClientPage({
+  initialProducts,
+  initialLastEvaluatedKey,
+  initialHasMore,
+  sellerId,
+}: SellerDashboardClientPageProps) {
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(initialHasMore);
   const [lastEvaluatedKey, setLastEvaluatedKey] = useState<
     Record<string, any> | undefined
-  >(undefined);
+  >(initialLastEvaluatedKey);
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(
     new Set()
   );
@@ -141,8 +152,32 @@ export default function SellerDashboardPage() {
   );
 
   useEffect(() => {
-    fetchProducts(false, true);
-  }, [fetchProducts]);
+    const hasActiveFilters =
+      categoryFilter ||
+      isActiveFilter !== undefined ||
+      minPriceFilter !== undefined ||
+      maxPriceFilter !== undefined ||
+      searchKeyword;
+    if (hasActiveFilters) {
+      fetchProducts(false, true);
+    } else if (
+      !initialProducts.length &&
+      !initialHasMore &&
+      !initialLastEvaluatedKey
+    ) {
+      fetchProducts(false, true);
+    }
+  }, [
+    categoryFilter,
+    isActiveFilter,
+    minPriceFilter,
+    maxPriceFilter,
+    searchKeyword,
+    fetchProducts,
+    initialProducts,
+    initialHasMore,
+    initialLastEvaluatedKey,
+  ]);
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -215,7 +250,7 @@ export default function SellerDashboardPage() {
       }
     } catch (error: any) {
       addToast({
-        description: `Error during deletion: ${error.message}`,
+        description: `An error occurred: ${error.message}`,
         color: "danger",
         timeout: 5000,
       });
@@ -321,11 +356,12 @@ export default function SellerDashboardPage() {
                 onSelectAllProducts={handleSelectAllProducts}
                 allProductsSelected={allProductsSelected}
                 onEdit={handleOpenEditModal}
-                onDelete={(product: Product) => {
+                onDelete={(product) => {
                   setDeletingProductId(product.productId);
                   setIsDeleteConfirmModalOpen(true);
                 }}
                 loading={loading}
+                sellerId={sellerId}
               />
               {hasMore && (
                 <div className="text-center mt-8">
@@ -367,7 +403,7 @@ export default function SellerDashboardPage() {
               <ModalBody>
                 {productToEdit ? (
                   <ProductForm
-                    product={productToEdit as any}
+                    product={productToEdit}
                     onSubmitSuccess={handleProductUpdated}
                   />
                 ) : (

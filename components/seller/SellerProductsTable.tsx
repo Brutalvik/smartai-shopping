@@ -32,6 +32,7 @@ interface SellerProductsTableProps {
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
   loading: boolean;
+  sellerId: string;
 }
 
 export default function SellerProductsTable({
@@ -43,6 +44,7 @@ export default function SellerProductsTable({
   onEdit,
   onDelete,
   loading,
+  sellerId,
 }: SellerProductsTableProps) {
   const currentProductRegion = process.env.NEXT_PUBLIC_PRODUCTS_REGION;
 
@@ -86,7 +88,7 @@ export default function SellerProductsTable({
 
               const decodedId = decodeProductIdForDisplay(
                 product.productId,
-                product.sellerId,
+                sellerId,
                 currentProductRegion
               );
 
@@ -118,6 +120,8 @@ export default function SellerProductsTable({
                           {product.description}
                         </div>
                       }
+                      delay={0}
+                      closeDelay={0}
                     >
                       <span className="cursor-help">{product.description}</span>
                     </Tooltip>
@@ -132,6 +136,8 @@ export default function SellerProductsTable({
                           {product.tags.join(", ")}
                         </div>
                       }
+                      delay={0}
+                      closeDelay={0}
                     >
                       <span className="cursor-help">
                         {product.tags.join(", ")}

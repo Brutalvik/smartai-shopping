@@ -7,9 +7,10 @@ import SellerProductUploadForm from "@/components/seller/SellerProductUploadForm
 import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 
 export default async function UploadPage() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
 
+  // 2. Verify the token
   const user = verifyToken(token);
 
   if (!user || typeof user === "string") {
