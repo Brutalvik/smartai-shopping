@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Input, Select, SelectItem, Switch, Button } from "@heroui/react";
 import { categories } from "@/data/categories";
 import { Trash2, Plus } from "lucide-react";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface DashboardHeaderProps {
@@ -88,7 +87,7 @@ export default function DashboardHeader({
   };
 
   return (
-    <div className="bg-white p-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-4">
+    <div className="p-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-4">
       <h2 className="text-xl font-semibold">Product Management</h2>
 
       <div className="flex flex-wrap items-center gap-4">
@@ -152,10 +151,10 @@ export default function DashboardHeader({
           <label className="text-sm">Active Only</label>
         </div>
 
-        <Button onClick={handleFilterApply} color="primary" variant="solid">
+        <Button onPress={handleFilterApply} color="primary" variant="solid">
           Apply Filters
         </Button>
-        <Button onClick={handleClearFilters} variant="ghost">
+        <Button onPress={handleClearFilters} variant="ghost">
           Clear Filters
         </Button>
       </div>

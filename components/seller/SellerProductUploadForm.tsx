@@ -89,7 +89,8 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
       description: initialProduct?.description || "",
       price: initialProduct?.price || 0,
       quantity: initialProduct?.quantity || 0,
-      category: initialProduct?.category || "",
+      category:
+        categories.find((c) => c.label === initialProduct?.category)?.key || "",
       tags: initialProduct?.tags || [],
       isActive: initialProduct?.isActive ?? false,
       images: [] as File[],
@@ -114,6 +115,8 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
         onOpenDraftModal();
         return;
       }
+      const selectedCategoryLabel =
+        categories.find((cat) => cat.key === values.category)?.label || "";
 
       loaderRef.current?.start();
       loaderRef.current?.stepTo(0);
@@ -123,7 +126,7 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
       formData.append("description", values.description);
       formData.append("price", values.price.toString());
       formData.append("quantity", values.quantity.toString());
-      formData.append("category", values.category);
+      formData.append("category", selectedCategoryLabel);
       formData.append("tags", values.tags.join(","));
       formData.append("isActive", String(values.isActive));
       values.images.forEach((file) => formData.append("images", file));

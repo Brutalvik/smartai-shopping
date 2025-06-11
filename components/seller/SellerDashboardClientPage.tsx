@@ -320,7 +320,7 @@ export default function SellerDashboardClientPage({
       />
 
       <div className="flex flex-grow">
-        <div className="w-1/5 bg-gray-50 p-6 border-r border-gray-200">
+        <div className="w-1/5 p-6 border-r border-gray-200">
           <h2 className="text-xl font-semibold mb-4">Seller Tools</h2>
           <ul className="space-y-2">
             <li>
@@ -336,7 +336,7 @@ export default function SellerDashboardClientPage({
           </ul>
         </div>
 
-        <div className="w-4/5 p-6 bg-white flex flex-col">
+        <div className="w-4/5 p-6 flex flex-col">
           <h1 className="text-2xl font-bold mb-6">My Products</h1>
 
           {loading && products.length === 0 ? (
@@ -362,7 +362,7 @@ export default function SellerDashboardClientPage({
                 loading={loading}
                 sellerId={sellerId}
               />
-              {hasMore && (
+              {hasMore && !isEmptyArray(products) && (
                 <div className="text-center mt-8">
                   <Button
                     onPress={handleLoadMore}
@@ -384,7 +384,7 @@ export default function SellerDashboardClientPage({
               )}
               {!loading && products.length === 0 && (
                 <div className="text-center text-gray-600 text-lg mt-10">
-                  No products found for this seller with the current filters.
+                  No products found with the current filters.
                 </div>
               )}
             </>

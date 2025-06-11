@@ -7,11 +7,7 @@ import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 
-export default async function UploadPage({
-  searchParams,
-}: {
-  searchParams: any;
-}) {
+export default async function UploadPage({}: {}) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
@@ -27,7 +23,7 @@ export default async function UploadPage({
   };
 
   let productToEdit: Product | null = null;
-  const productIdRaw = searchParams?.productId;
+  const productIdRaw = 123;
   const productId = Array.isArray(productIdRaw)
     ? productIdRaw[0]
     : productIdRaw;
