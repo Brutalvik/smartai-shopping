@@ -1,3 +1,5 @@
+// app/seller/upload/page.tsx
+
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyToken } from "@/utils/helper";
@@ -9,11 +11,10 @@ import { Product } from "@/types/product";
 export default async function UploadPage({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] };
+  searchParams?: Record<string, string | string[]>;
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-
   const user = verifyToken(token);
 
   if (!user || typeof user === "string") {
@@ -27,12 +28,12 @@ export default async function UploadPage({
   };
 
   let productToEdit: Product | null = null;
-  // Access productId safely, as it could be an array if repeated, but we expect a single string
-  // Also, searchParams itself might be undefined if no params are present, so add a check
   const productId =
-    searchParams && Array.isArray(searchParams.productId)
-      ? searchParams.productId[0]
-      : searchParams?.productId; // Use optional chaining for searchParams
+    typeof searchParams?.productId === "string"
+      ? searchParams.productId
+      : Array.isArray(searchParams?.productId)
+        ? searchParams?.productId[0]
+        : undefined;
 
   if (productId) {
     try {
