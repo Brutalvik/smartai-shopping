@@ -6,11 +6,7 @@ import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 
-type PageProps = {
-  searchParams?: Record<string, string | string[]>;
-};
-
-export default async function UploadPage({ searchParams }: PageProps) {
+export default async function UploadPage({ searchParams }: any) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
