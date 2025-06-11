@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  useEffect,
+} from "react";
 import {
   Table,
   TableHeader,
@@ -18,7 +24,7 @@ import {
   Loader2,
   ArrowUp,
   ArrowDown,
-  MoveHorizontal,
+  ArrowUpDown,
 } from "lucide-react";
 import { Product } from "@/types/product";
 
@@ -68,8 +74,8 @@ export default function SellerProductsTable({
     8: 120,
   });
 
-  const [sortColumn, setSortColumn] = useState<number | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortColumn, setSortColumn] = useState<number>(7); // default to Created At
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const isResizing = useRef(false);
   const startX = useRef(0);
@@ -132,8 +138,6 @@ export default function SellerProductsTable({
   };
 
   const sortedProducts = useMemo(() => {
-    if (sortColumn === null) return products;
-
     const key = tableColumn[sortColumn];
 
     return [...products].sort((a, b) => {
@@ -153,7 +157,7 @@ export default function SellerProductsTable({
   }, [products, sortColumn, sortDirection]);
 
   const toggleSort = (index: number) => {
-    if (index === 8) return; // Skip sorting for Actions column
+    if (index === 8) return;
     if (sortColumn === index) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
@@ -192,7 +196,7 @@ export default function SellerProductsTable({
                 >
                   <div className="flex items-center gap-1">
                     <span>{label}</span>
-                    {i !== 8 && // not Actions
+                    {i !== 8 &&
                       (sortColumn === i ? (
                         sortDirection === "asc" ? (
                           <ArrowUp size={14} />
@@ -200,16 +204,16 @@ export default function SellerProductsTable({
                           <ArrowDown size={14} />
                         )
                       ) : (
-                        <MoveHorizontal size={12} className="opacity-50" />
+                        <ArrowUpDown size={14} className="text-default-400" />
                       ))}
                   </div>
-                  <div
-                    className="absolute top-0 right-0 h-full w-2"
-                    style={{ cursor: "ew-resize" }}
-                    onMouseDown={(e) => handleMouseDown(e, i)}
-                  >
-                    <div className="h-full w-[2px] bg-gray-300 hover:bg-gray-500 transition-colors" />
-                  </div>
+                  {i !== 8 && (
+                    <div
+                      className="absolute top-0 -right-1 h-full w-1.5"
+                      style={{ cursor: "ew-resize" }}
+                      onMouseDown={(e) => handleMouseDown(e, i)}
+                    />
+                  )}
                 </TableColumn>
               ))}
             </>
@@ -219,7 +223,10 @@ export default function SellerProductsTable({
             {sortedProducts.map((product) => {
               const isSelected = selectedProductIds.has(product.productId);
               return (
-                <TableRow key={product.productId} className="text-sm h-[44px]">
+                <TableRow
+                  key={product.productId}
+                  className="text-sm h-[44px] hover:cursor-pointer"
+                >
                   <TableCell>
                     <Checkbox
                       isSelected={isSelected}
@@ -228,10 +235,8 @@ export default function SellerProductsTable({
                       }
                     />
                   </TableCell>
-                  <TableCell className="cursor-pointer">
-                    {product.title}
-                  </TableCell>
-                  <TableCell className="cursor-pointer">
+                  <TableCell>{product.title}</TableCell>
+                  <TableCell>
                     <Tooltip content={product.description}>
                       <span
                         className="block truncate cursor-help"
@@ -241,16 +246,10 @@ export default function SellerProductsTable({
                       </span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="cursor-pointer">
-                    ${product.price}
-                  </TableCell>
-                  <TableCell className="cursor-pointer">
-                    {product.quantity}
-                  </TableCell>
-                  <TableCell className="cursor-pointer">
-                    {product.category}
-                  </TableCell>
-                  <TableCell className="cursor-pointer">
+                  <TableCell>${product.price}</TableCell>
+                  <TableCell>{product.quantity}</TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell>
                     <Tooltip content={product.tags.join(", ")}>
                       <span
                         className="block truncate cursor-help"
@@ -260,7 +259,7 @@ export default function SellerProductsTable({
                       </span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="cursor-pointer">
+                  <TableCell>
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${
                         product.isActive
@@ -271,7 +270,7 @@ export default function SellerProductsTable({
                       {product.isActive ? "Published" : "Draft"}
                     </span>
                   </TableCell>
-                  <TableCell className="cursor-pointer">
+                  <TableCell>
                     {new Date(product.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
