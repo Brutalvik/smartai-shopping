@@ -1,35 +1,29 @@
-import { GetServerSidePropsContext } from "next";
+// app/seller/upload/page.tsx
+
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { verifyToken } from "@/utils/helper";
 import SellerProductUploadForm from "@/components/seller/SellerProductUploadForm";
 import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const token = ctx.req.cookies?.token;
+export default async function UploadPage() {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get("token")?.value;
+
   const user = verifyToken(token);
 
   if (!user || typeof user === "string") {
-    return {
-      redirect: {
-        destination: `/auth/signin?redirect=${ctx.resolvedUrl}`,
-        permanent: false,
-      },
-    };
+    redirect(`/auth/signin?redirect=/seller/upload`);
   }
 
-  return {
-    props: {
-      user: {
-        id: user.sub || user.id,
-        email: (user as any)?.email,
-        name: (user as any)?.name || "",
-      },
-    },
+  const userData = {
+    id: user.sub || user.id,
+    email: (user as any)?.email,
+    name: (user as any)?.name || "",
   };
-}
 
-export default function ProtectedPage({ user }: { user: any }) {
   return (
-    <UserProviderFromSSR user={user}>
+    <UserProviderFromSSR user={userData}>
       <SellerProductUploadForm />
     </UserProviderFromSSR>
   );
