@@ -6,12 +6,11 @@ import SellerProductUploadForm from "@/components/seller/SellerProductUploadForm
 import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
+interface Props {
+  searchParams: { productId?: string };
+}
 
-export default async function UploadPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default async function UploadPage({ searchParams }: Props) {
   console.log("SEARCH PARAMS : ", searchParams);
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
