@@ -49,9 +49,18 @@ export default function SellerProductsTable({
   onDelete,
   loading,
 }: SellerProductsTableProps) {
-  const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
-    {}
-  );
+  const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>({
+    0: 160,
+    1: 220,
+    2: 100,
+    3: 100,
+    4: 120,
+    5: 160,
+    6: 120,
+    7: 140,
+    8: 120,
+  });
+
   const isResizing = useRef(false);
   const startX = useRef(0);
   const startWidth = useRef(0);
@@ -87,12 +96,10 @@ export default function SellerProductsTable({
   }, [handleMouseMove]);
 
   const getColumnStyle = (index: number) =>
-    columnWidths[index]
-      ? { width: `${columnWidths[index]}px`, minWidth: "60px" }
-      : {};
+    columnWidths[index] ? { width: `${columnWidths[index]}px` } : {};
 
   return (
-    <div className="overflow-x-auto max-w-full rounded-lg border border-default-100 bg-white dark:bg-default-50">
+    <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
       {loading && products.length === 0 ? (
         <div className="flex justify-center items-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -102,33 +109,33 @@ export default function SellerProductsTable({
         <Table
           aria-label="Seller Products Table"
           removeWrapper
-          className="min-w-[1100px] [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+          className="min-w-full [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
         >
           <TableHeader>
-            <>
-              <TableColumn className="w-12 min-w-[48px] border-r">
+            {[
+              <TableColumn key="select" className="w-12 min-w-[48px]">
                 <Checkbox
                   isSelected={allProductsSelected}
                   onValueChange={onSelectAllProducts}
                 />
-              </TableColumn>
-              {tableColumn.map((label, i) => (
+              </TableColumn>,
+              ...tableColumn.map((label, i) => (
                 <TableColumn
                   key={label}
                   className="relative whitespace-nowrap text-sm font-semibold border-r"
                   style={getColumnStyle(i)}
                 >
-                  <div className="flex items-center justify-between pr-2">
-                    <span>{label}</span>
-                    <div
-                      className="h-full w-2 cursor-ew-resize"
-                      onMouseDown={(e) => handleMouseDown(e, i)}
-                    />
-                  </div>
+                  {label}
+                  <div
+                    className="absolute top-0 right-0 h-full w-2"
+                    style={{ cursor: "ew-resize" }}
+                    onMouseDown={(e) => handleMouseDown(e, i)}
+                  />
                 </TableColumn>
-              ))}
-            </>
+              )),
+            ]}
           </TableHeader>
+
           <TableBody emptyContent="No products found.">
             {products.map((product) => {
               const isSelected = selectedProductIds.has(product.productId);
@@ -145,7 +152,10 @@ export default function SellerProductsTable({
                   <TableCell>{product.title}</TableCell>
                   <TableCell>
                     <Tooltip content={product.description}>
-                      <span className="block w-full truncate cursor-help">
+                      <span
+                        className="block truncate cursor-help"
+                        style={{ maxWidth: columnWidths[1] - 16 }}
+                      >
                         {product.description}
                       </span>
                     </Tooltip>
@@ -155,7 +165,10 @@ export default function SellerProductsTable({
                   <TableCell>{product.category}</TableCell>
                   <TableCell>
                     <Tooltip content={product.tags.join(", ")}>
-                      <span className="block w-full truncate cursor-help">
+                      <span
+                        className="block truncate cursor-help"
+                        style={{ maxWidth: columnWidths[5] - 16 }}
+                      >
                         {product.tags.join(", ")}
                       </span>
                     </Tooltip>
