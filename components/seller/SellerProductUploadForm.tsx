@@ -49,6 +49,7 @@ interface Props {
 }
 
 export default function SellerProductUploadForm({ initialProduct }: Props) {
+  console.log("INTIAL PRODUCT : ", initialProduct);
   const router = useRouter();
   const isEditMode = Boolean(initialProduct);
   const loaderRef = useRef<any>(null);
