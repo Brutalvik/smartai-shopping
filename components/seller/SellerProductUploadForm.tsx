@@ -131,8 +131,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
       formData.append("isActive", String(values.isActive));
       values.images.forEach((file) => formData.append("images", file));
 
-      console.log("IS EDIT MODE : ", isEditMode);
-
       try {
         loaderRef.current?.stepTo(1);
         const url = isEditMode
@@ -353,36 +351,32 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
                   name="price"
                   label="Price"
                   placeholder="0.00"
-                  type="number"
+                  type="text"
                   inputMode="decimal"
-                  step="0.01"
-                  min="0"
                   startContent={
                     <div className="pointer-events-none flex items-center">
                       <span className="text-default-400 text-small">$</span>
                     </div>
                   }
-                  value={
-                    formik.values.price === 0
-                      ? ""
-                      : formik.values.price.toString()
-                  }
+                  value={formik.values.price.toLocaleString()}
                   onChange={(e) => {
+                    // Let user type freely
                     const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
-                      formik.setFieldValue(
-                        "price",
-                        val === "" ? 0 : parseFloat(val)
-                      );
+                    if (/^\d*\.?\d{0,2}$/.test(val) || val === "") {
+                      formik.setFieldValue("price", val);
                     }
                   }}
                   onBlur={(e) => {
-                    formik.handleBlur(e);
                     const num = parseFloat(e.target.value);
-                    if (!isNaN(num) && num >= 0) {
-                      formik.setFieldValue("price", parseFloat(num.toFixed(2)));
-                    } else if (e.target.value === "") {
-                      formik.setFieldValue("price", 0);
+                    if (!isNaN(num)) {
+                      formik.setFieldValue("price", num.toFixed(2));
+                    }
+                  }}
+                  onFocus={(e) => {
+                    // Strip formatting so they can edit easily
+                    const raw = parseFloat(e.target.value);
+                    if (!isNaN(raw)) {
+                      formik.setFieldValue("price", raw.toString());
                     }
                   }}
                   isInvalid={!!(formik.touched.price && formik.errors.price)}
