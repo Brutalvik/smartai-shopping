@@ -41,6 +41,12 @@ export default function SellerDashboardClientPage({
   sellerId,
 }: SellerDashboardClientPageProps) {
   const router = useRouter();
+
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(240); // in px, default ~1/6
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(140);
+
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -280,20 +286,99 @@ export default function SellerDashboardClientPage({
   const allProductsSelected =
     products.length > 0 && selectedProductIds.size === products.length;
 
+  //handle resize logic
+
+  const handleSidebarResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = sidebarRef.current?.offsetWidth || sidebarWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const newWidth = Math.max(180, startWidth + moveEvent.clientX - startX); // min width 180px
+      setSidebarWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  };
+
+  const handleHeaderResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startHeight = headerRef.current?.offsetHeight || headerHeight;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const newHeight = Math.max(80, startHeight + moveEvent.clientY - startY); // min height 80px
+      setHeaderHeight(newHeight);
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  };
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <DashboardHeader
-        onFiltersChange={handleFiltersChange}
-        onBulkDelete={() => {
-          setIsDeleteConfirmModalOpen(true);
-          setDeletingProductId(null);
+    <div className="flex flex-col h-screen w-full overflow-hidden">
+      {/* Resizable Top Header */}
+      <div
+        ref={headerRef}
+        style={{ height: headerHeight }}
+        className="overflow-hidden"
+      >
+        <DashboardHeader
+          onFiltersChange={handleFiltersChange}
+          onBulkDelete={() => {
+            setIsDeleteConfirmModalOpen(true);
+            setDeletingProductId(null);
+          }}
+          showBulkDelete={selectedProductIds.size > 0}
+          initialFilters={filters}
+        />
+      </div>
+
+      {/* Resize Handle Between Header and Table */}
+      <div
+        onMouseDown={(e) => {
+          e.preventDefault();
+          const startY = e.clientY;
+          const startHeight = headerRef.current?.offsetHeight || 140;
+
+          const onMouseMove = (moveEvent: MouseEvent) => {
+            const newHeight = Math.max(
+              80,
+              startHeight + moveEvent.clientY - startY
+            );
+            setHeaderHeight(newHeight);
+          };
+
+          const onMouseUp = () => {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+          };
+
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
         }}
-        showBulkDelete={selectedProductIds.size > 0}
-        initialFilters={filters}
+        className="h-1.5 cursor-ns-resize bg-gray-300 dark:bg-gray-600"
       />
 
-      <div className="flex flex-grow">
-        <div className="w-1/5 p-6 border-r border-gray-200">
+      {/* Main Layout Row: Sidebar + Table */}
+      <div className="flex flex-grow min-h-0 w-full overflow-hidden">
+        {/* Left Sidebar (resizable) */}
+        <div
+          ref={sidebarRef}
+          style={{ width: sidebarWidth }}
+          className="p-6 border-r border-gray-200 bg-white dark:bg-default-50"
+        >
           <h2 className="text-xl font-semibold mb-4">Seller Tools</h2>
           <ul className="space-y-2">
             <li>
@@ -309,7 +394,34 @@ export default function SellerDashboardClientPage({
           </ul>
         </div>
 
-        <div className="w-4/5 p-6 flex flex-col">
+        {/* Horizontal Resize Handle for Sidebar */}
+        <div
+          onMouseDown={(e) => {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startWidth = sidebarRef.current?.offsetWidth || sidebarWidth;
+
+            const onMouseMove = (moveEvent: MouseEvent) => {
+              const newWidth = Math.max(
+                180,
+                startWidth + moveEvent.clientX - startX
+              );
+              setSidebarWidth(newWidth);
+            };
+
+            const onMouseUp = () => {
+              document.removeEventListener("mousemove", onMouseMove);
+              document.removeEventListener("mouseup", onMouseUp);
+            };
+
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp);
+          }}
+          className="w-1.5 cursor-ew-resize bg-gray-300 dark:bg-gray-600"
+        />
+
+        {/* Main Table Content */}
+        <div className="flex-1 p-6 flex flex-col overflow-auto">
           <h1 className="text-2xl font-bold mb-6">My Products</h1>
 
           {loading && products.length === 0 ? (
@@ -365,6 +477,7 @@ export default function SellerDashboardClientPage({
         </div>
       </div>
 
+      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteConfirmModalOpen}
         onOpenChange={() => setIsDeleteConfirmModalOpen(false)}
