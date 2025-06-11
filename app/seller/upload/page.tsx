@@ -8,7 +8,6 @@ import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 
 export default async function UploadPage({ searchParams }: any) {
-  console.log("searchParams : ", searchParams);
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);

@@ -50,7 +50,6 @@ interface Props {
 
 export default function SellerProductUploadPage({ initialProduct }: Props) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const isEditMode = Boolean(initialProduct);
   const loaderRef = useRef<any>(null);
   const [loading, setLoading] = useState<boolean>(isEditMode);
@@ -303,7 +302,7 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
         duration={1000}
       />
       <h1 className="text-3xl font-bold text-center mb-8">
-        Upload Your Product
+        {isEditMode ? "Edit Your Product" : "Upload Your Product"}
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
         <Card className="w-full">
@@ -672,7 +671,7 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
           onPress={formik.submitForm}
           className="w-full text-lg py-6"
         >
-          Submit Product
+          {isEditMode ? "Update Product" : "Submit Product"}
         </Button>
         <Button variant="bordered" onPress={handleDraftSave} className="w-full">
           Save Draft
