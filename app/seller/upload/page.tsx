@@ -59,7 +59,7 @@ export default async function UploadPage({ searchParams }: any) {
 
   return (
     <UserProviderFromSSR user={userData}>
-      <SellerProductUploadForm initialProduct={productToEdit} />
+      <SellerProductUploadForm />
     </UserProviderFromSSR>
   );
 }

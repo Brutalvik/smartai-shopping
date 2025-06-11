@@ -14,7 +14,6 @@ import { Loader2 } from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
-import ProductForm from "@/components/seller/ProductForm";
 import DashboardHeader from "@/components/seller/DashboardHeader";
 import SellerProductsTable from "@/components/seller/SellerProductsTable";
 
@@ -381,24 +380,6 @@ export default function SellerDashboardClientPage({
           )}
         </div>
       </div>
-
-      <Modal
-        isOpen={isNewProductModalOpen}
-        onOpenChange={setIsNewProductModalOpen}
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>Create New Product</ModalHeader>
-              <ModalBody>
-                <ProductForm
-                  onSubmitSuccess={handleProductSubmittedOrUpdated}
-                />
-              </ModalBody>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
 
       <Modal
         isOpen={isDeleteConfirmModalOpen}
