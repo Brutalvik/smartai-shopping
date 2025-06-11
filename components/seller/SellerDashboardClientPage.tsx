@@ -10,7 +10,7 @@ import {
   ModalFooter,
   Button,
 } from "@heroui/react";
-import { Loader2 } from "lucide-react";
+import { Loader2, SquarePlus, Trash2 } from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
@@ -294,7 +294,7 @@ export default function SellerDashboardClientPage({
     const startWidth = sidebarRef.current?.offsetWidth || sidebarWidth;
 
     const onMouseMove = (moveEvent: MouseEvent) => {
-      const newWidth = Math.max(180, startWidth + moveEvent.clientX - startX); // min width 180px
+      const newWidth = Math.max(180, startWidth + moveEvent.clientX - startX);
       setSidebarWidth(newWidth);
     };
 
@@ -336,11 +336,6 @@ export default function SellerDashboardClientPage({
       >
         <DashboardHeader
           onFiltersChange={handleFiltersChange}
-          onBulkDelete={() => {
-            setIsDeleteConfirmModalOpen(true);
-            setDeletingProductId(null);
-          }}
-          showBulkDelete={selectedProductIds.size > 0}
           initialFilters={filters}
         />
       </div>
@@ -417,12 +412,34 @@ export default function SellerDashboardClientPage({
             document.addEventListener("mousemove", onMouseMove);
             document.addEventListener("mouseup", onMouseUp);
           }}
-          className="w-1.5 cursor-ew-resize bg-gray-300 dark:bg-gray-600"
+          className="w-0.5 cursor-ew-resize bg-gray-300 dark:bg-gray-600"
         />
 
         {/* Main Table Content */}
         <div className="flex-1 p-6 flex flex-col overflow-auto">
-          <h1 className="text-2xl font-bold mb-6">My Products</h1>
+          <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
+            <h1 className="text-2xl font-bold">Products</h1>
+
+            <div className="flex items-center gap-4">
+              {selectedProductIds.size > 0 && (
+                <Trash2
+                  size={25}
+                  color="#c70000"
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setIsDeleteConfirmModalOpen(true);
+                    setDeletingProductId(null);
+                  }}
+                />
+              )}
+              <SquarePlus
+                size={28}
+                className="cursor-pointer text-default-500 hover:text-primary"
+                strokeWidth={1.75}
+                onClick={() => router.push("/seller/upload")}
+              />
+            </div>
+          </div>
 
           {loading && products.length === 0 ? (
             <div className="flex justify-center items-center h-48">

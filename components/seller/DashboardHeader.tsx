@@ -1,19 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Input,
-  Select,
-  SelectItem,
-  Switch,
-  Button,
-  Accordion,
-  AccordionItem,
-} from "@heroui/react";
+import { Input, Select, SelectItem, Switch, Button } from "@heroui/react";
 import { categories } from "@/data/categories";
-import { Trash2, Plus } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaArrowAltCircleDown, FaArrowAltCircleUp } from "react-icons/fa";
 
 interface DashboardHeaderProps {
   onFiltersChange: (filters: {
@@ -23,8 +15,6 @@ interface DashboardHeaderProps {
     maxPrice?: number;
     searchKeyword?: string;
   }) => void;
-  onBulkDelete: () => void;
-  showBulkDelete: boolean;
   initialFilters: {
     category?: string;
     isActive?: boolean;
@@ -36,8 +26,6 @@ interface DashboardHeaderProps {
 
 export default function DashboardHeader({
   onFiltersChange,
-  onBulkDelete,
-  showBulkDelete,
   initialFilters,
 }: DashboardHeaderProps) {
   const router = useRouter();
@@ -110,33 +98,18 @@ export default function DashboardHeader({
   };
 
   return (
-    <div className="p-4 border-b border-gray-200">
-      <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
-        <h2 className="text-lg font-semibold">Product Management</h2>
-      </div>
-      <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
-        <div className="flex gap-2 ">
-          <Button
-            color="success"
-            variant="solid"
-            startContent={<Plus size={18} />}
-            onPress={() => router.push("/seller/upload")}
-            className="h-[38px] px-4"
-          >
-            Add Product
-          </Button>
-          {showBulkDelete && (
-            <Trash2 size={32} color="#c01c28" onClick={onBulkDelete} />
-          )}
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center mb-2">
+    <div className="p-">
+      <div className="flex justify-between items-center">
         <h3
-          className="text-md font-medium cursor-pointer select-none"
+          className="flex flex-inline gap-2 text-md font-medium cursor-pointer select-none"
           onClick={() => setFiltersExpanded((prev) => !prev)}
         >
-          {filtersExpanded ? "Hide Filters ▲" : "Show Filters ▼"}
+          Filters
+          {filtersExpanded ? (
+            <FaArrowAltCircleUp size={20} />
+          ) : (
+            <FaArrowAltCircleDown size={20} />
+          )}
         </h3>
       </div>
 
