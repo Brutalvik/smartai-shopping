@@ -54,6 +54,20 @@ body {
   }
 }
 
+/* This gives the <-> cursor */
 .resize-column-cursor:hover {
-  cursor: ew-resize; /* This is the double-arrow cursor */
+  cursor: ew-resize;
+}
+
+/* Optional: clean up unwanted scrollbars or weird border behaviors */
+table th,
+table td {
+  border-right: 1px solid #e5e7eb; /* Tailwind gray-200 */
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
 }

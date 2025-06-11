@@ -14,7 +14,6 @@ import {
 } from "@heroui/react";
 import { Trash2, Pencil, Loader2 } from "lucide-react";
 import { Product } from "@/types/product";
-import { useRouter } from "next/navigation";
 
 const tableColumn = [
   "Product Name",
@@ -50,35 +49,30 @@ export default function SellerProductsTable({
   onDelete,
   loading,
 }: SellerProductsTableProps) {
-  const router = useRouter();
   const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
     {}
   );
-  const tableRef = useRef<HTMLTableElement>(null);
   const isResizing = useRef(false);
   const startX = useRef(0);
   const startWidth = useRef(0);
   const currentColumnIndex = useRef<number | null>(null);
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>, index: number) => {
-      isResizing.current = true;
-      startX.current = e.clientX;
-      const th = (e.target as HTMLElement).closest("th");
-      if (th) {
-        startWidth.current = th.offsetWidth;
-        currentColumnIndex.current = index;
-      }
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-    },
-    []
-  );
+  const handleMouseDown = useCallback((e: React.MouseEvent, index: number) => {
+    isResizing.current = true;
+    startX.current = e.clientX;
+    const th = (e.target as HTMLElement).closest("th");
+    if (th) {
+      startWidth.current = th.offsetWidth;
+      currentColumnIndex.current = index;
+    }
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  }, []);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isResizing.current || currentColumnIndex.current === null) return;
     const dx = e.clientX - startX.current;
-    const newWidth = Math.max(50, startWidth.current + dx);
+    const newWidth = Math.max(60, startWidth.current + dx);
     setColumnWidths((prev) => ({
       ...prev,
       [currentColumnIndex.current!]: newWidth,
@@ -92,7 +86,7 @@ export default function SellerProductsTable({
     document.removeEventListener("mouseup", handleMouseUp);
   }, [handleMouseMove]);
 
-  const getColumnWidth = (index: number) =>
+  const getColumnStyle = (index: number) =>
     columnWidths[index] ? { width: `${columnWidths[index]}px` } : {};
 
   return (
@@ -106,22 +100,21 @@ export default function SellerProductsTable({
         <Table
           aria-label="Seller Products Table"
           removeWrapper
-          ref={tableRef}
           className="min-w-[1100px] [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
         >
           <TableHeader>
-            <TableColumn className="w-12 min-w-[48px]">
-              <Checkbox
-                isSelected={allProductsSelected}
-                onValueChange={onSelectAllProducts}
-              />
-            </TableColumn>
             <>
+              <TableColumn className="w-12 min-w-[48px] border-r">
+                <Checkbox
+                  isSelected={allProductsSelected}
+                  onValueChange={onSelectAllProducts}
+                />
+              </TableColumn>
               {tableColumn.map((label, i) => (
                 <TableColumn
                   key={label}
-                  className="relative whitespace-nowrap text-sm font-semibold"
-                  style={getColumnWidth(i)}
+                  className="relative whitespace-nowrap text-sm font-semibold border-r"
+                  style={getColumnStyle(i)}
                 >
                   {label}
                   <div
@@ -137,7 +130,7 @@ export default function SellerProductsTable({
             {products.map((product) => {
               const isSelected = selectedProductIds.has(product.productId);
               return (
-                <TableRow key={product.productId} className="text-sm h-[48px]">
+                <TableRow key={product.productId} className="text-sm h-[44px]">
                   <TableCell>
                     <Checkbox
                       isSelected={isSelected}
@@ -178,7 +171,7 @@ export default function SellerProductsTable({
                   <TableCell>
                     {new Date(product.createdAt).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell>
                     <div className="flex gap-2 justify-center">
                       <Button
                         size="sm"
