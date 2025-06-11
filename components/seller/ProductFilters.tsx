@@ -15,7 +15,8 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { categories } from "@/data/categories";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { ListFilterPlus } from "lucide-react";
 
 interface ProductFiltersProps {
   onFiltersChange: (filters: {
@@ -40,7 +41,6 @@ export default function ProductFilters({
 }: ProductFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const [categoryFilter, setCategoryFilter] = useState(
     initialFilters.category || ""
@@ -101,19 +101,13 @@ export default function ProductFilters({
 
   return (
     <>
-      <Button
-        size="sm"
-        variant="bordered"
-        className="text-default"
-        onPress={onOpen}
-      >
-        Filters
-      </Button>
+      <ListFilterPlus className="cursor-pointer" onClick={() => onOpen()} />
       <Modal
         isDismissable={false}
         isKeyboardDismissDisabled={true}
         isOpen={isOpen}
         onOpenChange={onOpenChange}
+        backdrop="blur"
       >
         <ModalContent>
           {(onClose) => (

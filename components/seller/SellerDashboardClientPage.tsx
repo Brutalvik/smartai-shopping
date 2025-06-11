@@ -9,6 +9,7 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  useDisclosure,
 } from "@heroui/react";
 import { Loader2, SquarePlus, Trash2 } from "lucide-react";
 import { CDN } from "@/config/config";
@@ -19,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { isEmptyArray } from "formik";
 import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSidebar";
 import classNames from "classnames";
+import ProductFilters from "@/components/seller/ProductFilters";
 
 const SellerProductsTable = dynamic(
   () => import("@/components/seller/SellerProductsTable"),
@@ -41,6 +43,7 @@ export default function SellerDashboardClientPage({
   initialHasMore,
   sellerId,
 }: SellerDashboardClientPageProps) {
+  const { onOpen } = useDisclosure();
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const handleSidebarToggle = (collapsed: boolean) =>
@@ -62,11 +65,11 @@ export default function SellerDashboardClientPage({
   const [deleting, setDeleting] = useState(false);
 
   type Filters = {
-    category: string;
-    isActive: boolean | undefined;
-    minPrice: number | undefined;
-    maxPrice: number | undefined;
-    searchKeyword: string;
+    category?: string;
+    isActive?: boolean;
+    minPrice?: number;
+    maxPrice?: number;
+    searchKeyword?: string;
   };
 
   const [filters, setFilters] = useState<Filters>({
@@ -250,6 +253,12 @@ export default function SellerDashboardClientPage({
                   className="cursor-pointer text-default-500 hover:text-primary"
                   strokeWidth={1.75}
                   onClick={() => router.push("/seller/upload")}
+                />
+                <ProductFilters
+                  onFiltersChange={(newFilters: Filters) =>
+                    setFilters(newFilters)
+                  }
+                  initialFilters={filters}
                 />
               </div>
             </div>

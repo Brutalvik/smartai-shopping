@@ -34,15 +34,14 @@ export default function CollapsibleSidebar({
   return (
     <aside
       className={classNames(
-        "bg-gray-500 text-default transition-all duration-300 shadow-lg rounded-xl",
+        "bg-white/10 text-default-500 backdrop-blur-md backdrop-saturate-150 text-default transition-all duration-300 shadow-lg rounded-xl border border-white/20",
         collapsed ? "w-[60px]" : "w-[250px]",
         "h-full"
       )}
     >
       <div className="flex items-center justify-between px-4 py-4">
-        <Link href="/" className="text-white font-bold text-xl">
-          {!collapsed && <span className="text-white">Overview</span>}
-        </Link>
+        {!collapsed && <span className="text-white">Overview</span>}
+
         <button
           className="bg-white text-[#151A2D] p-1.5 rounded hover:bg-gray-200"
           onClick={toggleCollapsed}
