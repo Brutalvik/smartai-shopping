@@ -73,7 +73,9 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
         description: initialProduct.description || "",
         price: initialProduct.price || 0,
         quantity: initialProduct.quantity || 0,
-        category: initialProduct.category || "",
+        category:
+          categories.find((c) => c.label === initialProduct?.category)?.key ||
+          "",
         tags: initialProduct.tags || [],
         isActive: initialProduct.isActive ?? false,
         images: [],
@@ -425,10 +427,7 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
                   const selectedCategory = categories.find(
                     (cat) => cat.key === selectedKey
                   );
-                  formik.setFieldValue(
-                    "category",
-                    selectedCategory ? selectedCategory.label : ""
-                  );
+                  formik.setFieldValue("category", selectedKey ?? "");
                 } else {
                   formik.setFieldValue("category", "");
                 }
