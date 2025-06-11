@@ -1,9 +1,10 @@
+// pages/seller/products/upload.tsx
 "use client";
 
 import { useEffect, useState, ChangeEvent, KeyboardEvent, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input, Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Switch } from "@heroui/switch";
@@ -33,6 +34,7 @@ import { categories } from "@/data/categories";
 import { CDN } from "@/config/config";
 import { addToast } from "@heroui/react";
 import { MultiStepLoader } from "@/components/ui/MultiStepLoader/MultiStepLoader";
+import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 import { Product } from "@/types/product";
 
 const loadingStates = [
@@ -51,20 +53,26 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
   const searchParams = useSearchParams();
   const isEditMode = Boolean(initialProduct);
   const loaderRef = useRef<any>(null);
-
-  const [showImageTerms, setShowImageTerms] = useState(false);
+  const [loading, setLoading] = useState<boolean>(isEditMode);
   const [imagePreviews, setImagePreviews] = useState<string[]>(
-    initialProduct?.images ?? []
+    initialProduct?.images || []
   );
-  const [draftSaved, setDraftSaved] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [currentTagInput, setCurrentTagInput] = useState("");
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [showImageTerms, setShowImageTerms] = useState(false);
 
   const {
     isOpen: isDraftModalOpen,
     onOpen: onOpenDraftModal,
     onClose: onCloseDraftModal,
   } = useDisclosure();
+
+  useEffect(() => {
+    if (isEditMode) {
+      setLoading(false);
+    }
+  }, [isEditMode]);
 
   const formik = useFormik({
     initialValues: {
@@ -75,19 +83,25 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
       category: initialProduct?.category || "",
       tags: initialProduct?.tags || [],
       isActive: initialProduct?.isActive ?? false,
-      images: [] as File[], // for uploads
+      images: [] as File[],
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
-      description: Yup.string().required("Description is required").min(10),
-      price: Yup.number().required("Price is required").min(0.1),
-      quantity: Yup.number().required("Quantity is required").min(0),
+      description: Yup.string()
+        .required("Description is required")
+        .min(10, "Description must be at least 10 characters"),
+      price: Yup.number()
+        .required("Price is required")
+        .min(0.1, "Price must be at least $0.10"),
+      quantity: Yup.number()
+        .required("Quantity is required")
+        .min(0, "Quantity cannot be negative"),
       category: Yup.string().required("Category is required"),
       tags: Yup.array().of(Yup.string()).min(1, "At least one tag is required"),
     }),
-    enableReinitialize: true,
     onSubmit: async (values) => {
-      if (!values.isActive) {
+      if (!values.isActive && !isEditMode) {
         onOpenDraftModal();
         return;
       }
@@ -108,23 +122,19 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
       try {
         loaderRef.current?.stepTo(1);
 
-        const response = await fetch(
-          isEditMode
-            ? `${CDN.sellerProductsApi}/seller/products/${initialProduct?.productId}`
-            : `${CDN.sellerProductsApi}/seller/products`,
-          {
-            method: isEditMode ? "PATCH" : "POST",
-            credentials: "include",
-            body: formData,
-          }
-        );
+        const url = isEditMode
+          ? `${CDN.sellerProductsApi}/seller/products/${initialProduct?.productId}`
+          : `${CDN.sellerProductsApi}/seller/products`;
 
-        if (!response.ok) {
-          loaderRef.current?.stop();
-          const errorMsg = (await response.json())?.message || "Upload failed";
-          addToast({ description: errorMsg, color: "danger", timeout: 4000 });
-          return;
-        }
+        const method = isEditMode ? "PATCH" : "POST";
+
+        const res = await fetch(url, {
+          method,
+          credentials: "include",
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("Upload failed");
 
         loaderRef.current?.stepTo(2);
 
@@ -133,7 +143,7 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
             ? "Product updated successfully!"
             : "Product uploaded successfully!",
           color: "success",
-          timeout: 2000,
+          timeout: 3000,
         });
 
         loaderRef.current?.stepTo(3);
@@ -142,56 +152,35 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
           router.push(
             isEditMode ? "/seller/products?updated=1" : "/seller/products"
           );
-        }, 1000);
+        }, 1200);
       } catch (err) {
         loaderRef.current?.stop();
-        console.error("Error uploading:", err);
         addToast({
-          description: "An unexpected error occurred during upload.",
+          description: "Something went wrong. Please try again.",
           color: "danger",
+          timeout: 3000,
         });
+        console.error(err);
       }
     },
   });
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[70vh]">
+        <XyvoLoader />
+      </div>
+    );
+  }
+
   useEffect(() => {
-    if (!initialProduct) {
-      const draft = localStorage.getItem("sellerProductDraft");
-      if (draft) {
-        const parsed = JSON.parse(draft);
-        formik.setValues({ ...parsed, images: [] });
-        setImagePreviews([]);
-      }
+    const draft = localStorage.getItem("sellerProductDraft");
+    if (draft) {
+      const parsed = JSON.parse(draft);
+      formik.setValues({ ...parsed, images: [] });
+      setImagePreviews([]);
     }
   }, []);
-
-  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setCurrentTagInput(e.target.value);
-
-  const handleDraftSave = () => {
-    const draft = JSON.stringify({ ...formik.values, images: [] });
-    localStorage.setItem("sellerProductDraft", draft);
-    setDraftSaved(true);
-    setTimeout(() => setDraftSaved(false), 2000);
-    addToast({
-      // Added toast for draft save
-      description: "Draft saved locally!",
-      color: "default",
-      timeout: 2000,
-    });
-  };
-
-  const handleImageRemove = (index: number) => {
-    const updatedPreviews = [...imagePreviews];
-    const updatedFiles = [...formik.values.images];
-    updatedPreviews.splice(index, 1);
-    updatedFiles.splice(index, 1);
-    const newIndex = Math.min(carouselIndex, updatedPreviews.length - 1);
-    setCarouselIndex(newIndex >= 0 ? newIndex : 0);
-    setImagePreviews(updatedPreviews);
-    formik.setFieldValue("images", updatedFiles);
-    formik.validateField("images");
-  };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -241,6 +230,31 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
     }, 0);
   };
 
+  const handleImageRemove = (index: number) => {
+    const updatedPreviews = [...imagePreviews];
+    const updatedFiles = [...formik.values.images];
+    updatedPreviews.splice(index, 1);
+    updatedFiles.splice(index, 1);
+    const newIndex = Math.min(carouselIndex, updatedPreviews.length - 1);
+    setCarouselIndex(newIndex >= 0 ? newIndex : 0);
+    setImagePreviews(updatedPreviews);
+    formik.setFieldValue("images", updatedFiles);
+    formik.validateField("images");
+  };
+
+  const handleDraftSave = () => {
+    const draft = JSON.stringify({ ...formik.values, images: [] });
+    localStorage.setItem("sellerProductDraft", draft);
+    setDraftSaved(true);
+    setTimeout(() => setDraftSaved(false), 2000);
+    addToast({
+      // Added toast for draft save
+      description: "Draft saved locally!",
+      color: "default",
+      timeout: 2000,
+    });
+  };
+
   const nextImage = () =>
     setCarouselIndex((prev) => (prev + 1) % imagePreviews.length);
   const prevImage = () =>
@@ -259,6 +273,9 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
     setImagePreviews(updatedPreviews);
     formik.setFieldValue("images", updatedFiles);
   };
+
+  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) =>
+    setCurrentTagInput(e.target.value);
 
   const handleTagInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "," || e.key === " " || e.key === "Enter") {
