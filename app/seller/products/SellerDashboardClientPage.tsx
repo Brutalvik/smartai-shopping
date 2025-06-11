@@ -23,11 +23,11 @@ export default async function UploadPage({ searchParams }: any) {
     name: user?.name || "",
   };
 
-  let productToEdit: Product | null = null;
-
   const productId = Array.isArray(searchParams?.productId)
-    ? searchParams?.productId[0]
+    ? searchParams.productId[0]
     : searchParams?.productId;
+
+  let productToEdit: Product | null = null;
 
   if (productId) {
     try {
@@ -41,8 +41,7 @@ export default async function UploadPage({ searchParams }: any) {
       );
 
       if (response.ok) {
-        const product = await response.json();
-        productToEdit = product;
+        productToEdit = await response.json();
       } else {
         console.error(
           `Failed to fetch product ${productId} for editing:`,
@@ -53,14 +52,15 @@ export default async function UploadPage({ searchParams }: any) {
     } catch (err) {
       console.error("Error fetching product:", err);
     }
-  }
 
-  if (productId && !productToEdit) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <XyvoLoader />
-      </div>
-    );
+    // 🔄 Show loader if fetch failed or is taking time (fallback)
+    if (!productToEdit) {
+      return (
+        <div className="flex justify-center items-center min-h-screen">
+          <XyvoLoader />
+        </div>
+      );
+    }
   }
 
   return (
