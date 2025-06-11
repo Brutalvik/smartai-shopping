@@ -1,3 +1,4 @@
+// app/seller/upload/page.tsx
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyToken } from "@/utils/helper";
@@ -9,7 +10,6 @@ import { Product } from "@/types/product";
 export default async function UploadPage({ searchParams }: any) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-
   const user = verifyToken(token);
 
   if (!user || typeof user === "string") {
@@ -18,18 +18,14 @@ export default async function UploadPage({ searchParams }: any) {
 
   const userData = {
     id: user.sub || user.id,
-    email: (user as any)?.email,
-    name: (user as any)?.name || "",
+    email: user?.email,
+    name: user?.name || "",
   };
 
   let productToEdit: Product | null = null;
-
-  const productId =
-    typeof searchParams?.productId === "string"
-      ? searchParams.productId
-      : Array.isArray(searchParams?.productId)
-        ? searchParams?.productId[0]
-        : undefined;
+  const productId = Array.isArray(searchParams?.productId)
+    ? searchParams?.productId[0]
+    : searchParams?.productId;
 
   if (productId) {
     try {
@@ -41,25 +37,18 @@ export default async function UploadPage({ searchParams }: any) {
           cache: "no-store",
         }
       );
-
       if (response.ok) {
         const product = await response.json();
         productToEdit = product;
-      } else {
-        console.error(
-          `Failed to fetch product ${productId} for editing:`,
-          response.status,
-          response.statusText
-        );
       }
-    } catch (error) {
-      console.error(`Error fetching product ${productId} for editing:`, error);
+    } catch (err) {
+      console.error("Error fetching product:", err);
     }
   }
 
   return (
     <UserProviderFromSSR user={userData}>
-      <SellerProductUploadForm />
+      <SellerProductUploadForm initialProduct={productToEdit} />
     </UserProviderFromSSR>
   );
 }

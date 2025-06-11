@@ -16,6 +16,7 @@ import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
 import DashboardHeader from "@/components/seller/DashboardHeader";
 import SellerProductsTable from "@/components/seller/SellerProductsTable";
+import { useRouter } from "next/navigation";
 
 interface SellerDashboardClientPageProps {
   initialProducts: Product[];
@@ -30,6 +31,7 @@ export default function SellerDashboardClientPage({
   initialHasMore,
   sellerId,
 }: SellerDashboardClientPageProps) {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -149,6 +151,17 @@ export default function SellerDashboardClientPage({
       searchKeyword,
     ]
   );
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("updated") === "1") {
+      addToast({
+        description: "Product updated successfully!",
+        color: "success",
+        timeout: 3000,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const hasActiveFilters =
@@ -344,7 +357,9 @@ export default function SellerDashboardClientPage({
                 onToggleSelectProduct={handleToggleSelectProduct}
                 onSelectAllProducts={handleSelectAllProducts}
                 allProductsSelected={allProductsSelected}
-                onEdit={(product) => {}}
+                onEdit={(product) => {
+                  router.push(`/seller/upload?productId=${product.productId}`);
+                }}
                 onDelete={(product) => {
                   setDeletingProductId(product.productId);
                   setIsDeleteConfirmModalOpen(true);
