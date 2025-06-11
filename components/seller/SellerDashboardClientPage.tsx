@@ -270,14 +270,6 @@ export default function SellerDashboardClientPage({
     }
   };
 
-  if (isEmptyArray(products)) {
-    return (
-      <div>
-        <span>NO PRODUCTS</span>
-      </div>
-    );
-  }
-
   const handleFiltersChange = useCallback(
     (newFilters: {
       category?: string;
