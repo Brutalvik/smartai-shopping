@@ -114,6 +114,7 @@ export default function SellerDashboardClientPage({
         );
 
         const result = await response.json();
+        console.log("PRODUCTS : ", result);
 
         if (!response.ok) {
           throw new Error(
