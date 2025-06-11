@@ -35,7 +35,7 @@ export default async function UploadPage({
   const productId = Array.isArray(productIdRaw)
     ? productIdRaw[0]
     : productIdRaw;
-
+  console.log("PRODUCT ID : ", productId);
   if (productId) {
     try {
       const response = await fetch(
