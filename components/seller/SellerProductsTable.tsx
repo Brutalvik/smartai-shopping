@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Table,
   TableHeader,
@@ -15,6 +16,7 @@ import { Trash2, Pencil, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { Product } from "@/types/product";
 import { decodeProductIdForDisplay } from "@/utils/product-utils";
+import { useRouter } from "next/navigation";
 
 interface SellerProductsTableProps {
   products: Product[];
@@ -40,6 +42,68 @@ export default function SellerProductsTable({
   sellerId,
 }: SellerProductsTableProps) {
   const currentProductRegion = process.env.NEXT_PUBLIC_PRODUCTS_REGION;
+  const router = useRouter();
+
+  const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
+    {}
+  );
+  const tableRef = useRef<HTMLTableElement>(null);
+  const isResizing = useRef(false);
+  const startX = useRef(0);
+  const startWidth = useRef(0);
+  const currentColumnIndex = useRef<number | null>(null);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>, index: number) => {
+      isResizing.current = true;
+      startX.current = e.clientX;
+      const th = (e.target as HTMLElement).closest("th");
+      if (th) {
+        startWidth.current = th.offsetWidth;
+        currentColumnIndex.current = index;
+      }
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    },
+    []
+  );
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (
+      !isResizing.current ||
+      currentColumnIndex.current === null ||
+      !tableRef.current
+    )
+      return;
+
+    const dx = e.clientX - startX.current;
+    const newWidth = Math.max(50, startWidth.current + dx);
+
+    setColumnWidths((prev) => ({
+      ...prev,
+      [currentColumnIndex.current!]: newWidth,
+    }));
+
+    const headerCells = Array.from(tableRef.current.querySelectorAll("th"));
+    if (headerCells[currentColumnIndex.current]) {
+      headerCells[currentColumnIndex.current].style.width = `${newWidth}px`;
+    }
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    isResizing.current = false;
+    currentColumnIndex.current = null;
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
+  }, [handleMouseMove]);
+
+  const getColumnWidth = (index: number) => {
+    return columnWidths[index] ? { width: `${columnWidths[index]}px` } : {};
+  };
+
+  const handleEditRedirect = (product: Product) => {
+    router.push(`/seller/upload?productId=${product.productId}`);
+  };
 
   return (
     <div className="overflow-x-auto rounded-lg shadow border border-default-100 bg-white dark:bg-default-50">
@@ -54,6 +118,7 @@ export default function SellerProductsTable({
           isStriped
           removeWrapper
           className="min-w-[1200px]"
+          ref={tableRef}
         >
           <TableHeader>
             <TableColumn className="w-12">
@@ -63,16 +128,79 @@ export default function SellerProductsTable({
                 isDisabled={products.length === 0}
               />
             </TableColumn>
-            <TableColumn className="w-24">ID</TableColumn>
-            <TableColumn>Product Name</TableColumn>
-            <TableColumn>Description</TableColumn>
-            <TableColumn className="w-20">Price</TableColumn>
-            <TableColumn className="w-20">Quantity</TableColumn>
-            <TableColumn className="w-24">Category</TableColumn>
-            <TableColumn>Tags</TableColumn>
-            <TableColumn className="w-24">Published</TableColumn>
-            <TableColumn className="w-24">Image</TableColumn>
-            <TableColumn className="w-24 text-center">Actions</TableColumn>
+            <TableColumn className="w-24 relative" style={getColumnWidth(1)}>
+              ID
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 1)}
+              />
+            </TableColumn>
+            <TableColumn className="relative" style={getColumnWidth(2)}>
+              Product Name
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 2)}
+              />
+            </TableColumn>
+            <TableColumn className="relative" style={getColumnWidth(3)}>
+              Description
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 3)}
+              />
+            </TableColumn>
+            <TableColumn className="w-20 relative" style={getColumnWidth(4)}>
+              Price
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 4)}
+              />
+            </TableColumn>
+            <TableColumn className="w-20 relative" style={getColumnWidth(5)}>
+              Quantity
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 5)}
+              />
+            </TableColumn>
+            <TableColumn className="w-24 relative" style={getColumnWidth(6)}>
+              Category
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 6)}
+              />
+            </TableColumn>
+            <TableColumn className="relative" style={getColumnWidth(7)}>
+              Tags
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 7)}
+              />
+            </TableColumn>
+            <TableColumn className="w-24 relative" style={getColumnWidth(8)}>
+              Published
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 8)}
+              />
+            </TableColumn>
+            <TableColumn className="w-24 relative" style={getColumnWidth(9)}>
+              Image
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 9)}
+              />
+            </TableColumn>
+            <TableColumn
+              className="w-24 text-center relative"
+              style={getColumnWidth(10)}
+            >
+              Actions
+              <div
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-blue-200"
+                onMouseDown={(e) => handleMouseDown(e, 10)}
+              />
+            </TableColumn>
           </TableHeader>
           <TableBody emptyContent="No products found.">
             {products.map((product) => {
@@ -86,9 +214,9 @@ export default function SellerProductsTable({
               return (
                 <TableRow
                   key={product.productId}
-                  className={isSelected ? "bg-blue-50" : ""}
+                  className={`cursor-pointer ${isSelected ? "bg-blue-50" : ""}`}
                 >
-                  <TableCell>
+                  <TableCell className="border-b border-r border-gray-200">
                     <Checkbox
                       isSelected={isSelected}
                       onValueChange={() =>
@@ -96,16 +224,26 @@ export default function SellerProductsTable({
                       }
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell
+                    className="border-b border-r border-gray-200"
+                    style={getColumnWidth(1)}
+                  >
                     <Tooltip content={product.productId}>
                       <span className="font-mono text-xs cursor-help">
                         {decodedId.displayId}
                       </span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>{product.title}</TableCell>
-                  {/* Updated Description Cell */}
-                  <TableCell className="max-w-[200px]">
+                  <TableCell
+                    className="border-b border-r border-gray-200"
+                    style={getColumnWidth(2)}
+                  >
+                    {product.title}
+                  </TableCell>
+                  <TableCell
+                    className="max-w-[200px] border-b border-r border-gray-200"
+                    style={getColumnWidth(3)}
+                  >
                     <Tooltip
                       content={
                         <div className="max-w-xs whitespace-normal">
@@ -120,10 +258,28 @@ export default function SellerProductsTable({
                       </span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>${product.price}</TableCell>
-                  <TableCell>{product.quantity}</TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell className="max-w-[150px]">
+                  <TableCell
+                    className="border-b border-r border-gray-200"
+                    style={getColumnWidth(4)}
+                  >
+                    ${product.price}
+                  </TableCell>
+                  <TableCell
+                    className="border-b border-r border-gray-200"
+                    style={getColumnWidth(5)}
+                  >
+                    {product.quantity}
+                  </TableCell>
+                  <TableCell
+                    className="border-b border-r border-gray-200"
+                    style={getColumnWidth(6)}
+                  >
+                    {product.category}
+                  </TableCell>
+                  <TableCell
+                    className="max-w-[150px] border-b border-r border-gray-200"
+                    style={getColumnWidth(7)}
+                  >
                     <Tooltip
                       content={
                         <div className="max-w-xs whitespace-normal">
@@ -138,7 +294,10 @@ export default function SellerProductsTable({
                       </span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>
+                  <TableCell
+                    className="border-b border-r border-gray-200"
+                    style={getColumnWidth(8)}
+                  >
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${
                         product.isActive
@@ -149,7 +308,10 @@ export default function SellerProductsTable({
                       {product.isActive ? "Published" : "Draft"}
                     </span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell
+                    className="border-b border-r border-gray-200"
+                    style={getColumnWidth(9)}
+                  >
                     {product.images && product.images.length > 0 ? (
                       <Tooltip
                         content={
@@ -180,13 +342,16 @@ export default function SellerProductsTable({
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell
+                    className="border-b border-gray-200 text-center"
+                    style={getColumnWidth(10)}
+                  >
                     <div className="flex gap-2 justify-center">
                       <Button
                         size="sm"
                         isIconOnly
                         color="default"
-                        onPress={() => onEdit(product)}
+                        onPress={() => handleEditRedirect(product)}
                         isDisabled={isEditDisabled}
                       >
                         <Pencil size={16} />

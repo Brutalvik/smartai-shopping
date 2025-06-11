@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -6,7 +8,7 @@ import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import SellerDashboardClientPage from "@/app/seller/products/SellerDashboardClientPage";
 
-export default async function SellerDashboardPage() {
+export default async function SellerDashboardServerPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 

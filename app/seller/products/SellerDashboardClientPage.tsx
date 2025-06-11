@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
-  Spinner,
   Modal,
   ModalContent,
   ModalHeader,
@@ -41,8 +40,7 @@ export default function SellerDashboardClientPage({
     new Set()
   );
 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
 
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
     useState(false);
@@ -160,11 +158,7 @@ export default function SellerDashboardClientPage({
       searchKeyword;
     if (hasActiveFilters) {
       fetchProducts(false, true);
-    } else if (
-      !initialProducts.length &&
-      !initialHasMore &&
-      !initialLastEvaluatedKey
-    ) {
+    } else if (!products.length && !hasMore && !lastEvaluatedKey) {
       fetchProducts(false, true);
     }
   }, [
@@ -174,9 +168,9 @@ export default function SellerDashboardClientPage({
     maxPriceFilter,
     searchKeyword,
     fetchProducts,
-    initialProducts,
-    initialHasMore,
-    initialLastEvaluatedKey,
+    products.length,
+    hasMore,
+    lastEvaluatedKey,
   ]);
 
   const handleLoadMore = () => {
@@ -250,7 +244,7 @@ export default function SellerDashboardClientPage({
       }
     } catch (error: any) {
       addToast({
-        description: `An error occurred: ${error.message}`,
+        description: `Error during deletion: ${error.message}`,
         color: "danger",
         timeout: 5000,
       });
@@ -262,14 +256,8 @@ export default function SellerDashboardClientPage({
     }
   };
 
-  const handleOpenEditModal = (product: Product) => {
-    setProductToEdit(product);
-    setIsEditModalOpen(true);
-  };
-
-  const handleProductUpdated = () => {
-    setIsEditModalOpen(false);
-    setProductToEdit(null);
+  const handleProductSubmittedOrUpdated = () => {
+    setIsNewProductModalOpen(false);
     fetchProducts(false, true);
   };
 
@@ -355,7 +343,7 @@ export default function SellerDashboardClientPage({
                 onToggleSelectProduct={handleToggleSelectProduct}
                 onSelectAllProducts={handleSelectAllProducts}
                 allProductsSelected={allProductsSelected}
-                onEdit={handleOpenEditModal}
+                onEdit={(product) => {}}
                 onDelete={(product) => {
                   setDeletingProductId(product.productId);
                   setIsDeleteConfirmModalOpen(true);
@@ -393,22 +381,18 @@ export default function SellerDashboardClientPage({
         </div>
       </div>
 
-      <Modal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+      <Modal
+        isOpen={isNewProductModalOpen}
+        onOpenChange={setIsNewProductModalOpen}
+      >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader>
-                {productToEdit ? "Edit Product" : "Create Product"}
-              </ModalHeader>
+              <ModalHeader>Create New Product</ModalHeader>
               <ModalBody>
-                {productToEdit ? (
-                  <ProductForm
-                    product={productToEdit}
-                    onSubmitSuccess={handleProductUpdated}
-                  />
-                ) : (
-                  <p>Product data not found for editing.</p>
-                )}
+                <ProductForm
+                  onSubmitSuccess={handleProductSubmittedOrUpdated}
+                />
               </ModalBody>
             </>
           )}
