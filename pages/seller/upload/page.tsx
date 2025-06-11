@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext } from "next";
 import { verifyToken } from "@/utils/helper";
-import ProductForm from "@/components/ProductForm";
+import SellerProductUploadForm from "@/components/seller/SellerProductUploadForm";
 import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
@@ -30,7 +30,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 export default function ProtectedPage({ user }: { user: any }) {
   return (
     <UserProviderFromSSR user={user}>
-      <ProductForm />
+      <SellerProductUploadForm />
     </UserProviderFromSSR>
   );
 }

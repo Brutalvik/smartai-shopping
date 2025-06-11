@@ -41,7 +41,7 @@ const loadingStates = [
   { text: "Product upload complete!" },
 ];
 
-export default function SellerProductUploadPage() {
+export default function SellerProductUploadForm() {
   const [showImageTerms, setShowImageTerms] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [draftSaved, setDraftSaved] = useState(false);
