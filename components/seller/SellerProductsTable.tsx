@@ -37,6 +37,7 @@ interface SellerProductsTableProps {
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
   loading: boolean;
+  sellerId: string;
 }
 
 export default function SellerProductsTable({
