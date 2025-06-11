@@ -53,7 +53,7 @@ export const Navbar = () => {
         <NavbarItem>
           <div className="hidden lg:flex flex-row gap-2">
             <ThemeSwitch />
-            <UserDrawerMenu />
+
             <Badge
               color="primary"
               content={totalItems}
@@ -65,15 +65,13 @@ export const Navbar = () => {
                 className="hover:cursor-pointer"
               />
             </Badge>
+            <UserDrawerMenu />
           </div>
         </NavbarItem>
       </NavbarContent>
 
       <NavbarContent className="lg:hidden basis-1 pr-[10px]" justify="end">
         <ThemeSwitch />
-        <NavbarItem>
-          <UserDrawerMenu />
-        </NavbarItem>
         <NavbarItem className="mt-2">
           <Badge
             color="primary"
@@ -87,7 +85,9 @@ export const Navbar = () => {
             />
           </Badge>
         </NavbarItem>
-        <NavbarMenuToggle />
+        <NavbarItem>
+          <UserDrawerMenu />
+        </NavbarItem>
       </NavbarContent>
 
       <NavbarMenu>

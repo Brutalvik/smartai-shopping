@@ -129,8 +129,7 @@ export default function SubNavbar() {
       }
     }
 
-    // Ensure at least 2 items in overflow on non-mobile views
-    let itemsToForceIntoOverflow = 2;
+    let itemsToForceIntoOverflow = isMobile ? 2 : 1;
     while (
       newVisible.length > 1 &&
       newOverflow.length < itemsToForceIntoOverflow
@@ -183,12 +182,11 @@ export default function SubNavbar() {
 
   return (
     <div className="w-full z-40 backdrop-blur-sm text-default-700 text-sm border-b border-white/10">
-      <div className="w-full">
+      <div className="w-full overflow-x-auto">
         <div
           ref={containerRef}
-          className="flex items-center gap-3 py-2 px-5 w-full flex-nowrap"
+          className="flex items-center gap-3 py-2 px-5 w-full flex-nowrap whitespace-nowrap"
         >
-          {/* ALL Button */}
           <Button
             variant="ghost"
             size="sm"
@@ -200,7 +198,6 @@ export default function SubNavbar() {
             <span className="text-xl">☰</span> All
           </Button>
 
-          {/* Nav Items */}
           {categories.map((category) => {
             const isElite = category === "Xyvo Elite";
             const isHidden = overflowItems.includes(category);
@@ -227,7 +224,6 @@ export default function SubNavbar() {
             );
           })}
 
-          {/* More Dropdown */}
           {overflowItems.length > 0 && (
             <Dropdown>
               <DropdownTrigger>

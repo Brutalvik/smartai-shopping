@@ -90,12 +90,19 @@ const UserDrawerMenu = () => {
   const UserAvatar = () => (
     <Avatar
       showFallback
+      size="sm"
       src={user?.name ? "" : "/user.png"}
       name={avatarInitial}
       onClick={onOpen}
-      className="w-6 h-6 text-tiny cursor-pointer hover:opacity-80 transition"
-      classNames={{ name: "text-lg font-bold", fallback: "rounded-full" }}
-      style={{ backgroundColor: bg, color: fg }}
+      className="cursor-pointer hover:opacity-80 transition"
+      classNames={{
+        name: "text-lg font-bold",
+        fallback: "rounded-full",
+      }}
+      style={{
+        backgroundColor: bg,
+        color: fg,
+      }}
     />
   );
 

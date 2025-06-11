@@ -1,4 +1,3 @@
-// components/HeroWithSearch.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -55,20 +54,20 @@ export default function HeroWithSearch() {
   const current = featuredSlides[index];
 
   return (
-    <section className="relative w-full bg-background py-16 perspective-[2000px]">
-      <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+    <section className="relative w-full bg-background py-12 md:py-16 perspective-[2000px]">
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 30, rotateX: -10 }}
         whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.7 }}
-        className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center"
+        className="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10 items-center"
       >
-        {/* Right Card - First on Mobile */}
-        <div className="order-1 lg:order-2 transform-style-3d">
-          <div className="bg-white/5 dark:bg-zinc-900 rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between h-[420px]">
-            <div className="relative h-[80%] w-full overflow-hidden">
+        {/* Right Card */}
+        <div className="order-1 lg:order-2 transform-style-3d w-full">
+          <div className="bg-white/5 dark:bg-zinc-900 rounded-2xl shadow-lg h-full flex flex-col justify-between">
+            <div className="relative w-full overflow-hidden h-48 sm:h-64 md:h-72 lg:h-80">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`image-${index}`}
@@ -78,15 +77,13 @@ export default function HeroWithSearch() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <div className="relative w-full h-64 rounded-xl overflow-hidden">
-                    <Image
-                      src={current.image}
-                      alt="Banner"
-                      fill
-                      className="object-cover"
-                      priority
-                    />
-                  </div>
+                  <Image
+                    src={current.image}
+                    alt="Banner"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -94,7 +91,7 @@ export default function HeroWithSearch() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={`slide-content-${index}`}
-                className="p-4 space-y-2"
+                className="p-4 sm:p-6 space-y-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -104,7 +101,7 @@ export default function HeroWithSearch() {
                   <BadgePercent className="w-3 h-3" />
                   {current.deal}
                 </div>
-                <p className="text-sm font-medium text-default-800 dark:text-white">
+                <p className="text-sm sm:text-base font-medium text-default-800 dark:text-white">
                   {current.text}
                 </p>
                 <button className="text-primary text-sm font-medium inline-flex items-center gap-1">
@@ -116,9 +113,9 @@ export default function HeroWithSearch() {
         </div>
 
         {/* Left Content */}
-        <div className="order-2 lg:order-1 transform-style-3d">
+        <div className="order-2 lg:order-1 transform-style-3d w-full">
           <motion.h1
-            className="text-4xl md:text-5xl font-bold leading-tight mb-4"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -135,14 +132,14 @@ export default function HeroWithSearch() {
             transition={{ duration: 0.4, delay: 0.1 }}
           >
             <Truck className="w-5 h-5" />
-            <p className="text-sm md:text-base">
+            <p className="text-sm sm:text-base">
               Free delivery for orders over $200
             </p>
           </motion.div>
 
           {/* Search Bar */}
           <motion.div
-            className="flex w-full rounded-xl overflow-hidden border border-default-200"
+            className="flex flex-wrap sm:flex-nowrap w-full rounded-xl overflow-hidden border border-default-200"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -150,7 +147,7 @@ export default function HeroWithSearch() {
           >
             <Select
               aria-label="Category"
-              className="w-[30%] min-w-fit border-r border-default-200"
+              className="basis-full sm:basis-[30%] border-r border-default-200 min-w-[120px]"
             >
               <SelectItem key="all">All Categories</SelectItem>
               <SelectItem key="electronics">Electronics</SelectItem>
@@ -159,19 +156,21 @@ export default function HeroWithSearch() {
             </Select>
             <Input
               placeholder="Search entire store here"
-              className="w-[65%] border-none focus:ring-0 rounded-none"
+              className="flex-grow border-none focus:ring-0 rounded-none min-w-[150px]"
             />
-            <Button className="w-[5%] rounded-none" isIconOnly variant="light">
+            <Button
+              className="px-3 sm:px-4 py-3 sm:py-0 rounded-none"
+              isIconOnly
+              variant="light"
+            >
               🔍
             </Button>
           </motion.div>
 
-          {/* Divider */}
           <hr className="my-6 border-default-200" />
 
-          {/* Feature Info Blocks */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-6"
+            className="flex flex-col md:flex-row gap-6"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -184,9 +183,8 @@ export default function HeroWithSearch() {
                   Moneyback
                 </span>
               </div>
-              <p className="text-default-500 text-sm">
-                Did you change your mind? You can return the product within 14
-                days.
+              <p className="text-default-500 text-sm sm:text-base">
+                Changed your mind? Return the product within 14 days.
               </p>
             </div>
 
@@ -197,8 +195,8 @@ export default function HeroWithSearch() {
                   Weekly Promotions
                 </span>
               </div>
-              <p className="text-default-500 text-sm">
-                Explore our exclusive weekly promotions for special discounts.
+              <p className="text-default-500 text-sm sm:text-base">
+                Discover exclusive discounts every week.
               </p>
             </div>
           </motion.div>
