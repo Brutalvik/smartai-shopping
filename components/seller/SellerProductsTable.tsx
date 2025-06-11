@@ -12,9 +12,21 @@ import {
   Checkbox,
   Tooltip,
 } from "@heroui/react";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, Loader2 } from "lucide-react";
 import { Product } from "@/types/product";
 import { useRouter } from "next/navigation";
+
+const tableColumn = [
+  "Product Name",
+  "Description",
+  "Price",
+  "Quantity",
+  "Category",
+  "Tags",
+  "Published",
+  "Created At",
+  "Actions",
+];
 
 interface SellerProductsTableProps {
   products: Product[];
@@ -25,7 +37,6 @@ interface SellerProductsTableProps {
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
   loading: boolean;
-  sellerId: string;
 }
 
 export default function SellerProductsTable({
@@ -39,118 +50,160 @@ export default function SellerProductsTable({
   loading,
 }: SellerProductsTableProps) {
   const router = useRouter();
+  const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
+    {}
+  );
+  const tableRef = useRef<HTMLTableElement>(null);
+  const isResizing = useRef(false);
+  const startX = useRef(0);
+  const startWidth = useRef(0);
+  const currentColumnIndex = useRef<number | null>(null);
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
-  };
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>, index: number) => {
+      isResizing.current = true;
+      startX.current = e.clientX;
+      const th = (e.target as HTMLElement).closest("th");
+      if (th) {
+        startWidth.current = th.offsetWidth;
+        currentColumnIndex.current = index;
+      }
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    },
+    []
+  );
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isResizing.current || currentColumnIndex.current === null) return;
+    const dx = e.clientX - startX.current;
+    const newWidth = Math.max(50, startWidth.current + dx);
+    setColumnWidths((prev) => ({
+      ...prev,
+      [currentColumnIndex.current!]: newWidth,
+    }));
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    isResizing.current = false;
+    currentColumnIndex.current = null;
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
+  }, [handleMouseMove]);
+
+  const getColumnWidth = (index: number) =>
+    columnWidths[index] ? { width: `${columnWidths[index]}px` } : {};
 
   return (
-    <div className="overflow-x-auto rounded-lg shadow border border-default-100 bg-white dark:bg-default-50">
-      <Table
-        aria-label="Seller Products Table"
-        removeWrapper
-        className="min-w-[1100px]"
-      >
-        <TableHeader>
-          <TableColumn className="w-12">
-            <Checkbox
-              isSelected={allProductsSelected}
-              onValueChange={onSelectAllProducts}
-              isDisabled={products.length === 0}
-            />
-          </TableColumn>
-          <TableColumn className="w-28">Product ID</TableColumn>
-          <TableColumn className="w-56">Name</TableColumn>
-          <TableColumn className="w-72">Description</TableColumn>
-          <TableColumn className="w-20">Price</TableColumn>
-          <TableColumn className="w-20">Qty</TableColumn>
-          <TableColumn className="w-28">Category</TableColumn>
-          <TableColumn className="w-28">Tags</TableColumn>
-          <TableColumn className="w-24">Status</TableColumn>
-          <TableColumn className="w-44">Created</TableColumn>
-          <TableColumn className="w-24 text-center">Actions</TableColumn>
-        </TableHeader>
-        <TableBody emptyContent="No products found.">
-          {products.map((product) => {
-            const isSelected = selectedProductIds.has(product.productId);
-            return (
-              <TableRow
-                key={product.productId}
-                className={`text-sm ${isSelected ? "bg-blue-50" : ""}`}
-              >
-                <TableCell className="py-2">
-                  <Checkbox
-                    isSelected={isSelected}
-                    onValueChange={() =>
-                      onToggleSelectProduct(product.productId)
-                    }
+    <div className="overflow-x-auto rounded-lg border border-default-100 bg-white dark:bg-default-50 max-w-full">
+      {loading && products.length === 0 ? (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <span className="ml-2 text-lg">Loading products...</span>
+        </div>
+      ) : (
+        <Table
+          aria-label="Seller Products Table"
+          removeWrapper
+          ref={tableRef}
+          className="min-w-[1100px] [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
+        >
+          <TableHeader>
+            <TableColumn className="w-12 min-w-[48px]">
+              <Checkbox
+                isSelected={allProductsSelected}
+                onValueChange={onSelectAllProducts}
+              />
+            </TableColumn>
+            <>
+              {tableColumn.map((label, i) => (
+                <TableColumn
+                  key={label}
+                  className="relative whitespace-nowrap text-sm font-semibold"
+                  style={getColumnWidth(i)}
+                >
+                  {label}
+                  <div
+                    className="absolute top-0 right-0 h-full w-2 resize-column-cursor"
+                    onMouseDown={(e) => handleMouseDown(e, i)}
                   />
-                </TableCell>
-                <TableCell className="py-2 font-mono text-xs truncate max-w-[100px]">
-                  {product.productId.slice(0, 6)}...
-                </TableCell>
-                <TableCell className="py-2 truncate">{product.title}</TableCell>
-                <TableCell className="py-2 max-w-[220px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
-                  <Tooltip
-                    content={
-                      <div className="max-w-xs">{product.description}</div>
-                    }
-                    delay={0}
-                    closeDelay={0}
-                  >
-                    <span className="cursor-help block w-full">
-                      {product.description}
+                </TableColumn>
+              ))}
+            </>
+          </TableHeader>
+
+          <TableBody emptyContent="No products found.">
+            {products.map((product) => {
+              const isSelected = selectedProductIds.has(product.productId);
+              return (
+                <TableRow key={product.productId} className="text-sm h-[48px]">
+                  <TableCell>
+                    <Checkbox
+                      isSelected={isSelected}
+                      onValueChange={() =>
+                        onToggleSelectProduct(product.productId)
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>{product.title}</TableCell>
+                  <TableCell>
+                    <Tooltip content={product.description}>
+                      <span className="block truncate max-w-[200px] cursor-help">
+                        {product.description}
+                      </span>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>${product.price}</TableCell>
+                  <TableCell>{product.quantity}</TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell>
+                    <Tooltip content={product.tags.join(", ")}>
+                      <span className="block truncate max-w-[150px] cursor-help">
+                        {product.tags.join(", ")}
+                      </span>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        product.isActive
+                          ? "bg-green-100 text-green-700"
+                          : "bg-blue-100 text-blue-700"
+                      }`}
+                    >
+                      {product.isActive ? "Published" : "Draft"}
                     </span>
-                  </Tooltip>
-                </TableCell>
-                <TableCell className="py-2">${product.price}</TableCell>
-                <TableCell className="py-2">{product.quantity}</TableCell>
-                <TableCell className="py-2 truncate">
-                  {product.category}
-                </TableCell>
-                <TableCell className="py-2 truncate">
-                  {product.tags.join(", ")}
-                </TableCell>
-                <TableCell className="py-2">
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      product.isActive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-blue-100 text-blue-700"
-                    }`}
-                  >
-                    {product.isActive ? "Published" : "Draft"}
-                  </span>
-                </TableCell>
-                <TableCell className="py-2 text-xs whitespace-nowrap">
-                  {formatDate(product.createdAt)}
-                </TableCell>
-                <TableCell className="py-2">
-                  <div className="flex gap-2 justify-center">
-                    <Button
-                      size="sm"
-                      isIconOnly
-                      color="default"
-                      onPress={() => onEdit(product)}
-                    >
-                      <Pencil size={16} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      isIconOnly
-                      color="danger"
-                      onPress={() => onDelete(product)}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(product.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        size="sm"
+                        isIconOnly
+                        color="default"
+                        onPress={() => onEdit(product)}
+                      >
+                        <Pencil size={16} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        isIconOnly
+                        color="danger"
+                        variant="solid"
+                        onPress={() => onDelete(product)}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 }
