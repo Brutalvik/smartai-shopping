@@ -5,6 +5,7 @@ import { Input, Select, SelectItem, Switch, Button } from "@heroui/react";
 import { categories } from "@/data/categories";
 import { Trash2, Plus } from "lucide-react";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface DashboardHeaderProps {
   onFiltersChange: (filters: {
@@ -31,6 +32,7 @@ export default function DashboardHeader({
   showBulkDelete,
   initialFilters,
 }: DashboardHeaderProps) {
+  const router = useRouter();
   const [categoryFilter, setCategoryFilter] = useState<string>(
     initialFilters.category || ""
   );
@@ -163,6 +165,7 @@ export default function DashboardHeader({
           color="success"
           variant="solid"
           startContent={<Plus size={18} />}
+          onPress={() => router.push("/seller/upload")}
         >
           Add New Product
         </Button>
