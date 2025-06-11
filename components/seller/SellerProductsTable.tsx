@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import {
   Table,
   TableHeader,
@@ -12,7 +12,7 @@ import {
   Checkbox,
   Tooltip,
 } from "@heroui/react";
-import { Trash2, Pencil, Loader2 } from "lucide-react";
+import { Trash2, Pencil, Loader2, ArrowUp, ArrowDown } from "lucide-react";
 import { Product } from "@/types/product";
 
 const tableColumn = [
@@ -61,6 +61,9 @@ export default function SellerProductsTable({
     8: 120,
   });
 
+  const [sortColumn, setSortColumn] = useState<number | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
   const isResizing = useRef(false);
   const startX = useRef(0);
   const startWidth = useRef(0);
@@ -98,6 +101,60 @@ export default function SellerProductsTable({
   const getColumnStyle = (index: number) =>
     columnWidths[index] ? { width: `${columnWidths[index]}px` } : {};
 
+  const toggleSort = (index: number) => {
+    if (index === 8) return; // skip sorting for Actions column
+    if (sortColumn === index) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(index);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedProducts = useMemo(() => {
+    if (sortColumn === null) return products;
+
+    const key = tableColumn[sortColumn];
+
+    return [...products].sort((a, b) => {
+      const valA = getValue(a, key);
+      const valB = getValue(b, key);
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortDirection === "asc" ? valA - valB : valB - valA;
+      } else if (typeof valA === "string" && typeof valB === "string") {
+        return sortDirection === "asc"
+          ? valA.localeCompare(valB)
+          : valB.localeCompare(valA);
+      } else {
+        return 0;
+      }
+    });
+  }, [products, sortColumn, sortDirection]);
+
+  const getValue = (product: Product, key: string): any => {
+    switch (key) {
+      case "Product Name":
+        return product.title;
+      case "Description":
+        return product.description;
+      case "Price":
+        return product.price;
+      case "Quantity":
+        return product.quantity;
+      case "Category":
+        return product.category;
+      case "Tags":
+        return product.tags.join(", ");
+      case "Published":
+        return product.isActive ? "Published" : "Draft";
+      case "Created At":
+        return new Date(product.createdAt).getTime();
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
       {loading && products.length === 0 ? (
@@ -112,32 +169,41 @@ export default function SellerProductsTable({
           className="min-w-full [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
         >
           <TableHeader>
-            {[
-              <TableColumn key="select" className="w-12 min-w-[48px]">
+            <>
+              <TableColumn className="w-12 min-w-[48px]">
                 <Checkbox
                   isSelected={allProductsSelected}
                   onValueChange={onSelectAllProducts}
                 />
-              </TableColumn>,
-              ...tableColumn.map((label, i) => (
+              </TableColumn>
+              {tableColumn.map((label, i) => (
                 <TableColumn
                   key={label}
-                  className="relative whitespace-nowrap text-sm font-semibold border-r"
+                  className="relative whitespace-nowrap text-sm font-semibold border-r select-none cursor-pointer"
                   style={getColumnStyle(i)}
+                  onClick={() => toggleSort(i)}
                 >
-                  {label}
+                  <div className="flex items-center gap-1">
+                    <span>{label}</span>
+                    {sortColumn === i &&
+                      (sortDirection === "asc" ? (
+                        <ArrowUp size={14} />
+                      ) : (
+                        <ArrowDown size={14} />
+                      ))}
+                  </div>
                   <div
                     className="absolute top-0 right-0 h-full w-2"
                     style={{ cursor: "ew-resize" }}
                     onMouseDown={(e) => handleMouseDown(e, i)}
                   />
                 </TableColumn>
-              )),
-            ]}
+              ))}
+            </>
           </TableHeader>
 
           <TableBody emptyContent="No products found.">
-            {products.map((product) => {
+            {sortedProducts.map((product) => {
               const isSelected = selectedProductIds.has(product.productId);
               return (
                 <TableRow key={product.productId} className="text-sm h-[44px]">
