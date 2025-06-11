@@ -29,7 +29,6 @@ export default function CollapsibleSidebar({
     setCollapsed(next);
     if (onToggle) onToggle(next);
   };
-  const router = useRouter();
 
   return (
     <aside

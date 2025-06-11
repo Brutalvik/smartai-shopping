@@ -35,7 +35,6 @@ export default async function SellerDashboardServerPage() {
         credentials: "include",
       }
     );
-    console.log(response);
     const result = await response.json();
 
     if (!response.ok) {

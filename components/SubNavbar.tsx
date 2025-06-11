@@ -13,7 +13,6 @@ import clsx from "clsx";
 
 const categories = [
   "Xyvo Elite",
-  "Best Sellers",
   "Electronics",
   "Deals Store",
   "Fashion",
