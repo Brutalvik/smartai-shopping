@@ -1,5 +1,3 @@
-// app/seller/upload/page.tsx
-
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyToken } from "@/utils/helper";
@@ -8,13 +6,14 @@ import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 
-export default async function UploadPage({
-  searchParams,
-}: {
+type PageProps = {
   searchParams?: Record<string, string | string[]>;
-}) {
+};
+
+export default async function UploadPage({ searchParams }: PageProps) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
+
   const user = verifyToken(token);
 
   if (!user || typeof user === "string") {
@@ -28,6 +27,7 @@ export default async function UploadPage({
   };
 
   let productToEdit: Product | null = null;
+
   const productId =
     typeof searchParams?.productId === "string"
       ? searchParams.productId
