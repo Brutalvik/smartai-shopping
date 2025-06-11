@@ -29,14 +29,14 @@ export default async function SellerDashboardServerPage() {
       `${CDN.sellerProductsApi}/seller/products?${queryParams.toString()}`,
       {
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         credentials: "include",
-        cache: "no-store",
       }
     );
-
+    console.log(response);
     const result = await response.json();
-
-    console.log(result);
 
     if (!response.ok) {
       throw new Error(

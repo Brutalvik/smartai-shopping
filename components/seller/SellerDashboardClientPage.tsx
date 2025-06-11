@@ -58,19 +58,23 @@ export default function SellerDashboardClientPage({
   );
   const [deleting, setDeleting] = useState(false);
 
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
-  const [isActiveFilter, setIsActiveFilter] = useState<boolean | undefined>(
-    undefined
-  );
-  const [minPriceFilter, setMinPriceFilter] = useState<number | undefined>(
-    undefined
-  );
-  const [maxPriceFilter, setMaxPriceFilter] = useState<number | undefined>(
-    undefined
-  );
-  const [searchKeyword, setSearchKeyword] = useState<string>("");
+  type Filters = {
+    category: string;
+    isActive: boolean | undefined;
+    minPrice: number | undefined;
+    maxPrice: number | undefined;
+    searchKeyword: string;
+  };
 
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [filters, setFilters] = useState<Filters>({
+    category: "",
+    isActive: undefined,
+    minPrice: undefined,
+    maxPrice: undefined,
+    searchKeyword: "",
+  });
+
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchProducts = useCallback(
     async (
@@ -82,7 +86,6 @@ export default function SellerDashboardClientPage({
       setSelectedProductIds(new Set());
 
       if (newFiltersApplied) {
-        setProducts([]);
         setLastEvaluatedKey(undefined);
         setHasMore(true);
         currentLastEvaluatedKey = undefined;
@@ -97,20 +100,20 @@ export default function SellerDashboardClientPage({
       }
       queryParams.append("limit", "10");
 
-      if (categoryFilter) {
-        queryParams.append("category", categoryFilter);
+      if (filters.category) {
+        queryParams.append("category", filters.category);
       }
-      if (isActiveFilter !== undefined) {
-        queryParams.append("isActive", String(isActiveFilter));
+      if (filters.isActive !== undefined) {
+        queryParams.append("isActive", String(filters.isActive));
       }
-      if (minPriceFilter !== undefined && !isNaN(minPriceFilter)) {
-        queryParams.append("minPrice", String(minPriceFilter));
+      if (filters.minPrice !== undefined && !isNaN(filters.minPrice)) {
+        queryParams.append("minPrice", String(filters.minPrice));
       }
-      if (maxPriceFilter !== undefined && !isNaN(maxPriceFilter)) {
-        queryParams.append("maxPrice", String(maxPriceFilter));
+      if (filters.maxPrice !== undefined && !isNaN(filters.maxPrice)) {
+        queryParams.append("maxPrice", String(filters.maxPrice));
       }
-      if (searchKeyword) {
-        queryParams.append("q", searchKeyword);
+      if (filters.searchKeyword) {
+        queryParams.append("q", filters.searchKeyword);
       }
 
       try {
@@ -124,13 +127,7 @@ export default function SellerDashboardClientPage({
 
         const result = await response.json();
 
-        if (!response.ok) {
-          throw new Error(
-            (result as any).error ||
-              (result as any).message ||
-              "Failed to fetch products"
-          );
-        }
+        if (!response.ok) throw new Error("Failed to fetch products");
 
         setProducts((prevProducts) =>
           loadMore ? [...prevProducts, ...result.products] : result.products
@@ -155,37 +152,33 @@ export default function SellerDashboardClientPage({
       }
     },
     [
-      categoryFilter,
-      isActiveFilter,
-      minPriceFilter,
-      maxPriceFilter,
-      searchKeyword,
+      filters.category,
+      filters.isActive,
+      filters.minPrice,
+      filters.maxPrice,
+      filters.searchKeyword,
     ]
   );
 
+  // Debounce searchKeyword separately
   useEffect(() => {
-    const hasActiveFilters =
-      categoryFilter ||
-      isActiveFilter !== undefined ||
-      minPriceFilter !== undefined ||
-      maxPriceFilter !== undefined ||
-      searchKeyword;
-    if (hasActiveFilters) {
-      fetchProducts(false, true);
-    } else if (!products.length && !hasMore && !lastEvaluatedKey) {
-      fetchProducts(false, true);
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
-  }, [
-    categoryFilter,
-    isActiveFilter,
-    minPriceFilter,
-    maxPriceFilter,
-    searchKeyword,
-    fetchProducts,
-    products.length,
-    hasMore,
-    lastEvaluatedKey,
-  ]);
+
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchProducts(false, true);
+    }, 400); // tweak debounce delay as needed
+
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, [filters.searchKeyword]);
+
+  // Immediate fetch for other filters
+  useEffect(() => {
+    fetchProducts(false, true);
+  }, [filters.category, filters.isActive, filters.minPrice, filters.maxPrice]);
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -262,11 +255,9 @@ export default function SellerDashboardClientPage({
         color: "danger",
         timeout: 5000,
       });
-      console.error("Deletion error:", error);
     } finally {
       setDeleting(false);
       setIsDeleteConfirmModalOpen(false);
-      setDeletingProductId(null);
     }
   };
 
@@ -278,24 +269,12 @@ export default function SellerDashboardClientPage({
       maxPrice?: number;
       searchKeyword?: string;
     }) => {
-      setCategoryFilter(newFilters.category || "");
-      setIsActiveFilter(newFilters.isActive);
-      setMinPriceFilter(newFilters.minPrice);
-      setMaxPriceFilter(newFilters.maxPrice);
-      setSearchKeyword(newFilters.searchKeyword || "");
-
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-      if (newFilters.searchKeyword !== undefined) {
-        searchTimeoutRef.current = setTimeout(() => {
-          fetchProducts(false, true);
-        }, 500);
-      } else {
-        fetchProducts(false, true);
-      }
+      setFilters((prev) => ({
+        ...prev,
+        ...newFilters,
+      }));
     },
-    [fetchProducts]
+    []
   );
 
   const allProductsSelected =
@@ -310,13 +289,7 @@ export default function SellerDashboardClientPage({
           setDeletingProductId(null);
         }}
         showBulkDelete={selectedProductIds.size > 0}
-        initialFilters={{
-          category: categoryFilter,
-          isActive: isActiveFilter,
-          minPrice: minPriceFilter,
-          maxPrice: maxPriceFilter,
-          searchKeyword: searchKeyword,
-        }}
+        initialFilters={filters}
       />
 
       <div className="flex flex-grow">
