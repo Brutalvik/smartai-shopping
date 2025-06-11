@@ -60,7 +60,7 @@ export default function SellerProductUploadPage({ initialProduct }: Props) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [currentTagInput, setCurrentTagInput] = useState("");
   const [draftSaved, setDraftSaved] = useState(false);
-  const [showImageTerms, setShowImageTerms] = useState(false);
+  const [showImageTerms, setShowImageTerms] = useState<boolean>(false);
 
   const {
     isOpen: isDraftModalOpen,
