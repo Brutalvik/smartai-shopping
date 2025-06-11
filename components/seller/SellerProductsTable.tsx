@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  useEffect,
+} from "react";
 import {
   Table,
   TableHeader,
@@ -57,6 +63,7 @@ export default function SellerProductsTable({
   onDelete,
   loading,
 }: SellerProductsTableProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
     initialColumnWidths
   );
@@ -153,8 +160,37 @@ export default function SellerProductsTable({
     }
   };
 
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const totalWidth = containerRef.current.offsetWidth;
+    const staticColumns = 1 + 1; // checkbox + actions column (fixed)
+    const dynamicColumns = tableColumn.length - staticColumns;
+
+    // Subtract fixed widths: checkbox (~48) + actions (~120)
+    const remainingWidth = totalWidth - 48 - 120;
+    const avgWidth = Math.floor(remainingWidth / dynamicColumns);
+
+    const initialWidths: { [key: number]: number } = {};
+
+    tableColumn.forEach((_, index) => {
+      if (index === 0) {
+        initialWidths[index] = avgWidth + 20;
+      } else if (index === 8) {
+        initialWidths[index] = 120;
+      } else {
+        initialWidths[index] = avgWidth;
+      }
+    });
+
+    setColumnWidths(initialWidths);
+  }, []);
+
   return (
-    <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
+    <div
+      ref={containerRef}
+      className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg"
+    >
       {loading && products.length === 0 ? (
         <div className="flex justify-center items-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -222,7 +258,17 @@ export default function SellerProductsTable({
                       }
                     />
                   </TableCell>
-                  <TableCell>{product.title}</TableCell>
+                  <TableCell>
+                    <Tooltip content={product.title}>
+                      <span
+                        className="block truncate cursor-help"
+                        style={{ maxWidth: columnWidths[0] - 16 }}
+                      >
+                        {product.title}
+                      </span>
+                    </Tooltip>
+                  </TableCell>
+
                   <TableCell>
                     <Tooltip content={product.description}>
                       <span
