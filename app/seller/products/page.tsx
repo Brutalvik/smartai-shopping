@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { verifyToken } from "@/utils/helper";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
-import SellerDashboardClientPage from "@/app/seller/dashboard/SellerDashboardClientPage";
+import SellerDashboardClientPage from "@/app/seller/products/SellerDashboardClientPage";
 
 export default async function SellerDashboardPage() {
   const cookieStore = await cookies();

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Input, Textarea } from "@heroui/input";

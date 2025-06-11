@@ -27,7 +27,7 @@ export default function SellerProductCard({ product }: { product: Product }) {
     );
 
     if (res.ok) {
-      window.location.reload(); // Or use optimistic update
+      window.location.reload();
     } else {
       alert("Failed to delete product");
     }
