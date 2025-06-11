@@ -87,10 +87,12 @@ export default function SellerProductsTable({
   }, [handleMouseMove]);
 
   const getColumnStyle = (index: number) =>
-    columnWidths[index] ? { width: `${columnWidths[index]}px` } : {};
+    columnWidths[index]
+      ? { width: `${columnWidths[index]}px`, minWidth: "60px" }
+      : {};
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-default-100 bg-white dark:bg-default-50 max-w-full">
+    <div className="overflow-x-auto max-w-full rounded-lg border border-default-100 bg-white dark:bg-default-50">
       {loading && products.length === 0 ? (
         <div className="flex justify-center items-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -100,7 +102,7 @@ export default function SellerProductsTable({
         <Table
           aria-label="Seller Products Table"
           removeWrapper
-          className="min-w-[1100px] [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
+          className="min-w-[1100px] [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
         >
           <TableHeader>
             <>
@@ -116,16 +118,17 @@ export default function SellerProductsTable({
                   className="relative whitespace-nowrap text-sm font-semibold border-r"
                   style={getColumnStyle(i)}
                 >
-                  {label}
-                  <div
-                    className="absolute top-0 right-0 h-full w-2 resize-column-cursor"
-                    onMouseDown={(e) => handleMouseDown(e, i)}
-                  />
+                  <div className="flex items-center justify-between pr-2">
+                    <span>{label}</span>
+                    <div
+                      className="h-full w-2 cursor-ew-resize"
+                      onMouseDown={(e) => handleMouseDown(e, i)}
+                    />
+                  </div>
                 </TableColumn>
               ))}
             </>
           </TableHeader>
-
           <TableBody emptyContent="No products found.">
             {products.map((product) => {
               const isSelected = selectedProductIds.has(product.productId);
@@ -142,7 +145,7 @@ export default function SellerProductsTable({
                   <TableCell>{product.title}</TableCell>
                   <TableCell>
                     <Tooltip content={product.description}>
-                      <span className="block truncate max-w-[200px] cursor-help">
+                      <span className="block w-full truncate cursor-help">
                         {product.description}
                       </span>
                     </Tooltip>
@@ -152,7 +155,7 @@ export default function SellerProductsTable({
                   <TableCell>{product.category}</TableCell>
                   <TableCell>
                     <Tooltip content={product.tags.join(", ")}>
-                      <span className="block truncate max-w-[150px] cursor-help">
+                      <span className="block w-full truncate cursor-help">
                         {product.tags.join(", ")}
                       </span>
                     </Tooltip>
