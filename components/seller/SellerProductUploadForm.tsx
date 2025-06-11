@@ -68,10 +68,21 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
   } = useDisclosure();
 
   useEffect(() => {
-    if (isEditMode) {
-      setLoading(false);
+    if (initialProduct) {
+      formik.setValues({
+        title: initialProduct.title || "",
+        description: initialProduct.description || "",
+        price: initialProduct.price || 0,
+        quantity: initialProduct.quantity || 0,
+        category: initialProduct.category || "",
+        tags: initialProduct.tags || [],
+        isActive: initialProduct.isActive ?? false,
+        images: [], // don't prefill images as File[]
+      });
+
+      setImagePreviews(initialProduct.images || []);
     }
-  }, [isEditMode]);
+  }, [initialProduct]);
 
   const formik = useFormik({
     initialValues: {
