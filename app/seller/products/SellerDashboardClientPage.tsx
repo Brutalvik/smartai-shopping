@@ -16,6 +16,7 @@ import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
 import DashboardHeader from "@/components/seller/DashboardHeader";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 
 const SellerProductsTable = dynamic(
   () => import("@/components/seller/SellerProductsTable"),
@@ -38,6 +39,7 @@ export default function SellerDashboardClientPage({
   initialHasMore,
   sellerId,
 }: SellerDashboardClientPageProps) {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -344,7 +346,9 @@ export default function SellerDashboardClientPage({
                 onToggleSelectProduct={handleToggleSelectProduct}
                 onSelectAllProducts={handleSelectAllProducts}
                 allProductsSelected={allProductsSelected}
-                onEdit={(product) => {}}
+                onEdit={(product) => {
+                  router.push(`/seller/upload?productId=${product.productId}`);
+                }}
                 onDelete={(product) => {
                   setDeletingProductId(product.productId);
                   setIsDeleteConfirmModalOpen(true);

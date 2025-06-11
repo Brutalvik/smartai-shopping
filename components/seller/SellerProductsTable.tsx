@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-  useEffect,
-} from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import {
   Table,
   TableHeader,
@@ -27,6 +21,7 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { Product } from "@/types/product";
+import { initialColumnWidths } from "@/utils/product-utils";
 
 const tableColumn = [
   "Product Name",
@@ -62,17 +57,9 @@ export default function SellerProductsTable({
   onDelete,
   loading,
 }: SellerProductsTableProps) {
-  const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>({
-    0: 160,
-    1: 220,
-    2: 100,
-    3: 100,
-    4: 120,
-    5: 160,
-    6: 120,
-    7: 140,
-    8: 120,
-  });
+  const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
+    initialColumnWidths
+  );
 
   const [sortColumn, setSortColumn] = useState<number>(7); // default to Created At
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");

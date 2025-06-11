@@ -1,5 +1,3 @@
-import { ReadonlyURLSearchParams } from "next/navigation";
-
 interface DecodedProductId {
   displayId: string;
   sellerShortId: string;
@@ -46,4 +44,16 @@ export const decodeProductIdForDisplay = (
     regionShortCode,
     productShortId,
   };
+};
+
+export const initialColumnWidths = {
+  0: 160,
+  1: 220,
+  2: 100,
+  3: 100,
+  4: 120,
+  5: 160,
+  6: 120,
+  7: 140,
+  8: 120,
 };
