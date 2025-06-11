@@ -10,7 +10,11 @@ interface Props {
   searchParams: { productId?: string };
 }
 
-export default async function UploadPage({ searchParams }: Props) {
+export default async function UploadPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
   console.log("SEARCH PARAMS : ", searchParams);
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -27,7 +31,10 @@ export default async function UploadPage({ searchParams }: Props) {
   };
 
   let productToEdit: Product | null = null;
-  const productId = searchParams?.productId;
+  const productIdRaw = searchParams?.productId;
+  const productId = Array.isArray(productIdRaw)
+    ? productIdRaw[0]
+    : productIdRaw;
 
   if (productId) {
     try {
