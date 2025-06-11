@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { verifyToken } from "@/utils/helper";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
-import SellerDashboardClientPage from "@/app/seller/products/SellerDashboardClientPage";
+import SellerDashboardClientPage from "@/components/seller/SellerDashboardClientPage";
 
 export default async function SellerDashboardServerPage() {
   const cookieStore = await cookies();
