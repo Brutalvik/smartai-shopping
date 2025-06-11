@@ -13,7 +13,7 @@ interface Props {
 export default async function UploadPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: any;
 }) {
   console.log("SEARCH PARAMS : ", searchParams);
   const cookieStore = await cookies();
