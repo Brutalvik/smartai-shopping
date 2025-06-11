@@ -46,6 +46,7 @@ export default async function UploadPage({
           cache: "no-store",
         }
       );
+      console.log("  RESPONSE   ", response);
       if (response.ok) {
         const product = await response.json();
         productToEdit = product;
