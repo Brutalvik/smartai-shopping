@@ -111,6 +111,26 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
         .min(0, "Quantity cannot be negative"),
       category: Yup.string().required("Category is required"),
       tags: Yup.array().of(Yup.string()).min(1, "At least one tag is required"),
+      images: Yup.array()
+        .of(
+          Yup.mixed<File>()
+            .test(
+              "fileSize",
+              "Each image must be less than 5MB",
+              (value) => !value || value.size <= 5 * 1024 * 1024
+            )
+            .test(
+              "fileType",
+              "Unsupported file format",
+              (value) =>
+                !value ||
+                ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(
+                  value.type
+                )
+            )
+        )
+        .min(3, "At least three images are required")
+        .required("Images are required"),
     }),
     onSubmit: async (values) => {
       if (!values.isActive && !isEditMode) {
