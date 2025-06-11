@@ -53,3 +53,7 @@ body {
     }
   }
 }
+
+.resize-column-cursor:hover {
+  cursor: ew-resize; /* This is the double-arrow cursor */
+}

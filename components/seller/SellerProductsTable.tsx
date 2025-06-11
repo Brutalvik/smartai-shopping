@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import {
   Table,
@@ -8,12 +7,6 @@ import {
   TableColumn,
   TableRow,
   TableCell,
-  Spinner,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Button,
   Checkbox,
   Tooltip,
@@ -85,13 +78,11 @@ export default function SellerProductsTable({
             {products.map((product) => {
               const isSelected = selectedProductIds.has(product.productId);
               const isEditDisabled = isSelected;
-
               const decodedId = decodeProductIdForDisplay(
                 product.productId,
                 sellerId,
                 currentProductRegion
               );
-
               return (
                 <TableRow
                   key={product.productId}
@@ -113,7 +104,8 @@ export default function SellerProductsTable({
                     </Tooltip>
                   </TableCell>
                   <TableCell>{product.title}</TableCell>
-                  <TableCell className="max-w-[200px] truncate">
+                  {/* Updated Description Cell */}
+                  <TableCell className="max-w-[200px]">
                     <Tooltip
                       content={
                         <div className="max-w-xs whitespace-normal">
@@ -123,13 +115,15 @@ export default function SellerProductsTable({
                       delay={0}
                       closeDelay={0}
                     >
-                      <span className="cursor-help">{product.description}</span>
+                      <span className="block w-full overflow-hidden text-ellipsis whitespace-nowrap cursor-help">
+                        {product.description}
+                      </span>
                     </Tooltip>
                   </TableCell>
                   <TableCell>${product.price}</TableCell>
                   <TableCell>{product.quantity}</TableCell>
                   <TableCell>{product.category}</TableCell>
-                  <TableCell className="max-w-[150px] truncate">
+                  <TableCell className="max-w-[150px]">
                     <Tooltip
                       content={
                         <div className="max-w-xs whitespace-normal">
@@ -139,7 +133,7 @@ export default function SellerProductsTable({
                       delay={0}
                       closeDelay={0}
                     >
-                      <span className="cursor-help">
+                      <span className="block w-full overflow-hidden text-ellipsis whitespace-nowrap cursor-help">
                         {product.tags.join(", ")}
                       </span>
                     </Tooltip>
