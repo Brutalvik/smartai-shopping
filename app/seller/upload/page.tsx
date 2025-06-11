@@ -1,6 +1,3 @@
-// app/seller/upload/page.tsx
-// NO "use client" here, this remains a Server Component.
-
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyToken } from "@/utils/helper";
@@ -9,12 +6,11 @@ import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 
-interface UploadPageProps {
-  // Corrected type for searchParams
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
-export default async function UploadPage({ searchParams }: UploadPageProps) {
+export default async function UploadPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] };
+}) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -32,9 +28,11 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
 
   let productToEdit: Product | null = null;
   // Access productId safely, as it could be an array if repeated, but we expect a single string
-  const productId = Array.isArray(searchParams.productId)
-    ? searchParams.productId[0] // Take the first if it's an array
-    : searchParams.productId; // Otherwise, use it directly
+  // Also, searchParams itself might be undefined if no params are present, so add a check
+  const productId =
+    searchParams && Array.isArray(searchParams.productId)
+      ? searchParams.productId[0]
+      : searchParams?.productId; // Use optional chaining for searchParams
 
   if (productId) {
     try {
