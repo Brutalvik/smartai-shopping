@@ -128,6 +128,12 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
       formData.append("isActive", String(values.isActive));
       values.images.forEach((file) => formData.append("images", file));
 
+      console.log("IS EDIT MODE : ", isEditMode);
+
+      useEffect(() => {
+        console.log("INITIAL PRODUCT : ", initialProduct);
+      }, [initialProduct]);
+
       try {
         loaderRef.current?.stepTo(1);
         const url = isEditMode

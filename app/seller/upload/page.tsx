@@ -6,16 +6,12 @@ import SellerProductUploadForm from "@/components/seller/SellerProductUploadForm
 import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
-interface Props {
-  searchParams: { productId?: string };
-}
 
 export default async function UploadPage({
   searchParams,
 }: {
   searchParams: any;
 }) {
-  console.log("SEARCH PARAMS : ", searchParams);
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
@@ -54,14 +50,6 @@ export default async function UploadPage({
     } catch (err) {
       console.error("Error fetching product:", err);
     }
-  }
-
-  if (!productId && typeof window !== "undefined") {
-    return (
-      <div className="text-red-500 text-center mt-10">
-        🚫 Product not found or failed to load.
-      </div>
-    );
   }
 
   return (
