@@ -36,6 +36,8 @@ export default async function SellerDashboardServerPage() {
 
     const result = await response.json();
 
+    console.log(result);
+
     if (!response.ok) {
       throw new Error(
         (result as any).error ||

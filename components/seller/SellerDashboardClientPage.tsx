@@ -17,6 +17,7 @@ import { addToast } from "@heroui/react";
 import DashboardHeader from "@/components/seller/DashboardHeader";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { isEmptyArray } from "formik";
 
 const SellerProductsTable = dynamic(
   () => import("@/components/seller/SellerProductsTable"),
@@ -134,6 +135,10 @@ export default function SellerDashboardClientPage({
         setProducts((prevProducts) =>
           loadMore ? [...prevProducts, ...result.products] : result.products
         );
+        if (isEmptyArray(result.products)) {
+          setLoading(false);
+          return;
+        }
         setLastEvaluatedKey(result.lastEvaluatedKey);
         setHasMore(!!result.lastEvaluatedKey);
       } catch (error: any) {
@@ -144,6 +149,7 @@ export default function SellerDashboardClientPage({
         });
         console.error("Error fetching products:", error);
         setHasMore(false);
+        return;
       } finally {
         setLoading(false);
       }
@@ -263,6 +269,14 @@ export default function SellerDashboardClientPage({
       setDeletingProductId(null);
     }
   };
+
+  if (isEmptyArray(products)) {
+    return (
+      <div>
+        <span>NO PRODUCTS</span>
+      </div>
+    );
+  }
 
   const handleFiltersChange = useCallback(
     (newFilters: {

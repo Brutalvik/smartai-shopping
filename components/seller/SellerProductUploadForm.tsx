@@ -130,10 +130,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
 
       console.log("IS EDIT MODE : ", isEditMode);
 
-      useEffect(() => {
-        console.log("INITIAL PRODUCT : ", initialProduct);
-      }, [initialProduct]);
-
       try {
         loaderRef.current?.stepTo(1);
         const url = isEditMode
