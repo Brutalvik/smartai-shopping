@@ -13,9 +13,9 @@ import {
 import Link from "next/link";
 
 const sidebarItems = [
-  { label: "Dashboard", icon: <PanelsTopLeft />, path: "/dashboard" },
+  { label: "Dashboard", icon: <PanelsTopLeft />, path: "/seller/products" },
   { label: "Analytics", icon: <ChartNoAxesCombined />, path: "/calendar" },
-  { label: "Add Product", icon: <Plus />, path: "/calendar" },
+  { label: "Add Product", icon: <Plus />, path: "/seller/upload" },
 ];
 
 export default function CollapsibleSidebar({
@@ -34,13 +34,14 @@ export default function CollapsibleSidebar({
   return (
     <aside
       className={classNames(
-        "bg-gray-500 text-default transition-all duration-300 fixed top-0 left-0 z-40 h-screen shadow-lg",
-        collapsed ? "w-[80px]" : "w-[270px]"
+        "bg-gray-500 text-default transition-all duration-300 shadow-lg rounded-xl",
+        collapsed ? "w-[60px]" : "w-[250px]",
+        "h-full"
       )}
     >
       <div className="flex items-center justify-between px-4 py-4">
         <Link href="/" className="text-white font-bold text-xl">
-          {!collapsed && <span className="text-white">Logo</span>}
+          {!collapsed && <span className="text-white">Overview</span>}
         </Link>
         <button
           className="bg-white text-[#151A2D] p-1.5 rounded hover:bg-gray-200"

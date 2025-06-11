@@ -14,7 +14,6 @@ import { Loader2, SquarePlus, Trash2 } from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
-import DashboardHeader from "@/components/seller/ProductFilters";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { isEmptyArray } from "formik";
@@ -43,11 +42,9 @@ export default function SellerDashboardClientPage({
   sellerId,
 }: SellerDashboardClientPageProps) {
   const router = useRouter();
-
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const handleSidebarToggle = (collapsed: boolean) =>
     setSidebarCollapsed(collapsed);
-
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -90,13 +87,11 @@ export default function SellerDashboardClientPage({
     ) => {
       setLoading(true);
       setSelectedProductIds(new Set());
-
       if (newFiltersApplied) {
         setLastEvaluatedKey(undefined);
         setHasMore(true);
         currentLastEvaluatedKey = undefined;
       }
-
       const queryParams = new URLSearchParams();
       if (loadMore && currentLastEvaluatedKey) {
         queryParams.append(
@@ -105,7 +100,6 @@ export default function SellerDashboardClientPage({
         );
       }
       queryParams.append("limit", "10");
-
       if (filters.category) queryParams.append("category", filters.category);
       if (filters.isActive !== undefined)
         queryParams.append("isActive", String(filters.isActive));
@@ -118,12 +112,13 @@ export default function SellerDashboardClientPage({
       try {
         const response = await fetch(
           `${CDN.sellerProductsApi}/seller/products?${queryParams.toString()}`,
-          { method: "GET", credentials: "include" }
+          {
+            method: "GET",
+            credentials: "include",
+          }
         );
-
         const result = await response.json();
         if (!response.ok) throw new Error("Failed to fetch products");
-
         setProducts((prevProducts) =>
           loadMore ? [...prevProducts, ...result.products] : result.products
         );
@@ -198,7 +193,6 @@ export default function SellerDashboardClientPage({
           })
         )
       );
-
       const allSuccess = responses.every((res) => res.ok);
       addToast({
         description: allSuccess
@@ -226,15 +220,16 @@ export default function SellerDashboardClientPage({
 
   return (
     <>
-      <div className="flex w-full" id="main-content">
-        <CollapsibleSidebar onToggle={handleSidebarToggle} />
+      <div className="flex w-full h-[calc(100vh-10vh)]" id="main-content">
         <div
           className={classNames(
-            "transition-all duration-300 overflow-auto",
-            sidebarCollapsed ? "ml-[60px]" : "ml-[250px]"
+            "transition-all duration-300",
+            sidebarCollapsed ? "w-[60px]" : "w-[250px]"
           )}
-          style={{ width: "100%" }}
         >
+          <CollapsibleSidebar onToggle={handleSidebarToggle} />
+        </div>
+        <div className="flex-1 transition-all duration-300 overflow-auto">
           <div className="p-4">
             <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
               <h1 className="text-2xl font-bold">Products</h1>
@@ -258,7 +253,6 @@ export default function SellerDashboardClientPage({
                 />
               </div>
             </div>
-
             {loading && products.length === 0 ? (
               <div className="flex justify-center items-center h-48">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -272,11 +266,9 @@ export default function SellerDashboardClientPage({
                   onToggleSelectProduct={handleToggleSelectProduct}
                   onSelectAllProducts={handleSelectAllProducts}
                   allProductsSelected={allProductsSelected}
-                  onEdit={(product) => {
-                    router.push(
-                      `/seller/upload?productId=${product.productId}`
-                    );
-                  }}
+                  onEdit={(product) =>
+                    router.push(`/seller/upload?productId=${product.productId}`)
+                  }
                   onDelete={(product) => {
                     setDeletingProductId(product.productId);
                     setIsDeleteConfirmModalOpen(true);
