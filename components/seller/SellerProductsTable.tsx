@@ -101,13 +101,26 @@ export default function SellerProductsTable({
   const getColumnStyle = (index: number) =>
     columnWidths[index] ? { width: `${columnWidths[index]}px` } : {};
 
-  const toggleSort = (index: number) => {
-    if (index === 8) return; // skip sorting for Actions column
-    if (sortColumn === index) {
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortColumn(index);
-      setSortDirection("asc");
+  const getValue = (product: Product, key: string): any => {
+    switch (key) {
+      case "Product Name":
+        return product.title;
+      case "Description":
+        return product.description;
+      case "Price":
+        return product.price;
+      case "Quantity":
+        return product.quantity;
+      case "Category":
+        return product.category;
+      case "Tags":
+        return product.tags.join(", ");
+      case "Published":
+        return product.isActive ? "Published" : "Draft";
+      case "Created At":
+        return new Date(product.createdAt).getTime();
+      default:
+        return "";
     }
   };
 
@@ -132,26 +145,13 @@ export default function SellerProductsTable({
     });
   }, [products, sortColumn, sortDirection]);
 
-  const getValue = (product: Product, key: string): any => {
-    switch (key) {
-      case "Product Name":
-        return product.title;
-      case "Description":
-        return product.description;
-      case "Price":
-        return product.price;
-      case "Quantity":
-        return product.quantity;
-      case "Category":
-        return product.category;
-      case "Tags":
-        return product.tags.join(", ");
-      case "Published":
-        return product.isActive ? "Published" : "Draft";
-      case "Created At":
-        return new Date(product.createdAt).getTime();
-      default:
-        return "";
+  const toggleSort = (index: number) => {
+    if (index === 8) return; // Skip sorting for Actions column
+    if (sortColumn === index) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(index);
+      setSortDirection("asc");
     }
   };
 
