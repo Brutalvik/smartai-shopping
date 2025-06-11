@@ -12,7 +12,14 @@ import {
   Checkbox,
   Tooltip,
 } from "@heroui/react";
-import { Trash2, Pencil, Loader2, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  Trash2,
+  Pencil,
+  Loader2,
+  ArrowUp,
+  ArrowDown,
+  MoveHorizontal,
+} from "lucide-react";
 import { Product } from "@/types/product";
 
 const tableColumn = [
@@ -185,18 +192,24 @@ export default function SellerProductsTable({
                 >
                   <div className="flex items-center gap-1">
                     <span>{label}</span>
-                    {sortColumn === i &&
-                      (sortDirection === "asc" ? (
-                        <ArrowUp size={14} />
+                    {i !== 8 && // not Actions
+                      (sortColumn === i ? (
+                        sortDirection === "asc" ? (
+                          <ArrowUp size={14} />
+                        ) : (
+                          <ArrowDown size={14} />
+                        )
                       ) : (
-                        <ArrowDown size={14} />
+                        <MoveHorizontal size={12} className="opacity-50" />
                       ))}
                   </div>
                   <div
                     className="absolute top-0 right-0 h-full w-2"
                     style={{ cursor: "ew-resize" }}
                     onMouseDown={(e) => handleMouseDown(e, i)}
-                  />
+                  >
+                    <div className="h-full w-[2px] bg-gray-300 hover:bg-gray-500 transition-colors" />
+                  </div>
                 </TableColumn>
               ))}
             </>
@@ -215,8 +228,10 @@ export default function SellerProductsTable({
                       }
                     />
                   </TableCell>
-                  <TableCell>{product.title}</TableCell>
-                  <TableCell>
+                  <TableCell className="cursor-pointer">
+                    {product.title}
+                  </TableCell>
+                  <TableCell className="cursor-pointer">
                     <Tooltip content={product.description}>
                       <span
                         className="block truncate cursor-help"
@@ -226,10 +241,16 @@ export default function SellerProductsTable({
                       </span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>${product.price}</TableCell>
-                  <TableCell>{product.quantity}</TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell>
+                  <TableCell className="cursor-pointer">
+                    ${product.price}
+                  </TableCell>
+                  <TableCell className="cursor-pointer">
+                    {product.quantity}
+                  </TableCell>
+                  <TableCell className="cursor-pointer">
+                    {product.category}
+                  </TableCell>
+                  <TableCell className="cursor-pointer">
                     <Tooltip content={product.tags.join(", ")}>
                       <span
                         className="block truncate cursor-help"
@@ -239,7 +260,7 @@ export default function SellerProductsTable({
                       </span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="cursor-pointer">
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${
                         product.isActive
@@ -250,7 +271,7 @@ export default function SellerProductsTable({
                       {product.isActive ? "Published" : "Draft"}
                     </span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="cursor-pointer">
                     {new Date(product.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
