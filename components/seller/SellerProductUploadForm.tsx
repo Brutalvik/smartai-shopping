@@ -1,10 +1,9 @@
-// pages/seller/products/upload.tsx
 "use client";
 
 import { useEffect, useState, ChangeEvent, KeyboardEvent, useRef } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Input, Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Switch } from "@heroui/switch";
@@ -49,7 +48,6 @@ interface Props {
 }
 
 export default function SellerProductUploadForm({ initialProduct }: Props) {
-  console.log("INTIAL PRODUCT : ", initialProduct);
   const router = useRouter();
   const isEditMode = Boolean(initialProduct);
   const loaderRef = useRef<any>(null);
@@ -78,10 +76,10 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
         category: initialProduct.category || "",
         tags: initialProduct.tags || [],
         isActive: initialProduct.isActive ?? false,
-        images: [], // don't prefill images as File[]
+        images: [],
       });
-
       setImagePreviews(initialProduct.images || []);
+      setLoading(false);
     }
   }, [initialProduct]);
 
@@ -132,11 +130,9 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
 
       try {
         loaderRef.current?.stepTo(1);
-
         const url = isEditMode
           ? `${CDN.sellerProductsApi}/seller/products/${initialProduct?.productId}`
           : `${CDN.sellerProductsApi}/seller/products`;
-
         const method = isEditMode ? "PATCH" : "POST";
 
         const res = await fetch(url, {
@@ -171,7 +167,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
           color: "danger",
           timeout: 3000,
         });
-        console.error(err);
       }
     },
   });

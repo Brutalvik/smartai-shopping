@@ -359,7 +359,7 @@ export default function SellerDashboardClientPage({
               {hasMore && (
                 <div className="text-center mt-8">
                   <Button
-                    onClick={handleLoadMore}
+                    onPress={handleLoadMore}
                     disabled={loading}
                     className="px-6 py-3"
                     color="primary"
