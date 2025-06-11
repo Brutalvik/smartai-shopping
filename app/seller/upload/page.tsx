@@ -10,7 +10,7 @@ import { Product } from "@/types/product";
 export default async function UploadPage({
   searchParams,
 }: {
-  searchParams: { productId?: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
   console.log("SEARCH PARAMS : ", searchParams);
   const cookieStore = await cookies();
