@@ -48,7 +48,7 @@ interface Props {
   initialProduct?: Product | null;
 }
 
-export default function SellerProductUploadPage({ initialProduct }: Props) {
+export default function SellerProductUploadForm({ initialProduct }: Props) {
   const router = useRouter();
   const isEditMode = Boolean(initialProduct);
   const loaderRef = useRef<any>(null);
