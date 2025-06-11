@@ -55,6 +55,14 @@ export default async function UploadPage({
     }
   }
 
+  if (!productId && typeof window !== "undefined") {
+    return (
+      <div className="text-red-500 text-center mt-10">
+        🚫 Product not found or failed to load.
+      </div>
+    );
+  }
+
   return (
     <UserProviderFromSSR user={userData}>
       <SellerProductUploadForm initialProduct={productToEdit} />
