@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
+  Spinner,
   Modal,
   ModalContent,
   ModalHeader,
@@ -406,7 +407,7 @@ export default function SellerDashboardClientPage({
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader>Confirm Deletion</ModalHeader>
+              <ModalHeader>Confirm Deleting Product(s)</ModalHeader>
               <ModalBody>
                 {deletingProductId ? (
                   <>

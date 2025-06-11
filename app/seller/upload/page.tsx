@@ -1,3 +1,6 @@
+// app/seller/upload/page.tsx
+// NO "use client" here, this remains a Server Component.
+
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyToken } from "@/utils/helper";
@@ -7,7 +10,8 @@ import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 
 interface UploadPageProps {
-  searchParams: { productId?: string };
+  // Corrected type for searchParams
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 export default async function UploadPage({ searchParams }: UploadPageProps) {
@@ -27,7 +31,10 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
   };
 
   let productToEdit: Product | null = null;
-  const productId = searchParams.productId;
+  // Access productId safely, as it could be an array if repeated, but we expect a single string
+  const productId = Array.isArray(searchParams.productId)
+    ? searchParams.productId[0] // Take the first if it's an array
+    : searchParams.productId; // Otherwise, use it directly
 
   if (productId) {
     try {
@@ -57,7 +64,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
 
   return (
     <UserProviderFromSSR user={userData}>
-      <SellerProductUploadForm />
+      <SellerProductUploadForm initialProduct={productToEdit} />
     </UserProviderFromSSR>
   );
 }
