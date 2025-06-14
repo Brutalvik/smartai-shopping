@@ -26,7 +26,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { CDN } from "@/config/config";
-import { Product } from "@/types/product";
+import { Product } from "@types/product";
 import { addToast } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -59,6 +59,19 @@ export default function SellerDashboardClientPage({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [windowWidth, setWindowWidth] = useState<number>(0);
+
+  useEffect(() => {
+    const updateWidth = () => setWindowWidth(window.innerWidth);
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
+  useEffect(() => {
+    if (windowWidth >= 768 && isOpen) onClose();
+  }, [windowWidth, isOpen, onClose]);
+
   const handleSidebarToggle = (collapsed: boolean) =>
     setSidebarCollapsed(collapsed);
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -246,7 +259,6 @@ export default function SellerDashboardClientPage({
           <CollapsibleSidebar onToggle={handleSidebarToggle} />
         </div>
 
-        {/* Mobile Drawer Button - bottom right */}
         <div className="md:hidden fixed bottom-4 right-4 z-50">
           <Tooltip content="Product Menu">
             <Button
@@ -264,10 +276,11 @@ export default function SellerDashboardClientPage({
         <Drawer isOpen={isOpen} onClose={onClose} size="xs">
           <DrawerContent>
             <DrawerHeader>Menu</DrawerHeader>
-            <DrawerBody className="space-y-4">
+            <DrawerBody className="space-y-4 text-left">
               <Button
                 fullWidth
                 variant="light"
+                className="text-base"
                 startContent={<LayoutDashboard size={16} />}
               >
                 Dashboard
@@ -275,6 +288,7 @@ export default function SellerDashboardClientPage({
               <Button
                 fullWidth
                 variant="light"
+                className="text-base"
                 startContent={<BarChart2 size={16} />}
               >
                 Analytics
@@ -282,6 +296,7 @@ export default function SellerDashboardClientPage({
               <Button
                 fullWidth
                 variant="light"
+                className="text-base"
                 startContent={<PlusCircle size={16} />}
                 onPress={() => router.push("/seller/upload?reset=true")}
               >
@@ -374,57 +389,6 @@ export default function SellerDashboardClientPage({
           </div>
         </div>
       </div>
-
-      <Modal
-        isOpen={isDeleteConfirmModalOpen}
-        onOpenChange={() => setIsDeleteConfirmModalOpen(false)}
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>Confirm Deleting Product(s)</ModalHeader>
-              <ModalBody>
-                {deletingProductId ? (
-                  <>
-                    Are you sure you want to delete the product{" "}
-                    <strong>
-                      {products.find((p) => p.productId === deletingProductId)
-                        ?.title || "this product"}
-                    </strong>
-                    ?
-                  </>
-                ) : (
-                  <>
-                    Are you sure you want to delete{" "}
-                    <strong>
-                      {selectedProductIds.size} selected product(s)
-                    </strong>
-                    ?
-                  </>
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  variant="solid"
-                  color="primary"
-                  onPress={onClose}
-                  disabled={deleting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="danger"
-                  variant="solid"
-                  isLoading={deleting}
-                  onPress={handleDeleteConfirmed}
-                >
-                  Delete
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
     </>
   );
 }
