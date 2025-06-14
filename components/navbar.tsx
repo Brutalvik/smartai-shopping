@@ -1,16 +1,15 @@
 "use client";
+
 import {
   Navbar as HeroUINavbar,
   NavbarContent,
   NavbarMenu,
-  NavbarMenuToggle,
   NavbarBrand,
   NavbarItem,
 } from "@heroui/navbar";
 import { Button } from "@heroui/button";
 import { Link } from "@heroui/link";
 import NextLink from "next/link";
-
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SearchIcon, Logo } from "@/components/icons";
 import UserDrawerMenu from "@/components/Drawer/UserDrawerMenu";
@@ -19,15 +18,24 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { ShoppingCart } from "lucide-react";
 import SearchInput from "@/components/SearchInput";
+import { useAppSelector } from "@/store/hooks";
+import {
+  selectUser,
+  selectUserEmail,
+  selectIsLoggedIn,
+} from "@/store/selectors";
 
 export const Navbar = () => {
   const router = useRouter();
   const { totalItems } = useCart();
+  const user = useAppSelector(selectUser);
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
+
+  console.log("USER FROM NAVBAR : ", user);
 
   return (
     <HeroUINavbar maxWidth="full" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        {/* Adjusted NavbarBrand for left alignment and 10px margin */}
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Logo />
@@ -65,7 +73,15 @@ export const Navbar = () => {
                 className="hover:cursor-pointer"
               />
             </Badge>
-            <UserDrawerMenu />
+
+            {/* ✅ Conditional render based on user login */}
+            {user ? (
+              <UserDrawerMenu />
+            ) : (
+              <Button variant="light" onPress={() => router.push("/signin")}>
+                Sign In
+              </Button>
+            )}
           </div>
         </NavbarItem>
       </NavbarContent>
@@ -86,7 +102,17 @@ export const Navbar = () => {
           </Badge>
         </NavbarItem>
         <NavbarItem>
-          <UserDrawerMenu />
+          {user?.email ? (
+            <UserDrawerMenu />
+          ) : (
+            <Button
+              size="sm"
+              variant="light"
+              onPress={() => router.push("/signin")}
+            >
+              Sign In
+            </Button>
+          )}
         </NavbarItem>
       </NavbarContent>
 

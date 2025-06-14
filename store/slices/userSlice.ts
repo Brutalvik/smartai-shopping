@@ -1,22 +1,18 @@
 // store/slices/userSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-interface UserState {
-  email: string;
-  name: string;
-  role: string;
-  isVerified: boolean;
-  preferredLocale: string;
-  sessionToken: string;
-}
+import { UserState } from "@/types/store";
 
 const initialState: UserState = {
+  id: "",
+  sub: "",
   email: "",
   name: "",
-  role: "user",
-  isVerified: false,
-  preferredLocale: "en-US",
-  sessionToken: "",
+  phone: "",
+  group: "",
+  given_name: "",
+  family_name: "",
+  business_name: "",
+  preferredLocale: "",
 };
 
 const userSlice = createSlice({

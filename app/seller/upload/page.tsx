@@ -25,6 +25,8 @@ export default async function UploadPage({
     ? searchParams?.productId[0]
     : searchParams?.productId;
 
+  console.log("PRODUCT ID : ", productId);
+
   let productToEdit: Product | null = null;
 
   if (productId) {
@@ -40,9 +42,14 @@ export default async function UploadPage({
         }
       );
 
+      console.log("Response : ", response);
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
       if (response.ok) {
         const product = await response.json();
         productToEdit = product;
+        console.log("PRODUCT TO EDIT : ", productToEdit);
       } else {
         console.warn("Product fetch failed:", await response.text());
       }

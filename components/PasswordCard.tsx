@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { Button } from "@heroui/button";
 import { useRouter } from "next/navigation";
 import { CDN } from "@/config/config";
-import { useUser } from "@/context/UserContext";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { getInitial } from "@/utils/helper";
@@ -13,6 +12,8 @@ import { addToast, user } from "@heroui/react";
 import PasswordInput from "@/components/auth/PasswordInput";
 import AuthFormLayout from "@/components/auth/AuthFormLayout";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
+import { setUser } from "@/store/slices/userSlice";
+import { useAppDispatch } from "@/store/hooks";
 
 interface AccountInfo {
   type: "Customer" | "Seller";
@@ -34,7 +35,7 @@ export default function PasswordCard({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [redirectTo, setRedirectTo] = useState("/");
   const router = useRouter();
-  const { setUser } = useUser();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -65,15 +66,11 @@ export default function PasswordCard({
         const { isLoggedIn, user, error } = await res.json();
 
         if (res.ok && isLoggedIn) {
-          setUser(user);
-          localStorage.setItem(
-            "successfulSignin",
-            `Welcome ${getInitial(user.name)}`
-          );
+          dispatch(setUser(user));
           router.replace(redirectTo || "/");
         } else {
           if (error === "NotAuthorizedException") {
-            formik.setFieldError("password", "Wrong Password !.");
+            formik.setFieldError("password", "Wrong Password !");
             return addToast({
               description: "Wrong Password !",
               color: "danger",
@@ -81,9 +78,9 @@ export default function PasswordCard({
             });
           }
           addToast({
-            description: error || "Invalid Credentials",
+            description: error?.message || "Incorrect username or password",
             color: "danger",
-            timeout: 1500,
+            timeout: 2000,
           });
         }
       } catch (err) {
@@ -92,7 +89,7 @@ export default function PasswordCard({
         addToast({
           description: "Network or Sever Error",
           color: "danger",
-          timeout: 1500,
+          timeout: 2000,
         });
       } finally {
         setIsSubmitting(false);

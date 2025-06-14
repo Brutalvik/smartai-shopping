@@ -12,7 +12,6 @@ import { Avatar } from "@heroui/avatar";
 import { Button } from "@heroui/button";
 import { useDisclosure } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/context/UserContext";
 import { CDN } from "@/config/config";
 import { getFirstNameCapitalized, getInitial } from "@/utils/helper";
 import { useState, useMemo } from "react";
@@ -23,14 +22,16 @@ import {
   sellerMenu,
   authMenu,
 } from "@/components/Drawer/menuConfig";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/selectors";
+import { clearUser } from "@/store/slices/userSlice";
 
 const UserDrawerMenu = () => {
+  const user = useAppSelector(selectUser);
+  const dispatch = useAppDispatch();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const router = useRouter();
-  const { user, setUser } = useUser();
   const [loading, setLoading] = useState(false);
-
-  console.log("DRAWER ", user);
 
   const isSeller = useMemo(
     () => user && user?.group?.toLowerCase() === "sellers",
@@ -63,9 +64,7 @@ const UserDrawerMenu = () => {
         return;
       }
 
-      sessionStorage.clear();
-      localStorage.removeItem("user");
-      setUser(null);
+      dispatch(clearUser());
 
       addToast({
         description: "You Signed Out",

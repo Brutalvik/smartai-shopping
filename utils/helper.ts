@@ -31,8 +31,8 @@ export const getInitial = (name: string = "") =>
   name?.charAt(0).toUpperCase() || "";
 
 export const getFirstNameCapitalized = (fullName: string): string => {
-  const firstWord = fullName.trim().split(" ")[0];
-  return firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
+  const firstWord = fullName?.trim().split(" ")[0];
+  return firstWord?.charAt(0).toUpperCase() + firstWord?.slice(1).toLowerCase();
 };
 
 export const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;

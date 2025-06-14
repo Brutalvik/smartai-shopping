@@ -21,7 +21,7 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage: storageSession,
-  whitelist: ["user", "auth"], // <-- include auth if you want persistence
+  whitelist: ["user", "auth"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -158,11 +158,6 @@ export default function SellerDashboardClientPage({
         setLastEvaluatedKey(result.lastEvaluatedKey);
         setHasMore(!!result.lastEvaluatedKey);
       } catch (error: any) {
-        addToast({
-          description: `Error fetching products: ${error.message}`,
-          color: "danger",
-          timeout: 5000,
-        });
         console.error("Error fetching products:", error);
         setHasMore(false);
         return;
