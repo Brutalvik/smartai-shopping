@@ -35,7 +35,6 @@ import { addToast } from "@heroui/react";
 import { MultiStepLoader } from "@/components/ui/MultiStepLoader/MultiStepLoader";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 import { Product } from "@/types/product";
-import { useUser } from "@/context/UserContext";
 
 const loadingStates = [
   { text: "Preparing product data..." },
@@ -49,7 +48,6 @@ interface Props {
 }
 
 export default function SellerProductUploadForm({ initialProduct }: Props) {
-  const { user } = useUser();
   const router = useRouter();
   const isEditMode = Boolean(initialProduct);
   const loaderRef = useRef<any>(null);
@@ -418,7 +416,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
                     }
                   }}
                   onFocus={(e) => {
-                    // Strip formatting so they can edit easily
                     const raw = parseFloat(e.target.value);
                     if (!isNaN(raw)) {
                       formik.setFieldValue("price", raw.toString());
@@ -451,7 +448,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
                     } else {
                       const parsed = parseInt(val);
                       if (!isNaN(parsed) && parsed >= 0) {
-                        // Ensure parsed quantity is not negative
                         formik.setFieldValue("quantity", parsed);
                       }
                     }
@@ -502,14 +498,13 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
                     ]);
                     setCurrentTagInput("");
                   }
-                  // Explicitly mark tags field as touched on blur
                   formik.handleBlur({ target: { name: "tags" } });
                 }}
                 isInvalid={
                   !!(
                     formik.touched.tags &&
                     formik.errors.tags &&
-                    formik.values.tags.length === 0 // Only show error if no tags and validation failed
+                    formik.values.tags.length === 0
                   )
                 }
                 errorMessage={
