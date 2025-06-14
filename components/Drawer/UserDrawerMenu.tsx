@@ -23,6 +23,7 @@ import {
   sellerMenu,
   authMenu,
 } from "@/components/Drawer/menuConfig";
+import { Plus } from "lucide-react";
 
 const UserDrawerMenu = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -30,7 +31,6 @@ const UserDrawerMenu = () => {
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fix: Normalize group and check for "sellers" role
   const isSeller = useMemo(
     () => user && user?.group?.toLowerCase() === "sellers",
     [user]
@@ -140,31 +140,46 @@ const UserDrawerMenu = () => {
 
               <DrawerBody>
                 <div className="space-y-4 text-sm text-default-700">
-                  {currentMenu.map((section, idx) => (
-                    <div key={idx} className="space-y-2">
-                      <p className="text-xs text-default-400 px-3 uppercase tracking-wide">
-                        {section.title}
-                      </p>
-                      {section.items.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <DrawerItem
-                            key={item.label}
-                            icon={<Icon size={18} />}
-                            label={item.label}
-                            onClick={() =>
-                              (item as any).isSignOut
-                                ? handleSignout()
-                                : handleNavigate(item.path)
-                            }
-                          />
-                        );
-                      })}
-                      {idx < currentMenu.length - 1 && (
-                        <hr className="border-default-200" />
-                      )}
-                    </div>
-                  ))}
+                  {currentMenu.map((section, idx) => {
+                    if (
+                      !user &&
+                      section.title.toLowerCase().includes("account")
+                    )
+                      return null;
+                    if (
+                      !user &&
+                      section.title.toLowerCase().includes("my products")
+                    )
+                      return null;
+
+                    return (
+                      <div key={idx} className="space-y-2">
+                        <p className="text-xs text-default-400 px-3 uppercase tracking-wide">
+                          {section.title}
+                        </p>
+                        {section.items.map((item) => {
+                          if (!user && item.label === "My Orders") return null;
+                          const Icon = item.icon;
+                          return (
+                            <DrawerItem
+                              key={item.label}
+                              icon={<Icon size={18} />}
+                              label={item.label}
+                              onClick={() =>
+                                (item as any).isSignOut
+                                  ? handleSignout()
+                                  : handleNavigate(item.path)
+                              }
+                            />
+                          );
+                        })}
+
+                        {idx < currentMenu.length - 1 && (
+                          <hr className="border-default-200" />
+                        )}
+                      </div>
+                    );
+                  })}
 
                   <hr className="border-default-200" />
 
