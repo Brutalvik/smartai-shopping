@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { ShoppingCart } from "lucide-react";
 import SearchInput from "@/components/SearchInput";
-import { useAppSelector } from "@/store/hooks";
+import { useAppSelector } from "@/store/hooks/hooks";
 import {
   selectUser,
   selectUserEmail,
@@ -30,8 +30,6 @@ export const Navbar = () => {
   const { totalItems } = useCart();
   const user = useAppSelector(selectUser);
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
-
-  console.log("USER FROM NAVBAR : ", user);
 
   return (
     <HeroUINavbar maxWidth="full" position="sticky">

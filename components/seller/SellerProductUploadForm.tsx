@@ -35,6 +35,7 @@ import { addToast } from "@heroui/react";
 import { MultiStepLoader } from "@/components/ui/MultiStepLoader/MultiStepLoader";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 import { Product } from "@/types/product";
+import { useAutoLogout } from "@/store/hooks/useAutoLogout";
 
 const loadingStates = [
   { text: "Preparing product data..." },
@@ -48,6 +49,7 @@ interface Props {
 }
 
 export default function SellerProductUploadForm({ initialProduct }: Props) {
+  useAutoLogout();
   const router = useRouter();
   const isEditMode = Boolean(initialProduct);
   const loaderRef = useRef<any>(null);

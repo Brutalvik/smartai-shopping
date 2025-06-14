@@ -13,7 +13,7 @@ import PasswordInput from "@/components/auth/PasswordInput";
 import AuthFormLayout from "@/components/auth/AuthFormLayout";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 import { setUser } from "@/store/slices/userSlice";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch } from "@/store/hooks/hooks";
 
 interface AccountInfo {
   type: "Customer" | "Seller";

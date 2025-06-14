@@ -22,7 +22,7 @@ import {
   sellerMenu,
   authMenu,
 } from "@/components/Drawer/menuConfig";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
 import { selectUser } from "@/store/selectors";
 import { clearUser } from "@/store/slices/userSlice";
 

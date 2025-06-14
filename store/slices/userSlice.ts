@@ -13,6 +13,7 @@ const initialState: UserState = {
   family_name: "",
   business_name: "",
   preferredLocale: "",
+  accessTokenExpiresAt: undefined,
 };
 
 const userSlice = createSlice({

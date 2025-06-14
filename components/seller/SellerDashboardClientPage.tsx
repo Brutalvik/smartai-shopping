@@ -3,11 +3,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   Spinner,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Button,
   useDisclosure,
   Drawer,
@@ -34,6 +29,7 @@ import { isEmptyArray } from "formik";
 import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSidebar";
 import classNames from "classnames";
 import ProductFilters from "@/components/seller/ProductFilters";
+import { useAutoLogout } from "@/store/hooks/useAutoLogout";
 
 const SellerProductsTable = dynamic(
   () => import("@/components/seller/SellerProductsTable"),
@@ -56,6 +52,7 @@ export default function SellerDashboardClientPage({
   initialHasMore,
   sellerId,
 }: SellerDashboardClientPageProps) {
+  useAutoLogout();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);

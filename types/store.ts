@@ -9,4 +9,5 @@ export interface UserState {
   family_name: string;
   business_name?: string;
   preferredLocale?: string;
+  accessTokenExpiresAt?: number | undefined;
 }
