@@ -6,10 +6,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useUser } from "@/context/UserContext";
 import { addToast } from "@heroui/react";
 import { useEffect } from "react";
-import { getFirstNameCapitalized } from "@/utils/helper";
 import { CDN } from "@/config/config";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 import AuthFormLayout from "@/components/auth/AuthFormLayout";
@@ -17,12 +15,14 @@ import PhoneInput from "@/components/auth/PhoneInput";
 import PasswordInput from "@/components/auth/PasswordInput";
 import PasswordTooltip from "@/components/ui/PasswordTooltip/PasswordTooltip";
 import { passwordRules } from "@/utils/helper";
+import { setUser } from "@/store/slices/userSlice";
+import { useAppDispatch } from "@/store/hooks/hooks";
 
 export default function RegisterCard() {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledEmail = searchParams?.get("email") || "";
-  const { setUser } = useUser();
 
   const formik = useFormik({
     initialValues: {
@@ -61,12 +61,7 @@ export default function RegisterCard() {
 
         if (res.ok) {
           const { user } = await res.json();
-          setUser(user);
-          sessionStorage.setItem("user", JSON.stringify(user));
-          localStorage.setItem(
-            "accountCreated",
-            `Welcome ${getFirstNameCapitalized(values.name)}! Account created successfully.`
-          );
+          dispatch(setUser(user));
           router.push("/");
         } else {
           const errorData = await res.json();

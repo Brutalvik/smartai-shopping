@@ -6,23 +6,24 @@ import { Button } from "@heroui/button";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/context/UserContext";
 import { addToast } from "@heroui/react";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { CDN } from "@/config/config";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 
 import AuthFormLayout from "@/components/auth/AuthFormLayout";
 import PasswordInput from "@/components/auth/PasswordInput";
 import PhoneInput from "@/components/auth/PhoneInput";
-import { getFirstNameCapitalized } from "@/utils/helper";
+
 import PasswordTooltip from "@/components/ui/PasswordTooltip/PasswordTooltip";
+import { setUser } from "@/store/slices/userSlice";
+import { useAppDispatch } from "@/store/hooks/hooks";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 
 export default function SellerRegistrationCard() {
   const router = useRouter();
-  const { setUser } = useUser();
+  const dispatch = useAppDispatch();
 
   const formik = useFormik({
     initialValues: {
@@ -71,13 +72,8 @@ export default function SellerRegistrationCard() {
         });
 
         if (res.ok) {
-          const { user, session } = await res.json();
-          setUser(user);
-          sessionStorage.setItem("user", JSON.stringify(user));
-          localStorage.setItem(
-            "sellerRegistered",
-            `Welcome ${getFirstNameCapitalized(values.name)}! Your seller account is ready.`
-          );
+          const { user } = await res.json();
+          dispatch(setUser(user));
           router.push("/seller/dashboard");
           resetForm();
         } else {

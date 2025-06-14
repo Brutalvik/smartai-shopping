@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { CDN } from "@/config/config";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { getInitial } from "@/utils/helper";
 import { addToast, user } from "@heroui/react";
 import PasswordInput from "@/components/auth/PasswordInput";
 import AuthFormLayout from "@/components/auth/AuthFormLayout";

@@ -1,9 +1,8 @@
-// layouts/ProtectedLayout.tsx
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyToken } from "@/utils/helper";
 import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
-import type { User } from "@/context/UserContext";
+import type { UserState } from "@/types/store";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -28,16 +27,18 @@ export default async function ProtectedLayout({
     redirect("/");
   }
 
-  const userData: User = {
-    id: user.sub || user.id,
+  const userData: UserState = {
+    id: user.id || "",
+    sub: user.sub || "",
     email: user.email,
     name: user.name || "",
-    avatarUrl: user.avatarUrl,
-    phone: user.phone,
-    given_name: user.given_name,
-    family_name: user.family_name,
-    business_name: user.business_name,
-    group: user.group,
+    phone: user.phone || "",
+    given_name: user.given_name || "",
+    family_name: user.family_name || "",
+    business_name: user.business_name || "",
+    preferredLocale: user.preferredLocale || "",
+    group: user.group || "",
+    accessTokenExpiresAt: user.accessTokenExpiresAt || undefined,
   };
 
   return <UserProviderFromSSR user={userData}>{children}</UserProviderFromSSR>;
