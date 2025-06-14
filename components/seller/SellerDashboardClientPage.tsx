@@ -10,8 +10,21 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  Tooltip,
 } from "@heroui/react";
-import { Loader2, SquarePlus, Trash2 } from "lucide-react";
+import {
+  Loader2,
+  SquarePlus,
+  Trash2,
+  Menu,
+  LayoutDashboard,
+  BarChart2,
+  PlusCircle,
+} from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
@@ -43,7 +56,7 @@ export default function SellerDashboardClientPage({
   initialHasMore,
   sellerId,
 }: SellerDashboardClientPageProps) {
-  const { onOpen } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const handleSidebarToggle = (collapsed: boolean) =>
@@ -226,12 +239,58 @@ export default function SellerDashboardClientPage({
       <div className="flex w-full h-[calc(100vh-10vh)]" id="main-content">
         <div
           className={classNames(
-            "transition-all duration-300",
+            "transition-all duration-300 hidden md:block",
             sidebarCollapsed ? "w-[60px]" : "w-[250px]"
           )}
         >
           <CollapsibleSidebar onToggle={handleSidebarToggle} />
         </div>
+
+        {/* Mobile Drawer Button - bottom right */}
+        <div className="md:hidden fixed bottom-4 right-4 z-50">
+          <Tooltip content="Product Menu">
+            <Button
+              isIconOnly
+              size="lg"
+              variant="shadow"
+              onPress={onOpen}
+              aria-label="Open Menu"
+            >
+              <Menu />
+            </Button>
+          </Tooltip>
+        </div>
+
+        <Drawer isOpen={isOpen} onClose={onClose} size="xs">
+          <DrawerContent>
+            <DrawerHeader>Menu</DrawerHeader>
+            <DrawerBody className="space-y-4">
+              <Button
+                fullWidth
+                variant="light"
+                startContent={<LayoutDashboard size={16} />}
+              >
+                Dashboard
+              </Button>
+              <Button
+                fullWidth
+                variant="light"
+                startContent={<BarChart2 size={16} />}
+              >
+                Analytics
+              </Button>
+              <Button
+                fullWidth
+                variant="light"
+                startContent={<PlusCircle size={16} />}
+                onPress={() => router.push("/seller/upload?reset=true")}
+              >
+                Add Product
+              </Button>
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+
         <div className="flex-1 transition-all duration-300 overflow-auto">
           <div className="p-4">
             <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
@@ -252,7 +311,7 @@ export default function SellerDashboardClientPage({
                   size={28}
                   className="cursor-pointer text-default-500 hover:text-primary"
                   strokeWidth={1.75}
-                  onClick={() => router.push("/seller/upload")}
+                  onClick={() => router.push("/seller/upload?reset=true")}
                 />
                 <ProductFilters
                   onFiltersChange={(newFilters: Filters) =>
@@ -296,7 +355,7 @@ export default function SellerDashboardClientPage({
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="h-5 w-5 animate-spin mr-2" />{" "}
+                          <Loader2 className="h-5 w-5 animate-spin mr-2" />
                           Loading More...
                         </>
                       ) : (

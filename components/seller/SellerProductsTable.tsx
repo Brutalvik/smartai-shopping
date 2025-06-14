@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { Product } from "@/types/product";
 import { initialColumnWidths } from "@/utils/product-utils";
+import clsx from "clsx";
 
 const tableColumn = [
   "Product Name",
@@ -67,7 +68,6 @@ export default function SellerProductsTable({
   const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
     initialColumnWidths
   );
-
   const [sortColumn, setSortColumn] = useState<number>(7); // default to Created At
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
@@ -133,11 +133,9 @@ export default function SellerProductsTable({
 
   const sortedProducts = useMemo(() => {
     const key = tableColumn[sortColumn];
-
     return [...products].sort((a, b) => {
       const valA = getValue(a, key);
       const valB = getValue(b, key);
-
       if (typeof valA === "number" && typeof valB === "number") {
         return sortDirection === "asc" ? valA - valB : valB - valA;
       } else if (typeof valA === "string" && typeof valB === "string") {
@@ -162,17 +160,12 @@ export default function SellerProductsTable({
 
   useEffect(() => {
     if (!containerRef.current) return;
-
     const totalWidth = containerRef.current.offsetWidth;
     const staticColumns = 1 + 1; // checkbox + actions column (fixed)
     const dynamicColumns = tableColumn.length - staticColumns;
-
-    // Subtract fixed widths: checkbox (~48) + actions (~120)
     const remainingWidth = totalWidth - 48 - 120;
     const avgWidth = Math.floor(remainingWidth / dynamicColumns);
-
     const initialWidths: { [key: number]: number } = {};
-
     tableColumn.forEach((_, index) => {
       if (index === 0) {
         initialWidths[index] = avgWidth + 20;
@@ -182,7 +175,6 @@ export default function SellerProductsTable({
         initialWidths[index] = avgWidth;
       }
     });
-
     setColumnWidths(initialWidths);
   }, []);
 
@@ -210,35 +202,41 @@ export default function SellerProductsTable({
                   onValueChange={onSelectAllProducts}
                 />
               </TableColumn>
-              {tableColumn.map((label, i) => (
-                <TableColumn
-                  key={label}
-                  className="relative whitespace-nowrap text-sm font-semibold border-r select-none cursor-pointer"
-                  style={getColumnStyle(i)}
-                  onClick={() => toggleSort(i)}
-                >
-                  <div className="flex items-center gap-1">
-                    <span>{label}</span>
-                    {i !== 8 &&
-                      (sortColumn === i ? (
-                        sortDirection === "asc" ? (
-                          <ArrowUp size={14} />
+              {tableColumn.map((label, i) => {
+                const isHiddenMobile = ["Description", "Tags"].includes(label);
+                return (
+                  <TableColumn
+                    key={label}
+                    className={clsx(
+                      "relative whitespace-nowrap text-sm font-semibold border-r select-none cursor-pointer",
+                      isHiddenMobile && "hidden sm:table-cell"
+                    )}
+                    style={getColumnStyle(i)}
+                    onClick={() => toggleSort(i)}
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>{label}</span>
+                      {i !== 8 &&
+                        (sortColumn === i ? (
+                          sortDirection === "asc" ? (
+                            <ArrowUp size={14} />
+                          ) : (
+                            <ArrowDown size={14} />
+                          )
                         ) : (
-                          <ArrowDown size={14} />
-                        )
-                      ) : (
-                        <ArrowUpDown size={14} className="text-default-400" />
-                      ))}
-                  </div>
-                  {i !== 8 && (
-                    <div
-                      className="absolute top-0 -right-1 h-full w-1.5"
-                      style={{ cursor: "ew-resize" }}
-                      onMouseDown={(e) => handleMouseDown(e, i)}
-                    />
-                  )}
-                </TableColumn>
-              ))}
+                          <ArrowUpDown size={14} className="text-default-400" />
+                        ))}
+                    </div>
+                    {i !== 8 && (
+                      <div
+                        className="absolute top-0 -right-1 h-full w-1.5"
+                        style={{ cursor: "ew-resize" }}
+                        onMouseDown={(e) => handleMouseDown(e, i)}
+                      />
+                    )}
+                  </TableColumn>
+                );
+              })}
             </>
           </TableHeader>
 
@@ -268,8 +266,7 @@ export default function SellerProductsTable({
                       </span>
                     </Tooltip>
                   </TableCell>
-
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <Tooltip content={product.description}>
                       <span
                         className="block truncate cursor-help"
@@ -282,7 +279,7 @@ export default function SellerProductsTable({
                   <TableCell>${product.price}</TableCell>
                   <TableCell>{product.quantity}</TableCell>
                   <TableCell>{product.category}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <Tooltip content={product.tags.join(", ")}>
                       <span
                         className="block truncate cursor-help"
@@ -307,7 +304,7 @@ export default function SellerProductsTable({
                     {new Date(product.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
                       <Button
                         size="sm"
                         isIconOnly
