@@ -26,7 +26,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { CDN } from "@/config/config";
-import { Product } from "@types/product";
+import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
