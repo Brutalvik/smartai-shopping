@@ -68,14 +68,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
     onClose: onCloseDraftModal,
   } = useDisclosure();
 
-  if (user === undefined) {
-    return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <XyvoLoader />
-      </div>
-    );
-  }
-
   useEffect(() => {
     if (initialProduct) {
       formik.setValues({
@@ -206,6 +198,40 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
     },
   });
 
+  useEffect(() => {
+    if (!isEditMode) {
+      const draft = localStorage.getItem("sellerProductDraft");
+      if (draft) {
+        const parsed = JSON.parse(draft);
+        const ageInMs = Date.now() - parsed.timestamp;
+        const ageInMinutes = ageInMs / (1000 * 60);
+
+        if (ageInMinutes <= 30) {
+          formik.setValues({ ...parsed, images: [] });
+          setImagePreviews([]);
+        } else {
+          localStorage.removeItem("sellerProductDraft");
+        }
+      }
+    }
+  }, [isEditMode]);
+
+  const handleDraftSave = () => {
+    const draft = JSON.stringify({
+      ...formik.values,
+      images: [],
+      timestamp: Date.now(),
+    });
+    localStorage.setItem("sellerProductDraft", draft);
+    setDraftSaved(true);
+    setTimeout(() => setDraftSaved(false), 2000);
+    addToast({
+      description: "Draft saved locally!",
+      color: "default",
+      timeout: 2000,
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
@@ -281,19 +307,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
     setImagePreviews(updatedPreviews);
     formik.setFieldValue("images", updatedFiles);
     formik.validateField("images");
-  };
-
-  const handleDraftSave = () => {
-    const draft = JSON.stringify({ ...formik.values, images: [] });
-    localStorage.setItem("sellerProductDraft", draft);
-    setDraftSaved(true);
-    setTimeout(() => setDraftSaved(false), 2000);
-    addToast({
-      // Added toast for draft save
-      description: "Draft saved locally!",
-      color: "default",
-      timeout: 2000,
-    });
   };
 
   const nextImage = () =>

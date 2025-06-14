@@ -190,9 +190,6 @@ export default function SubNavbar() {
           <Button
             variant="ghost"
             size="sm"
-            onPress={() => {
-              console.log("Open drawer");
-            }}
             className="flex items-center gap-1 font-semibold shrink-0 all-button-placeholder"
           >
             <span className="text-xl">☰</span> All
