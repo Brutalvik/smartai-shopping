@@ -23,13 +23,14 @@ import {
   sellerMenu,
   authMenu,
 } from "@/components/Drawer/menuConfig";
-import { Plus } from "lucide-react";
 
 const UserDrawerMenu = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const router = useRouter();
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(false);
+
+  console.log("DRAWER ", user);
 
   const isSeller = useMemo(
     () => user && user?.group?.toLowerCase() === "sellers",

@@ -1,25 +1,26 @@
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { verifyToken } from "@/utils/helper";
-import { CDN } from "@/config/config";
-import { Product } from "@/types/product";
+import ProtectedLayout from "@/layouts/ProtectedLayout";
 import SellerDashboardClientPage from "@/components/seller/SellerDashboardClientPage";
+import { CDN } from "@/config/config";
+import type { Product } from "@/types/product";
 
-export default async function SellerDashboardServerPage() {
+export default async function SellerProductsPage() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  const user = verifyToken(token);
-
-  if (!user || typeof user === "string") {
-    redirect(`/auth/signin?redirect=/seller/dashboard`);
-  }
-
-  const userId = user.sub || user.id;
+  const sessionCookie = cookieStore.get("token");
+  const token = sessionCookie?.value || "";
 
   let products: Product[] = [];
   let lastEvaluatedKey: Record<string, any> | undefined = undefined;
   let hasMore: boolean = false;
+
+  if (!token) {
+    console.warn("No session token found in cookies.");
+    return (
+      <ProtectedLayout redirectPath="/auth/signin?redirect=/seller/products">
+        <div className="text-center text-danger mt-10">Unauthorized access</div>
+      </ProtectedLayout>
+    );
+  }
 
   try {
     const queryParams = new URLSearchParams();
@@ -32,16 +33,15 @@ export default async function SellerDashboardServerPage() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
+        cache: "no-store",
       }
     );
+
     const result = await response.json();
 
     if (!response.ok) {
       throw new Error(
-        (result as any).error ||
-          (result as any).message ||
-          "Failed to fetch products"
+        result.error || result.message || "Failed to fetch products"
       );
     }
 
@@ -49,15 +49,17 @@ export default async function SellerDashboardServerPage() {
     lastEvaluatedKey = result.lastEvaluatedKey;
     hasMore = !!result.lastEvaluatedKey;
   } catch (error: any) {
-    console.error("Error fetching products on server:", error);
+    console.error("Error fetching products:", error);
   }
 
   return (
-    <SellerDashboardClientPage
-      initialProducts={products}
-      initialLastEvaluatedKey={lastEvaluatedKey}
-      initialHasMore={hasMore}
-      sellerId={userId}
-    />
+    <ProtectedLayout redirectPath="/auth/signin?redirect=/seller/products">
+      <SellerDashboardClientPage
+        initialProducts={products}
+        initialLastEvaluatedKey={lastEvaluatedKey}
+        initialHasMore={hasMore}
+        sellerId={products[0]?.sellerId || ""}
+      />
+    </ProtectedLayout>
   );
 }

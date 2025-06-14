@@ -1,4 +1,3 @@
-// context/UserContext.tsx
 "use client";
 
 import {
@@ -7,15 +6,18 @@ import {
   useEffect,
   useMemo,
   useState,
-  type ReactNode,
+  ReactNode,
 } from "react";
+import { CDN } from "@/config/config";
 
 export interface User {
-  [x: string]: any;
+  [key: string]: any;
   id: string;
   email: string;
   name?: string;
-  avatarUrl?: string;
+  group?: string;
+  phone?: string;
+  business_name?: string;
 }
 
 interface UserContextType {
@@ -29,27 +31,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("user");
-      if (stored) {
-        try {
-          setUser(JSON.parse(stored));
-        } catch (err) {
-          console.warn("Failed to parse session user:", err);
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`${CDN.userAuthApi}/auth/me`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const user = await res.json();
+          setUser(user);
         }
+      } catch (err) {
+        console.warn("Could not fetch user:", err);
+        setUser(null);
       }
-    }
-  }, []);
+    };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (user) {
-        sessionStorage.setItem("user", JSON.stringify(user));
-      } else {
-        sessionStorage.removeItem("user");
-      }
-    }
-  }, [user]);
+    fetchUser();
+  }, []);
 
   const value = useMemo(() => ({ user, setUser }), [user]);
 

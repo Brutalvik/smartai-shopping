@@ -1,47 +1,50 @@
-// app/seller/upload/page.tsx
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { verifyToken } from "@/utils/helper";
+import ProtectedLayout from "@/layouts/ProtectedLayout";
 import SellerProductUploadForm from "@/components/seller/SellerProductUploadForm";
-import { UserProviderFromSSR } from "@/components/UserProviderFromSSR";
 import { CDN } from "@/config/config";
-import { Product } from "@/types/product";
+import type { Product } from "@/types/product";
 
-export default async function UploadPage({}: {}) {
+export default async function UploadPage({
+  searchParams,
+}: {
+  searchParams?: { productId?: string };
+}) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  const user = verifyToken(token);
+  const sessionCookie = cookieStore.get("token");
+  const token = sessionCookie?.value || "";
 
-  if (!user || typeof user === "string") {
-    redirect(`/auth/signin?redirect=/seller/upload`);
+  if (!token) {
+    return (
+      <ProtectedLayout redirectPath="/auth/signin?redirect=/seller/upload">
+        <div className="text-center text-danger mt-10">Unauthorized access</div>
+      </ProtectedLayout>
+    );
   }
 
-  const userData = {
-    id: user.sub || user.id,
-    email: user?.email,
-    name: user?.name || "",
-  };
+  const productId = Array.isArray(searchParams?.productId)
+    ? searchParams?.productId[0]
+    : searchParams?.productId;
 
   let productToEdit: Product | null = null;
-  const productIdRaw = 123;
-  const productId = Array.isArray(productIdRaw)
-    ? productIdRaw[0]
-    : productIdRaw;
-  console.log("PRODUCT ID : ", productId);
+
   if (productId) {
     try {
       const response = await fetch(
         `${CDN.sellerProductsApi}/seller/products/${productId}`,
         {
           method: "GET",
-          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           cache: "no-store",
         }
       );
-      console.log("  RESPONSE   ", response);
+
       if (response.ok) {
         const product = await response.json();
         productToEdit = product;
+      } else {
+        console.warn("Product fetch failed:", await response.text());
       }
     } catch (err) {
       console.error("Error fetching product:", err);
@@ -49,8 +52,8 @@ export default async function UploadPage({}: {}) {
   }
 
   return (
-    <UserProviderFromSSR user={userData}>
+    <ProtectedLayout redirectPath="/auth/signin?redirect=/seller/upload">
       <SellerProductUploadForm initialProduct={productToEdit} />
-    </UserProviderFromSSR>
+    </ProtectedLayout>
   );
 }

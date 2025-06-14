@@ -68,6 +68,14 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
     onClose: onCloseDraftModal,
   } = useDisclosure();
 
+  if (user === undefined) {
+    return (
+      <div className="flex justify-center items-center h-[70vh]">
+        <XyvoLoader />
+      </div>
+    );
+  }
+
   useEffect(() => {
     if (initialProduct) {
       formik.setValues({

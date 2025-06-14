@@ -68,7 +68,7 @@ export default function SellerProductsTable({
   const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
     initialColumnWidths
   );
-  const [sortColumn, setSortColumn] = useState<number>(7); // default to Created At
+  const [sortColumn, setSortColumn] = useState<number>(7);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const isResizing = useRef(false);

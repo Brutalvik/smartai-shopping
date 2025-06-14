@@ -9,7 +9,7 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const pathname = usePathname(); // Get the current path
+  const pathname = usePathname();
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
