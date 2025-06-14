@@ -11,6 +11,7 @@ import {
 } from "react";
 
 export interface User {
+  [x: string]: any;
   id: string;
   email: string;
   name?: string;

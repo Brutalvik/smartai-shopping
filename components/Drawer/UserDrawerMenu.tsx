@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { CDN } from "@/config/config";
 import { getFirstNameCapitalized, getInitial } from "@/utils/helper";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import DrawerItem from "./DrawerItem";
 import { avatarColors, getColorByName } from "@/components/Drawer/utils";
 import {
@@ -30,7 +30,11 @@ const UserDrawerMenu = () => {
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(false);
 
-  const isSeller = (user as any)?.group === "Sellers";
+  // ✅ Fix: Normalize group and check for "sellers" role
+  const isSeller = useMemo(
+    () => user && user?.group?.toLowerCase() === "sellers",
+    [user]
+  );
   const currentMenu = isSeller ? sellerMenu : buyerMenu;
 
   const handleNavigate = (path: string) => {
@@ -60,13 +64,14 @@ const UserDrawerMenu = () => {
 
       sessionStorage.clear();
       localStorage.removeItem("user");
-
       setUser(null);
+
       addToast({
         description: "You Signed Out",
         color: "default",
         timeout: 1500,
       });
+
       router.push("/");
       onClose();
     } catch {
