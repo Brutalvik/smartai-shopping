@@ -34,10 +34,16 @@ export default function Home() {
 
   return (
     <div className="w-full">
-      <SubNavbar />
+      <div className="w-full px-2">
+        <SubNavbar />
+      </div>
       <section className="flex flex-col items-center justify-center gap-4 py-4 md:py-4">
         <Banner />
+      </section>
+      <section className="flex flex-col items-center justify-center gap-4 py-4 md:py-4">
         <ProductScroller products={featuredProducts} className="mt-10" />
+      </section>
+      <section className="flex flex-col items-center justify-center gap-4 py-4 md:py-4">
         <HeroSection />
       </section>
     </div>
