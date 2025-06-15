@@ -24,7 +24,7 @@ import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { isEmptyArray } from "formik";
 import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSidebar";
 import classNames from "classnames";
@@ -40,16 +40,16 @@ interface SellerDashboardClientPageProps {
 }
 
 export interface ProductTabsMap {
-  products: string;
-  sales: string;
-  upload: string;
+  products: "products";
+  sales: "sales";
+  upload: "upload";
 }
 
 export const tabs: ProductTabsMap = {
   products: "products",
   sales: "sales",
   upload: "upload",
-} as const;
+};
 
 export default function SellerDashboardClientPage({
   initialProducts,
@@ -60,12 +60,13 @@ export default function SellerDashboardClientPage({
   useAutoLogout();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const productId = searchParams?.get("productId");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number>(0);
-
-  type ProductTab = (typeof tabs)[keyof typeof tabs];
-
-  const [activeTab, setActiveTab] = useState<ProductTab>(tabs.products);
+  const [activeTab, setActiveTab] = useState<keyof ProductTabsMap>(
+    productId ? "upload" : "products"
+  );
 
   useEffect(() => {
     const updateWidth = () => setWindowWidth(window.innerWidth);
@@ -80,6 +81,7 @@ export default function SellerDashboardClientPage({
 
   const handleSidebarToggle = (collapsed: boolean) =>
     setSidebarCollapsed(collapsed);
+
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -249,150 +251,65 @@ export default function SellerDashboardClientPage({
     products.length > 0 && selectedProductIds.size === products.length;
 
   return (
-    <>
-      <div className="flex w-full h-[calc(100vh-10vh)]" id="main-content">
-        <div
-          className={classNames(
-            "transition-all duration-300 hidden md:block",
-            sidebarCollapsed ? "w-[60px]" : "w-[250px]"
-          )}
-        >
-          <CollapsibleSidebar
-            onToggle={handleSidebarToggle}
-            onTabChange={(tab: string) => setActiveTab(tab)}
+    <div className="flex w-full h-[calc(100vh-10vh)]" id="main-content">
+      <div
+        className={classNames(
+          "transition-all duration-300 hidden md:block",
+          sidebarCollapsed ? "w-[60px]" : "w-[250px]"
+        )}
+      >
+        <CollapsibleSidebar
+          onToggle={handleSidebarToggle}
+          onTabChange={(tab: keyof ProductTabsMap) => setActiveTab(tab)}
+          activeTab={activeTab}
+        />
+      </div>
+
+      <div className="flex-1 transition-all duration-300 overflow-auto">
+        <div className="p-4">
+          <DashboardTabContent
+            activeTab={activeTab}
+            products={products}
+            selectedProductIds={selectedProductIds}
+            onToggleSelectProduct={handleToggleSelectProduct}
+            onSelectAllProducts={handleSelectAllProducts}
+            allProductsSelected={allProductsSelected}
+            setDeletingProductId={setDeletingProductId}
+            setIsDeleteConfirmModalOpen={setIsDeleteConfirmModalOpen}
+            loading={loading}
+            sellerId={sellerId}
+            onEdit={(product) =>
+              router.push(`/seller/upload?productId=${product.productId}`)
+            }
           />
-        </div>
 
-        <div className="md:hidden fixed bottom-4 right-4 z-50">
-          <Tooltip content="Product Menu">
-            <Button
-              isIconOnly
-              size="lg"
-              variant="shadow"
-              onPress={onOpen}
-              aria-label="Open Menu"
-            >
-              <Menu />
-            </Button>
-          </Tooltip>
-        </div>
-
-        <Drawer isOpen={isOpen} onClose={onClose} size="xs">
-          <DrawerContent>
-            <DrawerHeader>Menu</DrawerHeader>
-            <DrawerBody className="space-y-4 text-left">
+          {hasMore && !isEmptyArray(products) && (
+            <div className="text-center mt-8">
               <Button
-                fullWidth
-                variant="light"
-                className="text-base"
-                startContent={<LayoutDashboard size={16} />}
+                onPress={handleLoadMore}
+                disabled={loading}
+                className="px-6 py-3"
+                color="primary"
+                variant="solid"
               >
-                Dashboard
-              </Button>
-              <Button
-                fullWidth
-                variant="light"
-                className="text-base"
-                startContent={<BarChart2 size={16} />}
-              >
-                Analytics
-              </Button>
-              <Button
-                fullWidth
-                variant="light"
-                className="text-base"
-                startContent={<PlusCircle size={16} />}
-                onPress={() => router.push("/seller/upload?reset=true")}
-              >
-                Add Product
-              </Button>
-            </DrawerBody>
-          </DrawerContent>
-        </Drawer>
-
-        <div className="flex-1 transition-all duration-300 overflow-auto">
-          <div className="p-4">
-            <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
-              <h1 className="text-2xl font-bold">Products</h1>
-              <div className="flex items-center gap-4">
-                {selectedProductIds.size > 0 && (
-                  <Trash2
-                    size={25}
-                    color="#c70000"
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setIsDeleteConfirmModalOpen(true);
-                      setDeletingProductId(null);
-                    }}
-                  />
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    Loading More...
+                  </>
+                ) : (
+                  "Load More Products"
                 )}
-                <SquarePlus
-                  size={28}
-                  className="cursor-pointer text-default-500 hover:text-primary"
-                  strokeWidth={1.75}
-                  onClick={() => router.push("/seller/upload?reset=true")}
-                />
-                <ProductFilters
-                  onFiltersChange={(newFilters: Filters) =>
-                    setFilters(newFilters)
-                  }
-                  initialFilters={filters}
-                />
-              </div>
+              </Button>
             </div>
-            {loading && products.length === 0 ? (
-              <div className="flex justify-center items-center h-48">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                <span className="ml-2 text-lg">Loading products...</span>
-              </div>
-            ) : (
-              <>
-                <DashboardTabContent
-                  activeTab={activeTab}
-                  products={products}
-                  selectedProductIds={selectedProductIds}
-                  onToggleSelectProduct={handleToggleSelectProduct}
-                  onSelectAllProducts={handleSelectAllProducts}
-                  allProductsSelected={allProductsSelected}
-                  setDeletingProductId={setDeletingProductId}
-                  setIsDeleteConfirmModalOpen={setIsDeleteConfirmModalOpen}
-                  loading={loading}
-                  sellerId={sellerId}
-                  onEdit={(product) =>
-                    router.push(`/seller/upload?productId=${product.productId}`)
-                  }
-                />
-
-                {hasMore && !isEmptyArray(products) && (
-                  <div className="text-center mt-8">
-                    <Button
-                      onPress={handleLoadMore}
-                      disabled={loading}
-                      className="px-6 py-3"
-                      color="primary"
-                      variant="solid"
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                          Loading More...
-                        </>
-                      ) : (
-                        "Load More Products"
-                      )}
-                    </Button>
-                  </div>
-                )}
-                {!loading && products.length === 0 && (
-                  <div className="text-center text-gray-600 text-lg mt-10">
-                    No products found with the current filters.
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          )}
+          {!loading && products.length === 0 && (
+            <div className="text-center text-gray-600 text-lg mt-10">
+              No products found with the current filters.
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

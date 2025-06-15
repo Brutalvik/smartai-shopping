@@ -10,7 +10,10 @@ import {
   Plus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { tabs } from "@/components/seller/SellerDashboardClientPage";
+import {
+  tabs,
+  ProductTabsMap,
+} from "@/components/seller/SellerDashboardClientPage";
 
 export default function CollapsibleSidebar({
   onToggle,
@@ -18,8 +21,8 @@ export default function CollapsibleSidebar({
   activeTab,
 }: {
   onToggle?: (collapsed: boolean) => void;
-  onTabChange?: (tab: string) => void;
-  activeTab?: "products" | "sales";
+  onTabChange?: (tab: keyof ProductTabsMap) => void;
+  activeTab?: keyof ProductTabsMap;
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();

@@ -184,7 +184,7 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
         setTimeout(() => {
           loaderRef.current?.stop();
           router.push(
-            isEditMode ? "/seller/products?updated=1" : "/seller/products"
+            isEditMode ? "/seller/dashboard?updated=1" : "/seller/dashboard"
           );
         }, 1200);
       } catch (err) {
@@ -356,9 +356,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
         loadingStates={loadingStates}
         duration={1000}
       />
-      <h1 className="text-3xl font-bold text-center mb-8">
-        {isEditMode ? "Edit Your Product" : "Upload Your Product"}
-      </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
         <Card className="w-full">
           <CardHeader className="mb-4 font-semibold text-xl">

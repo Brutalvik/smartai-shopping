@@ -16,7 +16,7 @@ export default async function SellerProductsPage() {
   if (!token) {
     console.warn("No session token found in cookies.");
     return (
-      <ProtectedLayout redirectPath="/auth/signin?redirect=/seller/products">
+      <ProtectedLayout redirectPath="/auth/signin?redirect=/seller">
         <div className="text-center text-danger mt-10">Unauthorized access</div>
       </ProtectedLayout>
     );
@@ -53,7 +53,7 @@ export default async function SellerProductsPage() {
   }
 
   return (
-    <ProtectedLayout redirectPath="/auth/signin?redirect=/seller/products">
+    <ProtectedLayout redirectPath="/auth/signin?redirect=/seller">
       <SellerDashboardClientPage
         initialProducts={products}
         initialLastEvaluatedKey={lastEvaluatedKey}
