@@ -32,14 +32,6 @@ import ProductFilters from "@/components/seller/ProductFilters";
 import { useAutoLogout } from "@/store/hooks/useAutoLogout";
 import DashboardTabContent from "./SellerDashboardTabContent";
 
-const SellerProductsTable = dynamic(
-  () => import("@/components/seller/SellerProductsTable"),
-  {
-    ssr: false,
-    loading: () => <Spinner />,
-  }
-);
-
 interface SellerDashboardClientPageProps {
   initialProducts: Product[];
   initialLastEvaluatedKey: Record<string, any> | undefined;

@@ -1,13 +1,37 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import SellerProductsTable from "@/components/seller/SellerProductsTable";
-import SellerProductUploadForm from "@/components/seller/SellerProductUploadForm";
-import { Product } from "@/types/product";
 import React from "react";
-import SellerSalesTable from "@/components/seller/SellerSalesTable";
+import dynamic from "next/dynamic";
+
 import { dummySales } from "@/data/dummySales";
 import { tabs } from "@/components/seller/SellerDashboardClientPage";
+import { Product } from "@/types/product";
+
+import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
+
+const SellerProductsTable = dynamic(
+  () => import("@/components/seller/SellerProductsTable"),
+  {
+    ssr: false,
+    loading: () => <XyvoLoader />,
+  }
+);
+
+const SellerProductUploadForm = dynamic(
+  () => import("@/components/seller/SellerProductUploadForm"),
+  {
+    ssr: false,
+    loading: () => <XyvoLoader />,
+  }
+);
+
+const SellerSalesTable = dynamic(
+  () => import("@/components/seller/SellerSalesTable"),
+  {
+    ssr: false,
+    loading: () => <XyvoLoader />,
+  }
+);
 
 interface DashboardTabContentProps {
   activeTab: string;
