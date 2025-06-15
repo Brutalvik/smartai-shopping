@@ -42,10 +42,6 @@ export default async function UploadPage({
         }
       );
 
-      console.log("Response : ", response);
-      console.log("Response status:", response.status);
-      console.log("Response ok:", response.ok);
-
       if (response.ok) {
         const product = await response.json();
         productToEdit = product;

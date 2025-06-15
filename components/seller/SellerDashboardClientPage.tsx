@@ -30,6 +30,7 @@ import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSi
 import classNames from "classnames";
 import ProductFilters from "@/components/seller/ProductFilters";
 import { useAutoLogout } from "@/store/hooks/useAutoLogout";
+import DashboardTabContent from "./SellerDashboardTabContent";
 
 const SellerProductsTable = dynamic(
   () => import("@/components/seller/SellerProductsTable"),
@@ -46,6 +47,18 @@ interface SellerDashboardClientPageProps {
   sellerId: string;
 }
 
+export interface ProductTabsMap {
+  products: string;
+  sales: string;
+  upload: string;
+}
+
+export const tabs: ProductTabsMap = {
+  products: "products",
+  sales: "sales",
+  upload: "upload",
+} as const;
+
 export default function SellerDashboardClientPage({
   initialProducts,
   initialLastEvaluatedKey,
@@ -57,6 +70,10 @@ export default function SellerDashboardClientPage({
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number>(0);
+
+  type ProductTab = (typeof tabs)[keyof typeof tabs];
+
+  const [activeTab, setActiveTab] = useState<ProductTab>(tabs.products);
 
   useEffect(() => {
     const updateWidth = () => setWindowWidth(window.innerWidth);
@@ -248,7 +265,10 @@ export default function SellerDashboardClientPage({
             sidebarCollapsed ? "w-[60px]" : "w-[250px]"
           )}
         >
-          <CollapsibleSidebar onToggle={handleSidebarToggle} />
+          <CollapsibleSidebar
+            onToggle={handleSidebarToggle}
+            onTabChange={(tab: string) => setActiveTab(tab)}
+          />
         </div>
 
         <div className="md:hidden fixed bottom-4 right-4 z-50">
@@ -335,22 +355,22 @@ export default function SellerDashboardClientPage({
               </div>
             ) : (
               <>
-                <SellerProductsTable
+                <DashboardTabContent
+                  activeTab={activeTab}
                   products={products}
                   selectedProductIds={selectedProductIds}
                   onToggleSelectProduct={handleToggleSelectProduct}
                   onSelectAllProducts={handleSelectAllProducts}
                   allProductsSelected={allProductsSelected}
+                  setDeletingProductId={setDeletingProductId}
+                  setIsDeleteConfirmModalOpen={setIsDeleteConfirmModalOpen}
+                  loading={loading}
+                  sellerId={sellerId}
                   onEdit={(product) =>
                     router.push(`/seller/upload?productId=${product.productId}`)
                   }
-                  onDelete={(product) => {
-                    setDeletingProductId(product.productId);
-                    setIsDeleteConfirmModalOpen(true);
-                  }}
-                  loading={loading}
-                  sellerId={sellerId}
                 />
+
                 {hasMore && !isEmptyArray(products) && (
                   <div className="text-center mt-8">
                     <Button

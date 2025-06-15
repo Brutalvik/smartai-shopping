@@ -102,7 +102,7 @@ export const MultiStepLoader = forwardRef<
                       ) : (
                         <CheckIcon
                           className={cn(
-                            "text-white",
+                            "text-default",
                             isActive && "text-lime-500"
                           )}
                         />
@@ -113,7 +113,7 @@ export const MultiStepLoader = forwardRef<
                         "text-sm",
                         isActive
                           ? "text-lime-500 font-semibold"
-                          : "text-white opacity-70"
+                          : "text-default opacity-70"
                       )}
                     >
                       {step.text}
