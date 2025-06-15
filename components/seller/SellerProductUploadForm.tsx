@@ -350,13 +350,13 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="flex flex-col sm:flex-row gap-2 justify-center">
       <MultiStepLoader
         ref={loaderRef}
         loadingStates={loadingStates}
         duration={1000}
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
+      <div className="flex flex-col sm:flex-row gap-2 justify-center">
         <Card className="w-full">
           <CardHeader className="mb-4 font-semibold text-xl">
             Product Details

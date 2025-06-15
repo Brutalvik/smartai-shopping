@@ -80,23 +80,11 @@ export default function DashboardTabContent({
   }
 
   if (activeTab === tabs.sales) {
-    return (
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Sales Table</h2>
-        <div className="text-gray-400">
-          <SellerSalesTable sales={dummySales as any} loading={false} />
-        </div>
-      </div>
-    );
+    return <SellerSalesTable sales={dummySales as any} loading={false} />;
   }
 
   if (activeTab === tabs.upload) {
-    return (
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Upload Product</h2>
-        <SellerProductUploadForm />
-      </div>
-    );
+    return <SellerProductUploadForm />;
   }
 
   return null;
