@@ -4,12 +4,12 @@ import SellerDashboardClientPage from "@/components/seller/SellerDashboardClient
 import { CDN } from "@/config/config";
 import type { Product } from "@/types/product";
 
-type PageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
-};
-
-export default async function SellerDashboardPage({ searchParams }: PageProps) {
-  const cookieStore = await cookies();
+export default async function SellerDashboardPage({
+  searchParams,
+}: {
+  searchParams?: { tab?: string };
+}) {
+  const cookieStore = await cookies(); // You were right — await is needed for your version
   const sessionCookie = cookieStore.get("x-token");
   const token = sessionCookie?.value || "";
 
@@ -57,10 +57,7 @@ export default async function SellerDashboardPage({ searchParams }: PageProps) {
     console.error("Error fetching products:", error);
   }
 
-  const tabParam = Array.isArray(searchParams?.tab)
-    ? searchParams?.tab[0]
-    : searchParams?.tab;
-
+  const tabParam = searchParams?.tab;
   const initialTab =
     tabParam === "upload" || tabParam === "sales" ? tabParam : "products";
 
