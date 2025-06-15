@@ -4,12 +4,8 @@ import SellerDashboardClientPage from "@/components/seller/SellerDashboardClient
 import { CDN } from "@/config/config";
 import type { Product } from "@/types/product";
 
-export default async function SellerDashboardPage({
-  searchParams,
-}: {
-  searchParams?: { tab?: string };
-}) {
-  const cookieStore = await cookies(); // You were right — await is needed for your version
+export default async function SellerDashboardPage(props: any) {
+  const cookieStore = await cookies(); // ✅ required for your setup
   const sessionCookie = cookieStore.get("x-token");
   const token = sessionCookie?.value || "";
 
@@ -57,7 +53,7 @@ export default async function SellerDashboardPage({
     console.error("Error fetching products:", error);
   }
 
-  const tabParam = searchParams?.tab;
+  const tabParam = props?.searchParams?.tab;
   const initialTab =
     tabParam === "upload" || tabParam === "sales" ? tabParam : "products";
 
