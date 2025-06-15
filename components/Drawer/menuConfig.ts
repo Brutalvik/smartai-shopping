@@ -35,7 +35,7 @@ export const sellerMenu = [
   {
     title: "Seller Tools",
     items: [
-      { label: "My Products", icon: Upload, path: "/seller/dasboard" },
+      { label: "My Products", icon: Upload, path: "/seller/dashboard" },
       { label: "Profile", icon: User, path: "/profile" },
     ],
   },

@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
-  const protectedPaths = ["/seller/upload", "/seller/products", "/dashboard"];
+  const protectedPaths = ["/seller/dashboard", "/dashboard"];
 
   const isProtected = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)

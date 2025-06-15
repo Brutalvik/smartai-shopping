@@ -23,7 +23,6 @@ import {
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
-import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { isEmptyArray } from "formik";
 import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSidebar";
@@ -267,6 +266,35 @@ export default function SellerDashboardClientPage({
 
       <div className="flex-1 transition-all duration-300 overflow-auto">
         <div className="p-4">
+          <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
+            <h1 className="text-2xl font-bold">Products</h1>
+            <div className="flex items-center gap-4">
+              {selectedProductIds.size > 0 && (
+                <Trash2
+                  size={25}
+                  color="#c70000"
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setIsDeleteConfirmModalOpen(true);
+                    setDeletingProductId(null);
+                  }}
+                />
+              )}
+              <SquarePlus
+                size={28}
+                className="cursor-pointer text-default-500 hover:text-primary"
+                strokeWidth={1.75}
+                onClick={() => router.push("/seller/upload?reset=true")}
+              />
+              <ProductFilters
+                onFiltersChange={(newFilters: Filters) =>
+                  setFilters(newFilters)
+                }
+                initialFilters={filters}
+              />
+            </div>
+          </div>
+
           <DashboardTabContent
             activeTab={activeTab}
             products={products}
@@ -303,6 +331,7 @@ export default function SellerDashboardClientPage({
               </Button>
             </div>
           )}
+
           {!loading && products.length === 0 && (
             <div className="text-center text-gray-600 text-lg mt-10">
               No products found with the current filters.
