@@ -11,8 +11,15 @@ import { isEmptyArray } from "formik";
 import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSidebar";
 import classNames from "classnames";
 import ProductFilters from "@/components/seller/ProductFilters";
-import { useAutoLogout } from "@/store/hooks/useAutoLogout";
 import DashboardTabContent from "./SellerDashboardTabContent";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from "@heroui/react";
+import { useAutoLogout } from "@/store/hooks/useAutoLogout";
 
 interface SellerDashboardClientPageProps {
   initialProducts: Product[];
@@ -39,7 +46,7 @@ export default function SellerDashboardClientPage({
   initialHasMore,
   sellerId,
 }: SellerDashboardClientPageProps) {
-  useAutoLogout();
+  useAutoLogout(); //logs out user automatically if the token is expired
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -198,16 +205,19 @@ export default function SellerDashboardClientPage({
     const idsToDelete = deletingProductId
       ? [deletingProductId]
       : Array.from(selectedProductIds);
+
     try {
       const responses = await Promise.all(
-        idsToDelete.map((id) =>
-          fetch(`${CDN.sellerProductsApi}/seller/products/${id}`, {
+        idsToDelete.map((productId) =>
+          fetch(`${CDN.sellerProductsApi}/seller/products/${productId}`, {
             method: "DELETE",
             credentials: "include",
           })
         )
       );
+
       const allSuccess = responses.every((res) => res.ok);
+
       addToast({
         description: allSuccess
           ? `Successfully deleted ${idsToDelete.length} product(s).`
@@ -215,6 +225,7 @@ export default function SellerDashboardClientPage({
         color: allSuccess ? "success" : "danger",
         timeout: 4000,
       });
+
       fetchProducts(false, true);
       setSelectedProductIds(new Set());
     } catch (error: any) {
@@ -289,6 +300,7 @@ export default function SellerDashboardClientPage({
             allProductsSelected={allProductsSelected}
             setDeletingProductId={setDeletingProductId}
             setIsDeleteConfirmModalOpen={setIsDeleteConfirmModalOpen}
+            onConfirmDelete={handleDeleteConfirmed}
             sellerId={sellerId}
             onEdit={(product) =>
               router.push(`/seller/upload?productId=${product.productId}`)
@@ -323,6 +335,37 @@ export default function SellerDashboardClientPage({
           )}
         </div>
       </div>
+
+      {isDeleteConfirmModalOpen && (
+        <Modal
+          isOpen={isDeleteConfirmModalOpen}
+          onOpenChange={(open) => setIsDeleteConfirmModalOpen(open)}
+          hideCloseButton
+          placement="center"
+        >
+          <ModalContent>
+            <ModalHeader>Confirm Delete</ModalHeader>
+            <ModalBody>
+              Are you sure you want to delete the selected product(s)?
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                variant="light"
+                onPress={() => setIsDeleteConfirmModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                color="danger"
+                onPress={handleDeleteConfirmed}
+                isLoading={deleting}
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
     </div>
   );
 }

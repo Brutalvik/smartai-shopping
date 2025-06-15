@@ -6,7 +6,7 @@ import type { Product } from "@/types/product";
 
 export default async function SellerProductsPage() {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("token");
+  const sessionCookie = cookieStore.get("x-token");
   const token = sessionCookie?.value || "";
 
   let products: Product[] = [];
@@ -33,6 +33,7 @@ export default async function SellerProductsPage() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         cache: "no-store",
       }
     );

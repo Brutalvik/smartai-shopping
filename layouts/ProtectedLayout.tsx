@@ -16,7 +16,7 @@ export default async function ProtectedLayout({
   requireSeller = false,
 }: ProtectedLayoutProps) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get("x-token")?.value;
   const user = verifyToken(token);
 
   if (!user || typeof user === "string") {

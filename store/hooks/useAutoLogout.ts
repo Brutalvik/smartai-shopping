@@ -8,22 +8,27 @@ export const useAutoLogout = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
-  const tokenExpiry = useAppSelector(selectAccessTokenExpiresAt);
+  const tokenExpiry = useAppSelector(selectAccessTokenExpiresAt); // in seconds
   const isSeller = useAppSelector(selectIsSeller);
 
   useEffect(() => {
     if (!tokenExpiry || !isSeller) return;
 
-    const now = Date.now();
-    const timeUntilExpiry = tokenExpiry - now;
+    const now = Date.now(); // ms
+    const expiry = tokenExpiry * 1000; // convert to ms
+    const timeUntilExpiry = expiry - now;
 
     if (timeUntilExpiry <= 0) {
       dispatch(clearUser());
-      router.push("/signin");
+      if (pathname !== "/auth/signin") {
+        router.push("/auth/signin");
+      }
     } else {
       const timer = setTimeout(() => {
         dispatch(clearUser());
-        router.push("/signin");
+        if (pathname !== "/auth/signin") {
+          router.push("/auth/signin");
+        }
       }, timeUntilExpiry);
 
       return () => clearTimeout(timer);

@@ -44,6 +44,7 @@ interface DashboardTabContentProps {
   setIsDeleteConfirmModalOpen: (open: boolean) => void;
   sellerId: string;
   onEdit: (product: Product) => void;
+  onConfirmDelete: () => void;
 }
 
 export default function DashboardTabContent({
@@ -57,6 +58,7 @@ export default function DashboardTabContent({
   setIsDeleteConfirmModalOpen,
   sellerId,
   onEdit,
+  onConfirmDelete,
 }: DashboardTabContentProps) {
   if (activeTab === tabs.products) {
     return (
