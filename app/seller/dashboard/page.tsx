@@ -4,7 +4,13 @@ import SellerDashboardClientPage from "@/components/seller/SellerDashboardClient
 import { CDN } from "@/config/config";
 import type { Product } from "@/types/product";
 
-export default async function SellerProductsPage() {
+interface SellerDashboardPageProps {
+  searchParams: { tab?: string };
+}
+
+export default async function SellerProductsPage({
+  searchParams,
+}: SellerDashboardPageProps) {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("x-token");
   const token = sessionCookie?.value || "";
@@ -53,6 +59,10 @@ export default async function SellerProductsPage() {
     console.error("Error fetching products:", error);
   }
 
+  const tabParam = searchParams.tab;
+  const initialTab =
+    tabParam === "upload" || tabParam === "sales" ? tabParam : "products";
+
   return (
     <ProtectedLayout redirectPath="/auth/signin?redirect=/seller/dashboard">
       <SellerDashboardClientPage
@@ -60,6 +70,7 @@ export default async function SellerProductsPage() {
         initialLastEvaluatedKey={lastEvaluatedKey}
         initialHasMore={hasMore}
         sellerId={products[0]?.sellerId || ""}
+        initialTab={initialTab}
       />
     </ProtectedLayout>
   );

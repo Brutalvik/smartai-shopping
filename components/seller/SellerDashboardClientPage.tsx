@@ -26,6 +26,7 @@ interface SellerDashboardClientPageProps {
   initialLastEvaluatedKey: Record<string, any> | undefined;
   initialHasMore: boolean;
   sellerId: string;
+  initialTab?: "products" | "sales" | "upload";
 }
 
 export interface ProductTabsMap {
@@ -45,6 +46,7 @@ export default function SellerDashboardClientPage({
   initialLastEvaluatedKey,
   initialHasMore,
   sellerId,
+  initialTab,
 }: SellerDashboardClientPageProps) {
   useAutoLogout();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -52,13 +54,21 @@ export default function SellerDashboardClientPage({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const productId = searchParams?.get("productId");
-  const tabParam =
-    (searchParams?.get("tab") as keyof ProductTabsMap) || "products";
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<keyof ProductTabsMap>(
-    productId ? "upload" : tabParam
+    initialTab || (productId ? "upload" : "products")
   );
+
+  // keep ?tab=... in sync with activeTab
+  useEffect(() => {
+    const currentTab = searchParams?.get("tab");
+    if (activeTab !== currentTab) {
+      const newParams = new URLSearchParams(searchParams?.toString());
+      newParams.set("tab", activeTab);
+      router.replace(`${pathname}?${newParams.toString()}`);
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     const updateWidth = () => setWindowWidth(window.innerWidth);
@@ -73,13 +83,6 @@ export default function SellerDashboardClientPage({
 
   const handleSidebarToggle = (collapsed: boolean) =>
     setSidebarCollapsed(collapsed);
-
-  const handleTabChange = (tab: keyof ProductTabsMap) => {
-    setActiveTab(tab);
-    const newSearchParams = new URLSearchParams(searchParams?.toString());
-    newSearchParams.set("tab", tab);
-    router.replace(`${pathname}?${newSearchParams.toString()}`);
-  };
 
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState<boolean>(false);
@@ -264,7 +267,7 @@ export default function SellerDashboardClientPage({
         >
           <CollapsibleSidebar
             onToggle={handleSidebarToggle}
-            onTabChange={handleTabChange}
+            onTabChange={(tab: keyof ProductTabsMap) => setActiveTab(tab)}
             activeTab={activeTab}
           />
         </div>
@@ -273,7 +276,7 @@ export default function SellerDashboardClientPage({
       <div className="flex-1 transition-all duration-300 overflow-auto">
         <div className="p-4">
           <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
-            <h1 className="text-2xl font-bold">Products</h1>
+            <h1 className="text-2xl font-bold capitalize">{activeTab}</h1>
             <div className="flex items-center gap-4">
               {selectedProductIds.size > 0 && (
                 <Trash2
@@ -290,12 +293,10 @@ export default function SellerDashboardClientPage({
                 size={28}
                 className="cursor-pointer text-default-500 hover:text-primary"
                 strokeWidth={1.75}
-                onClick={() => router.push("/seller/upload?reset=true")}
+                onClick={() => setActiveTab("upload")}
               />
               <ProductFilters
-                onFiltersChange={(newFilters: Filters) =>
-                  setFilters(newFilters)
-                }
+                onFiltersChange={(newFilters) => setFilters(newFilters)}
                 initialFilters={filters}
               />
             </div>
