@@ -5,7 +5,7 @@ import { CDN } from "@/config/config";
 import type { Product } from "@/types/product";
 
 interface SellerDashboardPageProps {
-  searchParams: { tab?: string };
+  searchParams?: { tab?: string };
 }
 
 export default async function SellerProductsPage({
@@ -59,7 +59,7 @@ export default async function SellerProductsPage({
     console.error("Error fetching products:", error);
   }
 
-  const tabParam = searchParams.tab;
+  const tabParam = searchParams?.tab;
   const initialTab =
     tabParam === "upload" || tabParam === "sales" ? tabParam : "products";
 
