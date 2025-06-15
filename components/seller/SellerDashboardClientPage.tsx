@@ -48,8 +48,7 @@ export default function SellerDashboardClientPage({
   sellerId,
   initialTab,
 }: SellerDashboardClientPageProps) {
-  useAutoLogout();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onClose } = useDisclosure();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
