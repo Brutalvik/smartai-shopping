@@ -14,6 +14,7 @@ import {
   tabs,
   ProductTabsMap,
 } from "@/components/seller/SellerDashboardClientPage";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function CollapsibleSidebar({
   onToggle,
@@ -65,7 +66,21 @@ export default function CollapsibleSidebar({
       )}
     >
       <div className="flex items-center justify-between px-4 py-4">
-        {!collapsed && <span className="text-white">Overview</span>}
+        <AnimatePresence initial={false}>
+          {!collapsed && (
+            <motion.span
+              key="overview-label"
+              className="text-white text-sm"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.15 }}
+            >
+              Overview
+            </motion.span>
+          )}
+        </AnimatePresence>
+
         <button
           className="bg-white text-[#151A2D] p-1.5 rounded hover:bg-gray-200"
           onClick={toggleCollapsed}
@@ -78,7 +93,7 @@ export default function CollapsibleSidebar({
         {sidebarItems.map((item) => {
           const isActive = activeTab === item.tabKey;
           const className = classNames(
-            "flex items-center gap-4 px-4 py-2 rounded-md transition-colors",
+            "flex items-center gap-4 px-2 py-2 rounded-md transition-colors",
             {
               "hover:bg-white hover:text-[#151A2D]": !isActive,
               "bg-white text-[#151A2D]": isActive,
@@ -93,11 +108,21 @@ export default function CollapsibleSidebar({
                 disabled={!item.onClick}
               >
                 <span className="text-[20px]">{item.icon}</span>
-                {!collapsed && (
-                  <span className="whitespace-nowrap text-sm">
-                    {item.label}
-                  </span>
-                )}
+
+                <AnimatePresence initial={false}>
+                  {!collapsed && (
+                    <motion.span
+                      key={item.label}
+                      className="whitespace-nowrap text-sm"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </button>
             </li>
           );

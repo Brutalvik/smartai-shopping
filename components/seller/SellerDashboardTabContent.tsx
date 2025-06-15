@@ -7,13 +7,13 @@ import { dummySales } from "@/data/dummySales";
 import { tabs } from "@/components/seller/SellerDashboardClientPage";
 import { Product } from "@/types/product";
 
-import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
+import XLoader from "@/components/ui/XLoader/XLoader";
 
 const SellerProductsTable = dynamic(
   () => import("@/components/seller/SellerProductsTable"),
   {
     ssr: false,
-    loading: () => <XyvoLoader />,
+    loading: () => <XLoader />,
   }
 );
 
@@ -21,7 +21,7 @@ const SellerProductUploadForm = dynamic(
   () => import("@/components/seller/SellerProductUploadForm"),
   {
     ssr: false,
-    loading: () => <XyvoLoader />,
+    loading: () => <XLoader />,
   }
 );
 
@@ -29,7 +29,7 @@ const SellerSalesTable = dynamic(
   () => import("@/components/seller/SellerSalesTable"),
   {
     ssr: false,
-    loading: () => <XyvoLoader />,
+    loading: () => <XLoader />,
   }
 );
 
@@ -42,7 +42,6 @@ interface DashboardTabContentProps {
   allProductsSelected: boolean;
   setDeletingProductId: (id: string | null) => void;
   setIsDeleteConfirmModalOpen: (open: boolean) => void;
-  loading: boolean;
   sellerId: string;
   onEdit: (product: Product) => void;
 }
@@ -56,7 +55,6 @@ export default function DashboardTabContent({
   allProductsSelected,
   setDeletingProductId,
   setIsDeleteConfirmModalOpen,
-  loading,
   sellerId,
   onEdit,
 }: DashboardTabContentProps) {
@@ -73,7 +71,6 @@ export default function DashboardTabContent({
           setDeletingProductId(product.productId);
           setIsDeleteConfirmModalOpen(true);
         }}
-        loading={loading}
         sellerId={sellerId}
       />
     );
@@ -82,7 +79,7 @@ export default function DashboardTabContent({
   if (activeTab === tabs.sales) {
     return (
       <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
-        <SellerSalesTable sales={dummySales as any} loading={false} />
+        <SellerSalesTable sales={dummySales as any} />
       </div>
     );
   }

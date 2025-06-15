@@ -18,14 +18,7 @@ import {
   Checkbox,
   Tooltip,
 } from "@heroui/react";
-import {
-  Trash2,
-  Pencil,
-  Loader2,
-  ArrowUp,
-  ArrowDown,
-  ArrowUpDown,
-} from "lucide-react";
+import { Trash2, Pencil, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { Product } from "@/types/product";
 import { initialColumnWidths } from "@/utils/product-utils";
 import clsx from "clsx";
@@ -50,7 +43,6 @@ interface SellerProductsTableProps {
   allProductsSelected: boolean;
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
-  loading: boolean;
   sellerId: string;
 }
 
@@ -62,7 +54,6 @@ export default function SellerProductsTable({
   allProductsSelected,
   onEdit,
   onDelete,
-  loading,
 }: SellerProductsTableProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
@@ -183,153 +174,146 @@ export default function SellerProductsTable({
       ref={containerRef}
       className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg"
     >
-      {loading && products.length === 0 ? (
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          <span className="ml-2 text-lg">Loading products...</span>
-        </div>
-      ) : (
-        <Table
-          aria-label="Seller Products Table"
-          removeWrapper
-          className="min-w-full [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
-        >
-          <TableHeader>
-            <>
-              <TableColumn className="w-12 min-w-[48px]">
-                <Checkbox
-                  isSelected={allProductsSelected}
-                  onValueChange={onSelectAllProducts}
-                />
-              </TableColumn>
-              {tableColumn.map((label, i) => {
-                const isHiddenMobile = ["Description", "Tags"].includes(label);
-                return (
-                  <TableColumn
-                    key={label}
-                    className={clsx(
-                      "relative whitespace-nowrap text-sm font-semibold border-r select-none cursor-pointer",
-                      isHiddenMobile && "hidden sm:table-cell"
-                    )}
-                    style={getColumnStyle(i)}
-                    onClick={() => toggleSort(i)}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>{label}</span>
-                      {i !== 8 &&
-                        (sortColumn === i ? (
-                          sortDirection === "asc" ? (
-                            <ArrowUp size={14} />
-                          ) : (
-                            <ArrowDown size={14} />
-                          )
-                        ) : (
-                          <ArrowUpDown size={14} className="text-default-400" />
-                        ))}
-                    </div>
-                    {i !== 8 && (
-                      <div
-                        className="absolute top-0 -right-1 h-full w-1.5"
-                        style={{ cursor: "ew-resize" }}
-                        onMouseDown={(e) => handleMouseDown(e, i)}
-                      />
-                    )}
-                  </TableColumn>
-                );
-              })}
-            </>
-          </TableHeader>
-
-          <TableBody emptyContent="No products found.">
-            {sortedProducts.map((product) => {
-              const isSelected = selectedProductIds.has(product.productId);
+      <Table
+        aria-label="Seller Products Table"
+        removeWrapper
+        className="min-w-full [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
+      >
+        <TableHeader>
+          <>
+            <TableColumn className="w-12 min-w-[48px]">
+              <Checkbox
+                isSelected={allProductsSelected}
+                onValueChange={onSelectAllProducts}
+              />
+            </TableColumn>
+            {tableColumn.map((label, i) => {
+              const isHiddenMobile = ["Description", "Tags"].includes(label);
               return (
-                <TableRow
-                  key={product.productId}
-                  className="text-sm h-[44px] hover:cursor-pointer"
+                <TableColumn
+                  key={label}
+                  className={clsx(
+                    "relative whitespace-nowrap text-sm font-semibold border-r select-none cursor-pointer",
+                    isHiddenMobile && "hidden sm:table-cell"
+                  )}
+                  style={getColumnStyle(i)}
+                  onClick={() => toggleSort(i)}
                 >
-                  <TableCell>
-                    <Checkbox
-                      isSelected={isSelected}
-                      onValueChange={() =>
-                        onToggleSelectProduct(product.productId)
-                      }
+                  <div className="flex items-center gap-1">
+                    <span>{label}</span>
+                    {i !== 8 &&
+                      (sortColumn === i ? (
+                        sortDirection === "asc" ? (
+                          <ArrowUp size={14} />
+                        ) : (
+                          <ArrowDown size={14} />
+                        )
+                      ) : (
+                        <ArrowUpDown size={14} className="text-default-400" />
+                      ))}
+                  </div>
+                  {i !== 8 && (
+                    <div
+                      className="absolute top-0 -right-1 h-full w-1.5"
+                      style={{ cursor: "ew-resize" }}
+                      onMouseDown={(e) => handleMouseDown(e, i)}
                     />
-                  </TableCell>
-                  <TableCell>
-                    <Tooltip content={product.title}>
-                      <span
-                        className="block truncate cursor-help"
-                        style={{ maxWidth: columnWidths[0] - 16 }}
-                      >
-                        {product.title}
-                      </span>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <Tooltip content={product.description}>
-                      <span
-                        className="block truncate cursor-help"
-                        style={{ maxWidth: columnWidths[1] - 16 }}
-                      >
-                        {product.description}
-                      </span>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell>${product.price}</TableCell>
-                  <TableCell>{product.quantity}</TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <Tooltip content={product.tags.join(", ")}>
-                      <span
-                        className="block truncate cursor-help"
-                        style={{ maxWidth: columnWidths[5] - 16 }}
-                      >
-                        {product.tags.join(", ")}
-                      </span>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        product.isActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-blue-100 text-blue-700"
-                      }`}
-                    >
-                      {product.isActive ? "Published" : "Draft"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(product.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                      <Button
-                        size="sm"
-                        isIconOnly
-                        color="default"
-                        onPress={() => onEdit(product)}
-                      >
-                        <Pencil size={16} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        isIconOnly
-                        color="danger"
-                        variant="solid"
-                        onPress={() => onDelete(product)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                  )}
+                </TableColumn>
               );
             })}
-          </TableBody>
-        </Table>
-      )}
+          </>
+        </TableHeader>
+
+        <TableBody emptyContent="No products found.">
+          {sortedProducts.map((product) => {
+            const isSelected = selectedProductIds.has(product.productId);
+            return (
+              <TableRow
+                key={product.productId}
+                className="text-sm h-[44px] hover:cursor-pointer"
+              >
+                <TableCell>
+                  <Checkbox
+                    isSelected={isSelected}
+                    onValueChange={() =>
+                      onToggleSelectProduct(product.productId)
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <Tooltip content={product.title}>
+                    <span
+                      className="block truncate cursor-help"
+                      style={{ maxWidth: columnWidths[0] - 16 }}
+                    >
+                      {product.title}
+                    </span>
+                  </Tooltip>
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  <Tooltip content={product.description}>
+                    <span
+                      className="block truncate cursor-help"
+                      style={{ maxWidth: columnWidths[1] - 16 }}
+                    >
+                      {product.description}
+                    </span>
+                  </Tooltip>
+                </TableCell>
+                <TableCell>${product.price}</TableCell>
+                <TableCell>{product.quantity}</TableCell>
+                <TableCell>{product.category}</TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  <Tooltip content={product.tags.join(", ")}>
+                    <span
+                      className="block truncate cursor-help"
+                      style={{ maxWidth: columnWidths[5] - 16 }}
+                    >
+                      {product.tags.join(", ")}
+                    </span>
+                  </Tooltip>
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full font-medium ${
+                      product.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-blue-100 text-blue-700"
+                    }`}
+                  >
+                    {product.isActive ? "Published" : "Draft"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  {new Date(product.createdAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <Button
+                      size="sm"
+                      isIconOnly
+                      color="default"
+                      onPress={() => onEdit(product)}
+                    >
+                      <Pencil size={16} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      isIconOnly
+                      color="danger"
+                      variant="solid"
+                      onPress={() => onDelete(product)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }

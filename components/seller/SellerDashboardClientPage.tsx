@@ -1,25 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import {
-  Spinner,
-  Button,
-  useDisclosure,
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerBody,
-  Tooltip,
-} from "@heroui/react";
-import {
-  Loader2,
-  SquarePlus,
-  Trash2,
-  Menu,
-  LayoutDashboard,
-  BarChart2,
-  PlusCircle,
-} from "lucide-react";
+import { Button, useDisclosure } from "@heroui/react";
+import { Loader2, SquarePlus, Trash2 } from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
@@ -82,7 +65,7 @@ export default function SellerDashboardClientPage({
     setSidebarCollapsed(collapsed);
 
   const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [lastEvaluatedKey, setLastEvaluatedKey] = useState<
     Record<string, any> | undefined
@@ -251,18 +234,20 @@ export default function SellerDashboardClientPage({
 
   return (
     <div className="flex h-[calc(100vh-10vh)]" id="main-content">
-      <div
-        className={classNames(
-          "transition-all duration-300 hidden md:block",
-          sidebarCollapsed ? "w-[60px]" : "w-[250px]"
-        )}
-      >
-        <CollapsibleSidebar
-          onToggle={handleSidebarToggle}
-          onTabChange={(tab: keyof ProductTabsMap) => setActiveTab(tab)}
-          activeTab={activeTab}
-        />
-      </div>
+      {!loading && (
+        <div
+          className={classNames(
+            "transition-all duration-300 hidden md:block",
+            sidebarCollapsed ? "w-[60px]" : "w-[250px]"
+          )}
+        >
+          <CollapsibleSidebar
+            onToggle={handleSidebarToggle}
+            onTabChange={(tab: keyof ProductTabsMap) => setActiveTab(tab)}
+            activeTab={activeTab}
+          />
+        </div>
+      )}
 
       <div className="flex-1 transition-all duration-300 overflow-auto">
         <div className="p-4">
@@ -304,14 +289,13 @@ export default function SellerDashboardClientPage({
             allProductsSelected={allProductsSelected}
             setDeletingProductId={setDeletingProductId}
             setIsDeleteConfirmModalOpen={setIsDeleteConfirmModalOpen}
-            loading={loading}
             sellerId={sellerId}
             onEdit={(product) =>
               router.push(`/seller/upload?productId=${product.productId}`)
             }
           />
 
-          {hasMore && !isEmptyArray(products) && (
+          {hasMore && !isEmptyArray(products) && !loading && (
             <div className="text-center mt-8">
               <Button
                 onPress={handleLoadMore}
