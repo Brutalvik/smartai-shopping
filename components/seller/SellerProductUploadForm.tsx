@@ -178,6 +178,11 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
           timeout: 3000,
         });
 
+        if (res.ok) {
+          formik.resetForm();
+          setImagePreviews([]);
+        }
+
         loaderRef.current?.stepTo(3);
         setTimeout(() => {
           loaderRef.current?.stop();

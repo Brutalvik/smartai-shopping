@@ -36,24 +36,26 @@ export default function CollapsibleSidebar({
     if (onToggle) onToggle(next);
   };
 
+  const handleTabClick = (tabKey: keyof ProductTabsMap) => {
+    onTabChange?.(tabKey);
+    router.push(`/seller/dashboard?tab=${tabKey}`);
+  };
+
   const sidebarItems = [
     {
       label: "Dashboard",
       icon: <PanelsTopLeft />,
-      tabKey: "products",
-      onClick: () => onTabChange?.(products),
+      tabKey: "products" as keyof ProductTabsMap,
     },
     {
       label: "Sales",
       icon: <ChartNoAxesCombined />,
-      tabKey: "sales",
-      onClick: () => onTabChange?.(sales),
+      tabKey: "sales" as keyof ProductTabsMap,
     },
     {
       label: "Add Product",
       icon: <Plus />,
-      tabKey: "upload",
-      onClick: () => onTabChange?.(upload),
+      tabKey: "upload" as keyof ProductTabsMap,
     },
   ];
 
@@ -103,12 +105,10 @@ export default function CollapsibleSidebar({
           return (
             <li key={item.label}>
               <button
-                onClick={item.onClick}
+                onClick={() => handleTabClick(item.tabKey)}
                 className={className}
-                disabled={!item.onClick}
               >
                 <span className="text-[20px]">{item.icon}</span>
-
                 <AnimatePresence initial={false}>
                   {!collapsed && (
                     <motion.span

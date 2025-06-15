@@ -6,7 +6,7 @@ import { Loader2, SquarePlus, Trash2 } from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { isEmptyArray } from "formik";
 import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSidebar";
 import classNames from "classnames";
@@ -46,15 +46,18 @@ export default function SellerDashboardClientPage({
   initialHasMore,
   sellerId,
 }: SellerDashboardClientPageProps) {
-  useAutoLogout(); //logs out user automatically if the token is expired
+  useAutoLogout();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const productId = searchParams?.get("productId");
+  const tabParam =
+    (searchParams?.get("tab") as keyof ProductTabsMap) || "products";
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<keyof ProductTabsMap>(
-    productId ? "upload" : "products"
+    productId ? "upload" : tabParam
   );
 
   useEffect(() => {
@@ -70,6 +73,13 @@ export default function SellerDashboardClientPage({
 
   const handleSidebarToggle = (collapsed: boolean) =>
     setSidebarCollapsed(collapsed);
+
+  const handleTabChange = (tab: keyof ProductTabsMap) => {
+    setActiveTab(tab);
+    const newSearchParams = new URLSearchParams(searchParams?.toString());
+    newSearchParams.set("tab", tab);
+    router.replace(`${pathname}?${newSearchParams.toString()}`);
+  };
 
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState<boolean>(false);
@@ -254,7 +264,7 @@ export default function SellerDashboardClientPage({
         >
           <CollapsibleSidebar
             onToggle={handleSidebarToggle}
-            onTabChange={(tab: keyof ProductTabsMap) => setActiveTab(tab)}
+            onTabChange={handleTabChange}
             activeTab={activeTab}
           />
         </div>

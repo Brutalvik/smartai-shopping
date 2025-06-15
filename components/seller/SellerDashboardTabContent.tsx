@@ -2,6 +2,7 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 
 import { dummySales } from "@/data/dummySales";
 import { tabs } from "@/components/seller/SellerDashboardClientPage";
@@ -34,7 +35,7 @@ const SellerSalesTable = dynamic(
 );
 
 interface DashboardTabContentProps {
-  activeTab: string;
+  activeTab?: string;
   products: Product[];
   selectedProductIds: Set<string>;
   onToggleSelectProduct: (productId: string) => void;
@@ -60,7 +61,12 @@ export default function DashboardTabContent({
   onEdit,
   onConfirmDelete,
 }: DashboardTabContentProps) {
-  if (activeTab === tabs.products) {
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams?.get("tab") as keyof typeof tabs | null;
+  const resolvedTab =
+    activeTab || (tabFromUrl && tabs[tabFromUrl]) || tabs.products;
+
+  if (resolvedTab === tabs.products) {
     return (
       <SellerProductsTable
         products={products}
@@ -78,7 +84,7 @@ export default function DashboardTabContent({
     );
   }
 
-  if (activeTab === tabs.sales) {
+  if (resolvedTab === tabs.sales) {
     return (
       <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
         <SellerSalesTable sales={dummySales as any} />
@@ -86,7 +92,7 @@ export default function DashboardTabContent({
     );
   }
 
-  if (activeTab === tabs.upload) {
+  if (resolvedTab === tabs.upload) {
     return <SellerProductUploadForm />;
   }
 
