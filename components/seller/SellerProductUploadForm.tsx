@@ -48,6 +48,7 @@ interface Props {
 }
 
 export default function SellerProductUploadForm({ initialProduct }: Props) {
+  console.log("INITIAL PRODUCT : ", initialProduct);
   const router = useRouter();
   const isEditMode = Boolean(initialProduct);
   const loaderRef = useRef<any>(null);
@@ -158,7 +159,7 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
         const url = isEditMode
           ? `${CDN.sellerProductsApi}/seller/products/${initialProduct?.productId}`
           : `${CDN.sellerProductsApi}/seller/products`;
-        const method = isEditMode ? "PATCH" : "POST";
+        const method = isEditMode ? "PUT" : "POST";
 
         const res = await fetch(url, {
           method,
@@ -201,24 +202,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
     },
   });
 
-  useEffect(() => {
-    if (!isEditMode) {
-      const draft = localStorage.getItem("sellerProductDraft");
-      if (draft) {
-        const parsed = JSON.parse(draft);
-        const ageInMs = Date.now() - parsed.timestamp;
-        const ageInMinutes = ageInMs / (1000 * 60);
-
-        if (ageInMinutes <= 30) {
-          formik.setValues({ ...parsed, images: [] });
-          setImagePreviews([]);
-        } else {
-          localStorage.removeItem("sellerProductDraft");
-        }
-      }
-    }
-  }, [isEditMode]);
-
   const handleDraftSave = () => {
     const draft = JSON.stringify({
       ...formik.values,
@@ -242,15 +225,6 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
       </div>
     );
   }
-
-  useEffect(() => {
-    const draft = localStorage.getItem("sellerProductDraft");
-    if (draft) {
-      const parsed = JSON.parse(draft);
-      formik.setValues({ ...parsed, images: [] });
-      setImagePreviews([]);
-    }
-  }, []);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

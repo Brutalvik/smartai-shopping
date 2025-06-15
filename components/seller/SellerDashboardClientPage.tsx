@@ -56,9 +56,45 @@ export default function SellerDashboardClientPage({
   const productId = searchParams?.get("productId");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number>(0);
+  const tabParam = searchParams?.get("tab") as keyof ProductTabsMap;
   const [activeTab, setActiveTab] = useState<keyof ProductTabsMap>(
-    initialTab || (productId ? "upload" : "products")
+    tabParam || (productId ? "upload" : "products")
   );
+  const [productToEdit, setProductToEdit] = useState<Product>();
+
+  useEffect(() => {
+    const fetchProductToEdit = async () => {
+      if (activeTab === "upload" && productId && !productToEdit) {
+        try {
+          const res = await fetch(
+            `${CDN.sellerProductsApi}/seller/products/${productId}`,
+            {
+              credentials: "include",
+            }
+          );
+          if (!res.ok) throw new Error("Failed to load product for editing");
+          const data = await res.json();
+          setProductToEdit(data);
+        } catch (err) {
+          console.error("Error fetching product for edit:", err);
+          addToast({
+            description: "Failed to load product for editing",
+            color: "danger",
+            timeout: 4000,
+          });
+        }
+      }
+    };
+
+    fetchProductToEdit();
+  }, [activeTab, productId, productToEdit]);
+
+  useEffect(() => {
+    const tabFromUrl = searchParams?.get("tab") as keyof ProductTabsMap;
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   // keep ?tab=... in sync with activeTab
   useEffect(() => {
@@ -213,6 +249,16 @@ export default function SellerDashboardClientPage({
     );
   };
 
+  const handleRedirectToEdit = (product: Product) => {
+    {
+      const params = new URLSearchParams({
+        tab: "upload",
+        productId: product.productId,
+      });
+      router.push(`/seller/dashboard?${params.toString()}`);
+    }
+  };
+
   const handleDeleteConfirmed = async () => {
     setDeleting(true);
     const idsToDelete = deletingProductId
@@ -311,11 +357,9 @@ export default function SellerDashboardClientPage({
             allProductsSelected={allProductsSelected}
             setDeletingProductId={setDeletingProductId}
             setIsDeleteConfirmModalOpen={setIsDeleteConfirmModalOpen}
-            onConfirmDelete={handleDeleteConfirmed}
             sellerId={sellerId}
-            onEdit={(product) =>
-              router.push(`/seller/upload?productId=${product.productId}`)
-            }
+            onEdit={(product) => handleRedirectToEdit(product)}
+            productToEdit={productToEdit}
           />
 
           {hasMore && !isEmptyArray(products) && !loading && (

@@ -45,7 +45,7 @@ interface DashboardTabContentProps {
   setIsDeleteConfirmModalOpen: (open: boolean) => void;
   sellerId: string;
   onEdit: (product: Product) => void;
-  onConfirmDelete: () => void;
+  productToEdit?: Product;
 }
 
 export default function DashboardTabContent({
@@ -59,7 +59,7 @@ export default function DashboardTabContent({
   setIsDeleteConfirmModalOpen,
   sellerId,
   onEdit,
-  onConfirmDelete,
+  productToEdit,
 }: DashboardTabContentProps) {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams?.get("tab") as keyof typeof tabs | null;
@@ -93,7 +93,7 @@ export default function DashboardTabContent({
   }
 
   if (resolvedTab === tabs.upload) {
-    return <SellerProductUploadForm />;
+    return <SellerProductUploadForm initialProduct={productToEdit} />;
   }
 
   return null;
