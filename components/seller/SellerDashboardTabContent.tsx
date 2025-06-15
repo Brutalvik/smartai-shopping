@@ -80,7 +80,11 @@ export default function DashboardTabContent({
   }
 
   if (activeTab === tabs.sales) {
-    return <SellerSalesTable sales={dummySales as any} loading={false} />;
+    return (
+      <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
+        <SellerSalesTable sales={dummySales as any} loading={false} />
+      </div>
+    );
   }
 
   if (activeTab === tabs.upload) {

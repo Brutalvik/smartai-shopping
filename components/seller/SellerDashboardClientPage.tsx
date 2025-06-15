@@ -250,7 +250,7 @@ export default function SellerDashboardClientPage({
     products.length > 0 && selectedProductIds.size === products.length;
 
   return (
-    <div className="flex w-full h-[calc(100vh-10vh)]" id="main-content">
+    <div className="flex h-[calc(100vh-10vh)]" id="main-content">
       <div
         className={classNames(
           "transition-all duration-300 hidden md:block",
