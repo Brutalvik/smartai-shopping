@@ -154,88 +154,94 @@ export default function SellerSalesTable({
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg"
-    >
-      {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          <span className="ml-2 text-lg">Loading sales...</span>
-        </div>
-      ) : (
-        <Table
-          aria-label="My Sales Table"
-          removeWrapper
-          className="min-w-full [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
-        >
-          <TableHeader>
-            {salesColumns.map((label, i) => (
-              <TableColumn
-                key={label}
-                className="relative whitespace-nowrap text-sm font-semibold border-r select-none cursor-pointer"
-                style={getColumnStyle(i)}
-                onClick={() => toggleSort(i)}
-              >
-                <div className="flex items-center gap-1">
-                  <span>{label}</span>
-                  {sortColumn === i ? (
-                    sortDirection === "asc" ? (
-                      <ArrowUp size={14} />
+    <div className="w-full">
+      <div
+        ref={containerRef}
+        className="w-full overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg"
+      >
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <span className="ml-2 text-lg">Loading sales...</span>
+          </div>
+        ) : (
+          <Table
+            aria-label="My Sales Table"
+            removeWrapper
+            className="min-w-[1200px] table-auto border-collapse text-left"
+          >
+            <TableHeader>
+              {salesColumns.map((label, i) => (
+                <TableColumn
+                  key={label}
+                  className="relative whitespace-nowrap text-sm font-semibold border-r select-none cursor-pointer"
+                  style={getColumnStyle(i)}
+                  onClick={() => toggleSort(i)}
+                >
+                  <div className="flex items-center gap-1">
+                    <span>{label}</span>
+                    {sortColumn === i ? (
+                      sortDirection === "asc" ? (
+                        <ArrowUp size={14} />
+                      ) : (
+                        <ArrowDown size={14} />
+                      )
                     ) : (
-                      <ArrowDown size={14} />
-                    )
-                  ) : (
-                    <ArrowUpDown size={14} className="text-default-400" />
-                  )}
-                </div>
-                <div
-                  className="absolute top-0 -right-1 h-full w-1.5"
-                  style={{ cursor: "ew-resize" }}
-                  onMouseDown={(e) => handleMouseDown(e, i)}
-                />
-              </TableColumn>
-            ))}
-          </TableHeader>
-          <TableBody emptyContent="No sales found.">
-            {sortedSales.map((sale) => (
-              <TableRow key={sale.saleId} className="text-sm h-[44px]">
-                <TableCell>{sale.productTitle}</TableCell>
-                <TableCell>{sale.buyerEmail}</TableCell>
-                <TableCell>${sale.amount}</TableCell>
-                <TableCell>{sale.quantity}</TableCell>
-                <TableCell>
-                  <Badge
-                    color={
-                      sale.status === "Delivered"
-                        ? "success"
-                        : sale.status === "Returned"
-                          ? "danger"
-                          : "warning"
-                    }
-                    variant="solid"
-                  >
-                    {sale.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {new Date(sale.orderDate).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  {new Date(sale.returnDeadline).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  {sale.isReturnable ? (
-                    <span className="text-green-600">Yes</span>
-                  ) : (
-                    <span className="text-gray-400">No</span>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+                      <ArrowUpDown size={14} className="text-default-400" />
+                    )}
+                  </div>
+                  <div
+                    className="absolute top-0 -right-1 h-full w-1.5"
+                    style={{ cursor: "ew-resize" }}
+                    onMouseDown={(e) => handleMouseDown(e, i)}
+                  />
+                </TableColumn>
+              ))}
+            </TableHeader>
+            <TableBody emptyContent="No sales found.">
+              {sortedSales.map((sale) => (
+                <TableRow key={sale.saleId} className="text-sm h-[44px]">
+                  <TableCell>{sale.productTitle}</TableCell>
+                  <TableCell>{sale.buyerEmail}</TableCell>
+                  <TableCell>${sale.amount}</TableCell>
+                  <TableCell>{sale.quantity}</TableCell>
+                  <TableCell>
+                    <Badge
+                      color={
+                        sale.status === "Delivered"
+                          ? "success"
+                          : sale.status === "Returned"
+                            ? "danger"
+                            : "warning"
+                      }
+                      variant="solid"
+                    >
+                      {sale.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {sale.orderDate
+                      ? new Date(sale.orderDate).toLocaleDateString()
+                      : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {sale.returnDeadline
+                      ? new Date(sale.returnDeadline).toLocaleDateString()
+                      : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {sale.isReturnable ? (
+                      <span className="text-green-600">Yes</span>
+                    ) : (
+                      <span className="text-gray-400">No</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
     </div>
   );
 }
