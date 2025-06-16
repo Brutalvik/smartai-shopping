@@ -31,6 +31,7 @@ import { useAutoLogout } from "@/store/hooks/useAutoLogout";
 import {
   Filters,
   ProductTabsMap,
+  Sale,
   SalesFiltersType,
   tabs,
 } from "@/components/seller/types";
@@ -272,32 +273,43 @@ export default function SellerDashboardClientPage({
     }
   }, [filters]);
 
-  const filteredSales = useMemo(() => {
-    return dummySales.filter((sale) => {
-      const { status, isReturnable, minAmount, maxAmount, startDate, endDate } =
-        salesFilters;
+  const filteredSales: Sale[] = useMemo(() => {
+    return dummySales
+      .map((sale) => ({
+        ...sale,
+        status: sale.status as "Delivered" | "Returned" | "Pending",
+      }))
+      .filter((sale) => {
+        const {
+          status,
+          isReturnable,
+          minAmount,
+          maxAmount,
+          startDate,
+          endDate,
+        } = salesFilters;
 
-      const saleDate = new Date(sale.orderDate);
-      const matchesStatus =
-        !status || sale.status.toLowerCase() === status.toLowerCase();
-      const matchesReturnable =
-        isReturnable === undefined || sale.isReturnable === isReturnable;
-      const matchesMinAmount =
-        minAmount === undefined || sale.amount >= minAmount;
-      const matchesMaxAmount =
-        maxAmount === undefined || sale.amount <= maxAmount;
-      const matchesStartDate = !startDate || saleDate >= new Date(startDate);
-      const matchesEndDate = !endDate || saleDate <= new Date(endDate);
+        const saleDate = new Date(sale.orderDate);
+        const matchesStatus =
+          !status || sale.status.toLowerCase() === status.toLowerCase();
+        const matchesReturnable =
+          isReturnable === undefined || sale.isReturnable === isReturnable;
+        const matchesMinAmount =
+          minAmount === undefined || sale.amount >= minAmount;
+        const matchesMaxAmount =
+          maxAmount === undefined || sale.amount <= maxAmount;
+        const matchesStartDate = !startDate || saleDate >= new Date(startDate);
+        const matchesEndDate = !endDate || saleDate <= new Date(endDate);
 
-      return (
-        matchesStatus &&
-        matchesReturnable &&
-        matchesMinAmount &&
-        matchesMaxAmount &&
-        matchesStartDate &&
-        matchesEndDate
-      );
-    });
+        return (
+          matchesStatus &&
+          matchesReturnable &&
+          matchesMinAmount &&
+          matchesMaxAmount &&
+          matchesStartDate &&
+          matchesEndDate
+        );
+      });
   }, [salesFilters]);
 
   return (

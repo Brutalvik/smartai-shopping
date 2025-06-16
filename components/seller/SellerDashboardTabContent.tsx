@@ -92,13 +92,10 @@ export default function DashboardTabContent({
   }
 
   if (resolvedTab === tabs.sales) {
-    const paginatedSales = filteredSales
+    const paginatedSales: Sale[] = filteredSales
       .map((s) => ({
         ...s,
-        status: (s.status.charAt(0).toUpperCase() + s.status.slice(1)) as
-          | "Delivered"
-          | "Returned"
-          | "Pending",
+        status: s.status as "Delivered" | "Returned" | "Pending",
       }))
       .slice((salesPage - 1) * salesRowsPerPage, salesPage * salesRowsPerPage);
     return (
