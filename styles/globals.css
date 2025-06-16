@@ -71,3 +71,11 @@ table {
   border-collapse: separate;
   border-spacing: 0;
 }
+
+.scrollbar-thin {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  display: none;
+}

@@ -10,10 +10,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  tabs,
-  ProductTabsMap,
-} from "@/components/seller/SellerDashboardClientPage";
+import { tabs, ProductTabsMap } from "@/components/seller/types";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function CollapsibleSidebar({

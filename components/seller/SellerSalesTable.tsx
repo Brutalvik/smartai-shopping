@@ -17,7 +17,7 @@ import {
   Tooltip,
   Badge,
 } from "@heroui/react";
-import { Loader2, ArrowUp, ArrowDown, ArrowUpDown, Info } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 
 interface Sale {
   saleId: string;
@@ -33,6 +33,16 @@ interface Sale {
 
 interface SellerSalesTableProps {
   sales: Sale[];
+  filters?: {
+    status?: string;
+    isReturnable?: boolean;
+    minAmount?: number;
+    maxAmount?: number;
+    startDate?: string;
+    endDate?: string;
+  };
+  page?: number;
+  rowsPerPage?: number;
 }
 
 const salesColumns = [
@@ -46,7 +56,12 @@ const salesColumns = [
   "Returnable",
 ];
 
-export default function SellerSalesTable({ sales }: SellerSalesTableProps) {
+export default function SellerSalesTable({
+  sales,
+  filters,
+  page = 1,
+  rowsPerPage = 10,
+}: SellerSalesTableProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
     {}
@@ -114,9 +129,37 @@ export default function SellerSalesTable({ sales }: SellerSalesTableProps) {
     }
   };
 
+  const filteredSales = useMemo(() => {
+    if (!filters) return sales;
+    const { status, isReturnable, minAmount, maxAmount, startDate, endDate } =
+      filters;
+
+    return sales.filter((sale) => {
+      const saleDate = new Date(sale.orderDate);
+      const matchesStatus = !status || sale.status === status;
+      const matchesReturnable =
+        isReturnable === undefined || sale.isReturnable === isReturnable;
+      const matchesMinAmount =
+        minAmount === undefined || sale.amount >= minAmount;
+      const matchesMaxAmount =
+        maxAmount === undefined || sale.amount <= maxAmount;
+      const matchesStartDate = !startDate || saleDate >= new Date(startDate);
+      const matchesEndDate = !endDate || saleDate <= new Date(endDate);
+
+      return (
+        matchesStatus &&
+        matchesReturnable &&
+        matchesMinAmount &&
+        matchesMaxAmount &&
+        matchesStartDate &&
+        matchesEndDate
+      );
+    });
+  }, [sales, filters]);
+
   const sortedSales = useMemo(() => {
     const key = salesColumns[sortColumn];
-    return [...sales].sort((a, b) => {
+    return [...filteredSales].sort((a, b) => {
       const valA = getValue(a, key);
       const valB = getValue(b, key);
       if (typeof valA === "number" && typeof valB === "number") {
@@ -129,7 +172,13 @@ export default function SellerSalesTable({ sales }: SellerSalesTableProps) {
         return 0;
       }
     });
-  }, [sales, sortColumn, sortDirection]);
+  }, [filteredSales, sortColumn, sortDirection]);
+
+  const paginatedSales = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    return sortedSales.slice(start, end);
+  }, [sortedSales, page, rowsPerPage]);
 
   const toggleSort = (index: number) => {
     if (sortColumn === index) {
@@ -188,7 +237,7 @@ export default function SellerSalesTable({ sales }: SellerSalesTableProps) {
           ))}
         </TableHeader>
         <TableBody emptyContent="No sales found.">
-          {sortedSales.map((sale) => (
+          {paginatedSales.map((sale) => (
             <TableRow key={sale.saleId} className="text-sm h-[44px]">
               <TableCell>{sale.productTitle}</TableCell>
               <TableCell>{sale.buyerEmail}</TableCell>

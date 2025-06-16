@@ -5,9 +5,8 @@ import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 
 import { dummySales } from "@/data/dummySales";
-import { tabs } from "@/components/seller/SellerDashboardClientPage";
 import { Product } from "@/types/product";
-
+import { SalesFiltersType, tabs } from "@/components/seller/types";
 import XLoader from "@/components/ui/XLoader/XLoader";
 
 const SellerProductsTable = dynamic(
@@ -46,6 +45,9 @@ interface DashboardTabContentProps {
   sellerId: string;
   onEdit: (product: Product) => void;
   productToEdit?: Product;
+  salesFilters?: SalesFiltersType;
+  salesPage: number;
+  salesRowsPerPage: number;
 }
 
 export default function DashboardTabContent({
@@ -60,6 +62,9 @@ export default function DashboardTabContent({
   sellerId,
   onEdit,
   productToEdit,
+  salesFilters,
+  salesPage,
+  salesRowsPerPage,
 }: DashboardTabContentProps) {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams?.get("tab") as keyof typeof tabs | null;
@@ -85,9 +90,19 @@ export default function DashboardTabContent({
   }
 
   if (resolvedTab === tabs.sales) {
+    const paginatedSales = dummySales
+      .map((s) => ({
+        ...s,
+        status: (s.status.charAt(0).toUpperCase() + s.status.slice(1)) as
+          | "Delivered"
+          | "Returned"
+          | "Pending",
+      }))
+      .slice((salesPage - 1) * salesRowsPerPage, salesPage * salesRowsPerPage);
+
     return (
       <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
-        <SellerSalesTable sales={dummySales as any} />
+        <SellerSalesTable sales={paginatedSales} filters={salesFilters} />
       </div>
     );
   }

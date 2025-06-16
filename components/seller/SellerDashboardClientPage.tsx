@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { Button, useDisclosure } from "@heroui/react";
+import { Button, Tooltip, useDisclosure } from "@heroui/react";
 import { Loader2, SquarePlus, Trash2 } from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
@@ -11,7 +11,9 @@ import { isEmptyArray } from "formik";
 import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSidebar";
 import classNames from "classnames";
 import ProductFilters from "@/components/seller/ProductFilters";
+import SalesFilters from "./SalesFilters";
 import DashboardTabContent from "./SellerDashboardTabContent";
+import PaginationControls from "@/components/ui/Pagination/PaginationControls";
 import {
   Modal,
   ModalBody,
@@ -20,6 +22,13 @@ import {
   ModalHeader,
 } from "@heroui/react";
 import { useAutoLogout } from "@/store/hooks/useAutoLogout";
+import {
+  Filters,
+  ProductTabsMap,
+  SalesFiltersType,
+  tabs,
+} from "@/components/seller/types";
+import { dummySales } from "@/data/dummySales";
 
 interface SellerDashboardClientPageProps {
   initialProducts: Product[];
@@ -29,18 +38,6 @@ interface SellerDashboardClientPageProps {
   initialTab?: "products" | "sales" | "upload";
 }
 
-export interface ProductTabsMap {
-  products: "products";
-  sales: "sales";
-  upload: "upload";
-}
-
-export const tabs: ProductTabsMap = {
-  products: "products",
-  sales: "sales",
-  upload: "upload",
-};
-
 export default function SellerDashboardClientPage({
   initialProducts,
   initialLastEvaluatedKey,
@@ -48,11 +45,13 @@ export default function SellerDashboardClientPage({
   sellerId,
   initialTab,
 }: SellerDashboardClientPageProps) {
+  useAutoLogout();
   const { isOpen, onClose } = useDisclosure();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const productId = searchParams?.get("productId");
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number>(0);
   const tabParam = searchParams?.get("tab") as keyof ProductTabsMap;
@@ -61,60 +60,26 @@ export default function SellerDashboardClientPage({
   );
   const [productToEdit, setProductToEdit] = useState<Product>();
 
-  useEffect(() => {
-    const fetchProductToEdit = async () => {
-      if (activeTab === "upload" && productId && !productToEdit) {
-        try {
-          const res = await fetch(
-            `${CDN.sellerProductsApi}/seller/products/${productId}`,
-            {
-              credentials: "include",
-            }
-          );
-          if (!res.ok) throw new Error("Failed to load product for editing");
-          const data = await res.json();
-          setProductToEdit(data);
-        } catch (err) {
-          console.error("Error fetching product for edit:", err);
-          addToast({
-            description: "Failed to load product for editing",
-            color: "danger",
-            timeout: 4000,
-          });
-        }
-      }
-    };
+  const [salesFilters, setSalesFilters] = useState<SalesFiltersType>({
+    status: "",
+    isReturnable: undefined,
+    minAmount: undefined,
+    maxAmount: undefined,
+    startDate: "",
+    endDate: "",
+  });
 
-    fetchProductToEdit();
-  }, [activeTab, productId, productToEdit]);
+  const defaultPage = parseInt(searchParams?.get("page") || "1", 10);
+  const defaultRowsPerPage = parseInt(searchParams?.get("limit") || "10", 10);
+  const [salesPage, setSalesPage] = useState(defaultPage);
+  const [salesRowsPerPage, setSalesRowsPerPage] = useState(defaultRowsPerPage);
 
   useEffect(() => {
-    const tabFromUrl = searchParams?.get("tab") as keyof ProductTabsMap;
-    if (tabFromUrl && tabFromUrl !== activeTab) {
-      setActiveTab(tabFromUrl);
-    }
-  }, [searchParams]);
-
-  // keep ?tab=... in sync with activeTab
-  useEffect(() => {
-    const currentTab = searchParams?.get("tab");
-    if (activeTab !== currentTab) {
-      const newParams = new URLSearchParams(searchParams?.toString());
-      newParams.set("tab", activeTab);
-      router.replace(`${pathname}?${newParams.toString()}`);
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
-    const updateWidth = () => setWindowWidth(window.innerWidth);
-    updateWidth();
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
-
-  useEffect(() => {
-    if (windowWidth >= 768 && isOpen) onClose();
-  }, [windowWidth, isOpen, onClose]);
+    const params = new URLSearchParams(searchParams?.toString());
+    params.set("page", salesPage.toString());
+    params.set("limit", salesRowsPerPage.toString());
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [salesPage, salesRowsPerPage]);
 
   const handleSidebarToggle = (collapsed: boolean) =>
     setSidebarCollapsed(collapsed);
@@ -135,14 +100,6 @@ export default function SellerDashboardClientPage({
   );
   const [deleting, setDeleting] = useState(false);
 
-  type Filters = {
-    category?: string;
-    isActive?: boolean;
-    minPrice?: number;
-    maxPrice?: number;
-    searchKeyword?: string;
-  };
-
   const [filters, setFilters] = useState<Filters>({
     category: "",
     isActive: undefined,
@@ -153,86 +110,59 @@ export default function SellerDashboardClientPage({
 
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchProducts = useCallback(
-    async (
-      loadMore: boolean = false,
-      newFiltersApplied: boolean = false,
-      currentLastEvaluatedKey: Record<string, any> | undefined = undefined
-    ) => {
-      setLoading(true);
-      setSelectedProductIds(new Set());
-      if (newFiltersApplied) {
-        setLastEvaluatedKey(undefined);
-        setHasMore(true);
-        currentLastEvaluatedKey = undefined;
-      }
-      const queryParams = new URLSearchParams();
-      if (loadMore && currentLastEvaluatedKey) {
-        queryParams.append(
-          "lastEvaluatedKey",
-          JSON.stringify(currentLastEvaluatedKey)
-        );
-      }
-      queryParams.append("limit", "10");
-      if (filters.category) queryParams.append("category", filters.category);
-      if (filters.isActive !== undefined)
-        queryParams.append("isActive", String(filters.isActive));
-      if (filters.minPrice !== undefined && !isNaN(filters.minPrice))
-        queryParams.append("minPrice", String(filters.minPrice));
-      if (filters.maxPrice !== undefined && !isNaN(filters.maxPrice))
-        queryParams.append("maxPrice", String(filters.maxPrice));
-      if (filters.searchKeyword) queryParams.append("q", filters.searchKeyword);
-
+  const fetchProductToEdit = async () => {
+    if (activeTab === "upload" && productId && !productToEdit) {
       try {
-        const response = await fetch(
-          `${CDN.sellerProductsApi}/seller/products?${queryParams.toString()}`,
+        const res = await fetch(
+          `${CDN.sellerProductsApi}/seller/products/${productId}`,
           {
-            method: "GET",
             credentials: "include",
           }
         );
-        const result = await response.json();
-        if (!response.ok) throw new Error("Failed to fetch products");
-        setProducts((prevProducts) =>
-          loadMore ? [...prevProducts, ...result.products] : result.products
-        );
-        if (isEmptyArray(result.products)) {
-          setLoading(false);
-          return;
-        }
-        setLastEvaluatedKey(result.lastEvaluatedKey);
-        setHasMore(!!result.lastEvaluatedKey);
-      } catch (error: any) {
-        console.error("Error fetching products:", error);
-        setHasMore(false);
-        return;
-      } finally {
-        setLoading(false);
+        if (!res.ok) throw new Error("Failed to load product for editing");
+        const data = await res.json();
+        setProductToEdit(data);
+      } catch (err) {
+        console.error("Error fetching product for edit:", err);
+        addToast({
+          description: "Failed to load product for editing",
+          color: "danger",
+          timeout: 4000,
+        });
       }
-    },
-    [filters]
-  );
-
-  useEffect(() => {
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    searchTimeoutRef.current = setTimeout(
-      () => fetchProducts(false, true),
-      400
-    );
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [filters.searchKeyword]);
-
-  useEffect(() => {
-    fetchProducts(false, true);
-  }, [filters.category, filters.isActive, filters.minPrice, filters.maxPrice]);
-
-  const handleLoadMore = () => {
-    if (!loading && hasMore) fetchProducts(true, false, lastEvaluatedKey);
+    }
   };
+
+  useEffect(() => {
+    fetchProductToEdit();
+  }, [activeTab, productId, productToEdit]);
+
+  useEffect(() => {
+    const tabFromUrl = searchParams?.get("tab") as keyof ProductTabsMap;
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const currentTab = searchParams?.get("tab");
+    if (activeTab !== currentTab) {
+      const newParams = new URLSearchParams(searchParams?.toString());
+      newParams.set("tab", activeTab);
+      router.replace(`${pathname}?${newParams.toString()}`);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    const updateWidth = () => setWindowWidth(window.innerWidth);
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
+  useEffect(() => {
+    if (windowWidth >= 768 && isOpen) onClose();
+  }, [windowWidth, isOpen, onClose]);
 
   const handleToggleSelectProduct = (productId: string) => {
     setSelectedProductIds((prev) => {
@@ -249,13 +179,11 @@ export default function SellerDashboardClientPage({
   };
 
   const handleRedirectToEdit = (product: Product) => {
-    {
-      const params = new URLSearchParams({
-        tab: "upload",
-        productId: product.productId,
-      });
-      router.push(`/seller/dashboard?${params.toString()}`);
-    }
+    const params = new URLSearchParams({
+      tab: "upload",
+      productId: product.productId,
+    });
+    router.push(`/seller/dashboard?${params.toString()}`);
   };
 
   const handleDeleteConfirmed = async () => {
@@ -284,7 +212,6 @@ export default function SellerDashboardClientPage({
         timeout: 4000,
       });
 
-      fetchProducts(false, true);
       setSelectedProductIds(new Set());
     } catch (error: any) {
       addToast({
@@ -312,7 +239,7 @@ export default function SellerDashboardClientPage({
         >
           <CollapsibleSidebar
             onToggle={handleSidebarToggle}
-            onTabChange={(tab: keyof ProductTabsMap) => setActiveTab(tab)}
+            onTabChange={(tab) => setActiveTab(tab as keyof ProductTabsMap)}
             activeTab={activeTab}
           />
         </div>
@@ -334,18 +261,41 @@ export default function SellerDashboardClientPage({
                   }}
                 />
               )}
-              <SquarePlus
-                size={28}
-                className="cursor-pointer text-default-500 hover:text-primary"
-                strokeWidth={1.75}
-                onClick={() => setActiveTab("upload")}
-              />
-              <ProductFilters
-                onFiltersChange={(newFilters) => setFilters(newFilters)}
-                initialFilters={filters}
-              />
+              <Tooltip content="Add new product">
+                <SquarePlus
+                  size={28}
+                  className="cursor-pointer text-default-500 hover:text-primary"
+                  strokeWidth={1.75}
+                  onClick={() => setActiveTab("upload")}
+                />
+              </Tooltip>
+              {activeTab === tabs.products ? (
+                <ProductFilters
+                  onFiltersChange={(newFilters) => setFilters(newFilters)}
+                  initialFilters={filters}
+                />
+              ) : activeTab === tabs.sales ? (
+                <SalesFilters
+                  onFiltersChange={(newSalesFilters) =>
+                    setSalesFilters(newSalesFilters)
+                  }
+                  initialFilters={salesFilters}
+                />
+              ) : null}
             </div>
           </div>
+
+          {activeTab === tabs.sales && (
+            <div className="mb-6">
+              <PaginationControls
+                page={salesPage}
+                setPage={setSalesPage}
+                rowsPerPage={salesRowsPerPage}
+                setRowsPerPage={setSalesRowsPerPage}
+                totalItems={dummySales.length} // Replace with real sales count later
+              />
+            </div>
+          )}
 
           <DashboardTabContent
             activeTab={activeTab}
@@ -357,30 +307,12 @@ export default function SellerDashboardClientPage({
             setDeletingProductId={setDeletingProductId}
             setIsDeleteConfirmModalOpen={setIsDeleteConfirmModalOpen}
             sellerId={sellerId}
-            onEdit={(product) => handleRedirectToEdit(product)}
+            onEdit={handleRedirectToEdit}
             productToEdit={productToEdit}
+            salesFilters={salesFilters}
+            salesPage={salesPage}
+            salesRowsPerPage={salesRowsPerPage}
           />
-
-          {hasMore && !isEmptyArray(products) && !loading && (
-            <div className="text-center mt-8">
-              <Button
-                onPress={handleLoadMore}
-                disabled={loading}
-                className="px-6 py-3"
-                color="primary"
-                variant="solid"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                    Loading More...
-                  </>
-                ) : (
-                  "Load More Products"
-                )}
-              </Button>
-            </div>
-          )}
 
           {!loading && products.length === 0 && (
             <div className="text-center text-gray-600 text-lg mt-10">
