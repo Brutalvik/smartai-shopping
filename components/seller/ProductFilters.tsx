@@ -63,7 +63,7 @@ export default function ProductFilters({
       params.set("minPrice", String(minPriceFilter));
     if (maxPriceFilter !== undefined)
       params.set("maxPrice", String(maxPriceFilter));
-    if (searchKeyword) params.set("q", searchKeyword);
+    if (searchKeyword) params.set("search", searchKeyword);
     router.replace(`${pathname}?${params.toString()}`);
   }, [
     categoryFilter,
