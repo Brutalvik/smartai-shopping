@@ -16,9 +16,12 @@ import {
   TableCell,
   Tooltip,
   Badge,
+  Button,
 } from "@heroui/react";
-import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
-import { Sale } from "@/components/seller/types";
+import { ArrowUp, ArrowDown, ArrowUpDown, Columns3 } from "lucide-react";
+import { MapKey, Sale } from "@/components/seller/types";
+import SalesColumnSelector from "@/components/seller/SalesColumnSelector";
+import { allColumns } from "@/components/seller/utils";
 
 interface SellerSalesTableProps {
   sales: Sale[];
@@ -34,17 +37,6 @@ interface SellerSalesTableProps {
   rowsPerPage?: number;
 }
 
-const salesColumns = [
-  "Product",
-  "Buyer",
-  "Amount",
-  "Quantity",
-  "Status",
-  "Order Date",
-  "Return Deadline",
-  "Returnable",
-];
-
 export default function SellerSalesTable({
   sales,
   filters,
@@ -55,8 +47,12 @@ export default function SellerSalesTable({
   const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
     {}
   );
-  const [sortColumn, setSortColumn] = useState<number>(5);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortColumn, setSortColumn] = useState<number>(0);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(
+    allColumns.filter((c) => c.mandatory).map((c) => c.key)
+  );
 
   const isResizing = useRef(false);
   const startX = useRef(0);
@@ -95,32 +91,67 @@ export default function SellerSalesTable({
   const getColumnStyle = (index: number) =>
     columnWidths[index] ? { width: `${columnWidths[index]}px` } : {};
 
+  const visibleColumns = allColumns.filter((c) =>
+    selectedColumns.includes(c.key)
+  );
+
   const getValue = (sale: Sale, key: string): any => {
-    switch (key) {
-      case "Product":
-        return sale.productTitle;
-      case "Buyer":
-        return sale.buyerEmail;
-      case "Amount":
-        return sale.amount;
-      case "Quantity":
-        return sale.quantity;
-      case "Status":
-        return sale.status;
-      case "Order Date":
-        return new Date(sale.orderDate).getTime();
-      case "Return Deadline":
-        return new Date(sale.returnDeadline).getTime();
-      case "Returnable":
-        return sale.isReturnable ? 1 : 0;
-      default:
-        return "";
-    }
+    const map: Record<MapKey, any> = {
+      saleId: sale.saleId,
+      productTitle: sale.productTitle,
+      quantity: sale.quantity,
+      amount: `$${sale.amount?.toFixed(2)}`,
+      purchaseDate: new Date(sale.purchaseDate).toLocaleDateString(),
+      status: sale.status,
+      orderDate: new Date(sale.orderDate).toLocaleDateString(),
+      shippingMethod: sale.shippingMethod,
+      paymentMethod: sale.paymentMethod,
+      total: `$${sale.total?.toFixed(2)}`,
+      buyerEmail: sale.buyerEmail,
+      returnDeadline: sale.returnDeadline
+        ? new Date(sale.returnDeadline).toLocaleDateString()
+        : "-",
+      isReturnable: sale.isReturnable ? "Yes" : "No",
+      shippingCost: `$${sale.shippingCost?.toFixed(2)}`,
+      discount: `$${sale.discount?.toFixed(2)}`,
+      tax: `$${sale.tax?.toFixed(2)}`,
+    };
+    return map[key as MapKey] ?? "";
   };
 
+  const filteredSales = useMemo(() => {
+    return sales.filter((sale) => {
+      if (
+        filters?.status &&
+        sale.status.toLowerCase() !== filters.status.toLowerCase()
+      )
+        return false;
+      if (
+        filters?.isReturnable !== undefined &&
+        sale.isReturnable !== filters.isReturnable
+      )
+        return false;
+      if (filters?.minAmount !== undefined && sale.amount < filters.minAmount)
+        return false;
+      if (filters?.maxAmount !== undefined && sale.amount > filters.maxAmount)
+        return false;
+      if (
+        filters?.startDate &&
+        new Date(sale.orderDate) < new Date(filters.startDate)
+      )
+        return false;
+      if (
+        filters?.endDate &&
+        new Date(sale.orderDate) > new Date(filters.endDate)
+      )
+        return false;
+      return true;
+    });
+  }, [sales, filters]);
+
   const sortedSales = useMemo(() => {
-    const key = salesColumns[sortColumn];
-    return [...sales].sort((a, b) => {
+    const key = visibleColumns[sortColumn]?.key;
+    return [...filteredSales].sort((a, b) => {
       const valA = getValue(a, key);
       const valB = getValue(b, key);
       if (typeof valA === "number" && typeof valB === "number") {
@@ -133,7 +164,7 @@ export default function SellerSalesTable({
         return 0;
       }
     });
-  }, [sales, sortColumn, sortDirection]);
+  }, [filteredSales, sortColumn, sortDirection, visibleColumns]);
 
   const paginatedSales = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -151,26 +182,43 @@ export default function SellerSalesTable({
   };
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || visibleColumns.length === 0) return;
+
     const totalWidth = containerRef.current.offsetWidth;
-    const avgWidth = Math.floor(totalWidth / salesColumns.length);
+    const avgWidth = Math.floor(totalWidth / visibleColumns.length);
+
+    // Skip setting if already initialized
+    if (Object.keys(columnWidths).length === visibleColumns.length) return;
+
     const initialWidths: { [key: number]: number } = {};
-    salesColumns.forEach((_, i) => (initialWidths[i] = avgWidth));
+    visibleColumns.forEach((_, i) => {
+      initialWidths[i] = avgWidth;
+    });
+
     setColumnWidths(initialWidths);
-  }, []);
+  }, [visibleColumns, Object.keys(columnWidths).length]);
 
   return (
     <div
       ref={containerRef}
       className="relative border border-default-100 bg-white dark:bg-default-50 w-screen rounded-lg"
     >
+      <div className="flex justify-end p-2">
+        <Button
+          variant="light"
+          onPress={() => setIsModalOpen(true)}
+          startContent={<Columns3 size={16} />}
+        >
+          Customize Columns
+        </Button>
+      </div>
       <Table
         aria-label="Seller Sales Table"
         removeWrapper
         className="min-w-full [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
       >
         <TableHeader>
-          {salesColumns.map((label, i) => (
+          {visibleColumns.map(({ label }, i) => (
             <TableColumn
               key={label}
               className="relative whitespace-nowrap text-sm font-semibold border-r select-none cursor-pointer"
@@ -200,45 +248,19 @@ export default function SellerSalesTable({
         <TableBody emptyContent="No sales found.">
           {paginatedSales.map((sale) => (
             <TableRow key={sale.saleId} className="text-sm h-[44px]">
-              <TableCell>{sale.productTitle}</TableCell>
-              <TableCell>{sale.buyerEmail}</TableCell>
-              <TableCell>${sale?.amount?.toFixed(2)}</TableCell>
-              <TableCell>{sale.quantity}</TableCell>
-              <TableCell>
-                <Badge
-                  color={
-                    sale.status === "Delivered"
-                      ? "success"
-                      : sale.status === "Returned"
-                        ? "danger"
-                        : "warning"
-                  }
-                  variant="solid"
-                >
-                  {sale.status}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                {sale.orderDate
-                  ? new Date(sale.orderDate).toLocaleDateString()
-                  : "-"}
-              </TableCell>
-              <TableCell>
-                {sale.returnDeadline
-                  ? new Date(sale.returnDeadline).toLocaleDateString()
-                  : "-"}
-              </TableCell>
-              <TableCell>
-                {sale.isReturnable ? (
-                  <span className="text-green-600">Yes</span>
-                ) : (
-                  <span className="text-gray-400">No</span>
-                )}
-              </TableCell>
+              {visibleColumns.map(({ key }, idx) => (
+                <TableCell key={key}>{getValue(sale, key)}</TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <SalesColumnSelector
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedColumns={selectedColumns}
+        setSelectedColumns={setSelectedColumns}
+      />
     </div>
   );
 }

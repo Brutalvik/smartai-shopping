@@ -37,4 +37,29 @@ export interface Sale {
   orderDate: string;
   returnDeadline: string;
   isReturnable: boolean;
+  purchaseDate: string;
+  shippingMethod: "Standard" | "Express" | "Same-Day";
+  paymentMethod: "Credit Card" | "PayPal" | "Apple Pay" | "Google Pay";
+  total: number;
+  shippingCost: number;
+  discount: number;
+  tax: number;
 }
+
+export type MapKey =
+  | "saleId"
+  | "productTitle"
+  | "quantity"
+  | "amount"
+  | "purchaseDate"
+  | "status"
+  | "orderDate"
+  | "shippingMethod"
+  | "paymentMethod"
+  | "total"
+  | "buyerEmail"
+  | "returnDeadline"
+  | "isReturnable"
+  | "shippingCost"
+  | "discount"
+  | "tax";
