@@ -1,19 +1,22 @@
-// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("x-token")?.value;
 
-  const protectedPaths = ["/seller/dashboard", "/dashboard"];
+  // Match any of these route prefixes
+  const protectedPrefixes = ["/seller/dashboard", "/dashboard"];
 
-  const isProtected = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
+  const pathname = request.nextUrl.pathname;
+
+  const isProtected = protectedPrefixes.some((prefix) =>
+    pathname.startsWith(prefix)
   );
 
-  if (isProtected && !token) {
+  // Redirect to signin if not authenticated
+  if (isProtected && (!token || token.length < 20)) {
     const redirectUrl = new URL("/auth/signin", request.url);
-    redirectUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    redirectUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -21,5 +24,11 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/seller/:path*", "/dashboard/:path*"],
+  matcher: [
+    "/seller/:path*",
+    "/dashboard/:path*",
+    // (Optional) Future protection paths:
+    // "/account/:path*",
+    // "/orders/:path*",
+  ],
 };
