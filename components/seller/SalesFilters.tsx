@@ -168,40 +168,6 @@ export default function SalesFilters({
         >
           <Filter className="h-4 w-4" />
         </Button>
-
-        <AnimatePresence>
-          {activeChips.length > 0 && (
-            <motion.div
-              key="chip-container"
-              layout
-              className="flex flex-wrap gap-2"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.2 }}
-            >
-              {activeChips.map((chip) => (
-                <motion.div
-                  key={chip.label}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Chip
-                    onClose={chip.onRemove}
-                    variant="flat"
-                    color="primary"
-                    size="sm"
-                    className="text-sm"
-                  >
-                    {chip.label}
-                  </Chip>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
       <Modal
         isOpen={isOpen}

@@ -25,8 +25,6 @@ export default function CollapsibleSidebar({
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
 
-  const { products, sales, upload } = tabs;
-
   const toggleCollapsed = () => {
     const next = !collapsed;
     setCollapsed(next);

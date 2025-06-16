@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { Button, Tooltip, useDisclosure } from "@heroui/react";
+import { Button, Chip, Tooltip, useDisclosure } from "@heroui/react";
 import { Loader2, SquarePlus, Trash2 } from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
@@ -29,6 +29,7 @@ import {
   tabs,
 } from "@/components/seller/types";
 import { dummySales } from "@/data/dummySales";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface SellerDashboardClientPageProps {
   initialProducts: Product[];
@@ -60,6 +61,35 @@ export default function SellerDashboardClientPage({
   );
   const [productToEdit, setProductToEdit] = useState<Product>();
 
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState(initialHasMore);
+  const [lastEvaluatedKey, setLastEvaluatedKey] = useState<
+    Record<string, any> | undefined
+  >(initialLastEvaluatedKey);
+
+  const [filters, setFilters] = useState<Filters>({
+    category: searchParams?.get("category") || "",
+    isActive: searchParams?.get("isActive") === "true" ? true : undefined,
+    minPrice: searchParams?.get("minPrice")
+      ? parseFloat(searchParams.get("minPrice")!)
+      : undefined,
+    maxPrice: searchParams?.get("maxPrice")
+      ? parseFloat(searchParams.get("maxPrice")!)
+      : undefined,
+    searchKeyword: searchParams?.get("search") || "",
+  });
+
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(
+    new Set()
+  );
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
+    useState(false);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(
+    null
+  );
+  const [deleting, setDeleting] = useState(false);
+
   const [salesFilters, setSalesFilters] = useState<SalesFiltersType>({
     status: "",
     isReturnable: undefined,
@@ -73,85 +103,12 @@ export default function SellerDashboardClientPage({
   const defaultRowsPerPage = parseInt(searchParams?.get("limit") || "10", 10);
   const [salesPage, setSalesPage] = useState(defaultPage);
   const [salesRowsPerPage, setSalesRowsPerPage] = useState(defaultRowsPerPage);
-
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams?.toString());
-    params.set("page", salesPage.toString());
-    params.set("limit", salesRowsPerPage.toString());
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [salesPage, salesRowsPerPage]);
+  const [salesChips, setSalesChips] = useState<
+    { label: string; onRemove: () => void }[]
+  >([]);
 
   const handleSidebarToggle = (collapsed: boolean) =>
     setSidebarCollapsed(collapsed);
-
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [hasMore, setHasMore] = useState(initialHasMore);
-  const [lastEvaluatedKey, setLastEvaluatedKey] = useState<
-    Record<string, any> | undefined
-  >(initialLastEvaluatedKey);
-  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(
-    new Set()
-  );
-  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
-    useState(false);
-  const [deletingProductId, setDeletingProductId] = useState<string | null>(
-    null
-  );
-  const [deleting, setDeleting] = useState(false);
-
-  const [filters, setFilters] = useState<Filters>({
-    category: "",
-    isActive: undefined,
-    minPrice: undefined,
-    maxPrice: undefined,
-    searchKeyword: "",
-  });
-
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const fetchProductToEdit = async () => {
-    if (activeTab === "upload" && productId && !productToEdit) {
-      try {
-        const res = await fetch(
-          `${CDN.sellerProductsApi}/seller/products/${productId}`,
-          {
-            credentials: "include",
-          }
-        );
-        if (!res.ok) throw new Error("Failed to load product for editing");
-        const data = await res.json();
-        setProductToEdit(data);
-      } catch (err) {
-        console.error("Error fetching product for edit:", err);
-        addToast({
-          description: "Failed to load product for editing",
-          color: "danger",
-          timeout: 4000,
-        });
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchProductToEdit();
-  }, [activeTab, productId, productToEdit]);
-
-  useEffect(() => {
-    const tabFromUrl = searchParams?.get("tab") as keyof ProductTabsMap;
-    if (tabFromUrl && tabFromUrl !== activeTab) {
-      setActiveTab(tabFromUrl);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    const currentTab = searchParams?.get("tab");
-    if (activeTab !== currentTab) {
-      const newParams = new URLSearchParams(searchParams?.toString());
-      newParams.set("tab", activeTab);
-      router.replace(`${pathname}?${newParams.toString()}`);
-    }
-  }, [activeTab]);
 
   useEffect(() => {
     const updateWidth = () => setWindowWidth(window.innerWidth);
@@ -179,10 +136,9 @@ export default function SellerDashboardClientPage({
   };
 
   const handleRedirectToEdit = (product: Product) => {
-    const params = new URLSearchParams({
-      tab: "upload",
-      productId: product.productId,
-    });
+    const params = new URLSearchParams(searchParams?.toString());
+    params.set("tab", "upload");
+    params.set("productId", product.productId);
     router.push(`/seller/dashboard?${params.toString()}`);
   };
 
@@ -228,6 +184,88 @@ export default function SellerDashboardClientPage({
   const allProductsSelected =
     products.length > 0 && selectedProductIds.size === products.length;
 
+  const fetchProductToEdit = async () => {
+    if (activeTab === "upload" && productId && !productToEdit) {
+      try {
+        const res = await fetch(
+          `${CDN.sellerProductsApi}/seller/products/${productId}`,
+          {
+            credentials: "include",
+          }
+        );
+        if (!res.ok) throw new Error("Failed to load product for editing");
+        const data = await res.json();
+        setProductToEdit(data);
+      } catch (err) {
+        console.error("Error fetching product for edit:", err);
+        addToast({
+          description: "Failed to load product for editing",
+          color: "danger",
+          timeout: 4000,
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchProductToEdit();
+  }, [activeTab, productId, productToEdit]);
+
+  useEffect(() => {
+    const tabFromUrl = searchParams?.get("tab") as keyof ProductTabsMap;
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const currentTab = searchParams?.get("tab");
+    if (activeTab !== currentTab) {
+      const newParams = new URLSearchParams(searchParams?.toString());
+      newParams.set("tab", activeTab);
+      router.replace(`${pathname}?${newParams.toString()}`);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams?.toString());
+    params.set("page", salesPage.toString());
+    params.set("limit", salesRowsPerPage.toString());
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [salesPage, salesRowsPerPage]);
+
+  useEffect(() => {
+    const applyProductFilters = async () => {
+      setLoading(true);
+      try {
+        const query = new URLSearchParams();
+        if (filters.category) query.set("category", filters.category);
+        if (filters.isActive !== undefined)
+          query.set("isActive", filters.isActive.toString());
+        if (filters.minPrice !== undefined)
+          query.set("minPrice", filters.minPrice.toString());
+        if (filters.maxPrice !== undefined)
+          query.set("maxPrice", filters.maxPrice.toString());
+        if (filters.searchKeyword) query.set("search", filters.searchKeyword);
+
+        const url = `${CDN.sellerProductsApi}/seller/products?${query.toString()}`;
+        const res = await fetch(url, { credentials: "include" });
+        const data = await res.json();
+        setProducts(data.products);
+        setHasMore(data.hasMore);
+        setLastEvaluatedKey(data.lastEvaluatedKey);
+      } catch (err) {
+        console.error("Error applying product filters:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (activeTab === "products") {
+      applyProductFilters();
+    }
+  }, [filters]);
+
   return (
     <div className="flex h-[calc(100vh-10vh)]" id="main-content">
       {!loading && (
@@ -248,7 +286,47 @@ export default function SellerDashboardClientPage({
       <div className="flex-1 transition-all duration-300 overflow-auto">
         <div className="p-4">
           <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
-            <h1 className="text-2xl font-bold capitalize">{activeTab}</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold capitalize">{activeTab}</h1>
+              <AnimatePresence>
+                <motion.div
+                  key="chip-container"
+                  layout
+                  className="flex flex-wrap gap-2"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {activeTab === tabs.sales && salesChips.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {salesChips.map((chip) => (
+                        <motion.div
+                          key={chip.label}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <div key={chip.label}>
+                            <Chip
+                              onClose={chip.onRemove}
+                              variant="flat"
+                              color="primary"
+                              size="sm"
+                              className="text-sm"
+                            >
+                              {chip.label}
+                            </Chip>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
             <div className="flex items-center gap-4">
               {selectedProductIds.size > 0 && (
                 <Trash2
@@ -280,6 +358,7 @@ export default function SellerDashboardClientPage({
                     setSalesFilters(newSalesFilters)
                   }
                   initialFilters={salesFilters}
+                  setActiveChips={setSalesChips}
                 />
               ) : null}
             </div>
@@ -292,7 +371,7 @@ export default function SellerDashboardClientPage({
                 setPage={setSalesPage}
                 rowsPerPage={salesRowsPerPage}
                 setRowsPerPage={setSalesRowsPerPage}
-                totalItems={dummySales.length} // Replace with real sales count later
+                totalItems={dummySales.length}
               />
             </div>
           )}
