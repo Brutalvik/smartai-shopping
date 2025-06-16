@@ -220,18 +220,21 @@ export default function SalesFilters({
 
                 <ModalBody className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Select
-                      label="Status"
-                      selectedKeys={new Set([status])}
-                      onSelectionChange={(keys) => {
-                        const selected = String(Array.from(keys)[0] || "All");
-                        setStatus(selected);
-                      }}
-                    >
-                      {statusOptions.map((option) => (
-                        <SelectItem key={option}>{option}</SelectItem>
-                      ))}
-                    </Select>
+                    <div className="flex flex-row items-center gap-4">
+                      <label className="items-start">Status</label>
+                      <Select
+                        className="w-28 h-10"
+                        selectedKeys={new Set([status])}
+                        onSelectionChange={(keys) => {
+                          const selected = String(Array.from(keys)[0] || "All");
+                          setStatus(selected);
+                        }}
+                      >
+                        {statusOptions.map((option) => (
+                          <SelectItem key={option}>{option}</SelectItem>
+                        ))}
+                      </Select>
+                    </div>
 
                     <div className="flex flex-col min-w-0">
                       <label className="text-sm text-default mb-1">
@@ -241,7 +244,7 @@ export default function SalesFilters({
                         selected={startDate}
                         onChange={(date: Date | null) => setStartDate(date)}
                         placeholderText="Start date"
-                        className="px-3 py-2 rounded-md border border-default-200 bg-transparent text-sm"
+                        className="px-3 py-2 rounded-md border border-default-200  text-sm"
                       />
                     </div>
 

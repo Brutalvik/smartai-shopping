@@ -11,7 +11,7 @@ interface PaginationControlsProps {
   rowsPerPage: number;
   setRowsPerPage: (limit: number) => void;
   totalItems: number;
-  pageSizes?: number[]; // optional
+  pageSizes?: number[];
 }
 
 export default function PaginationControls({
@@ -33,11 +33,13 @@ export default function PaginationControls({
     setGoTo("");
   };
 
+  if (totalPages <= 1) return null;
+
   return (
-    <div className="flex flex-wrap justify-between items-center gap-4 border border-default-200 px-4 py-3 rounded-lg bg-white dark:bg-default-50 w-full">
+    <div className="flex flex-wrap justify-between items-center gap-3 border border-default-200  bg-default/50 rounded-md bg-default-50 w-full">
       <div className="flex items-center gap-2">
         <Button
-          size="sm"
+          className="h-5 w-5 hover:color-primary"
           variant="light"
           isDisabled={page === 1}
           onPress={() => setPage(page - 1)}
@@ -45,7 +47,7 @@ export default function PaginationControls({
           Previous
         </Button>
         <Button
-          size="sm"
+          className="h-5 w-5"
           variant="light"
           isDisabled={page === totalPages}
           onPress={() => setPage(page + 1)}
@@ -57,33 +59,51 @@ export default function PaginationControls({
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
-        <Select
-          size="sm"
-          label="Rows per page"
-          selectedKeys={new Set([String(rowsPerPage)])}
-          onSelectionChange={(keys) => {
-            const selected = parseInt(String(Array.from(keys)[0]), 10);
-            setRowsPerPage(selected);
-            setPage(1); // reset to first page
-          }}
-          className="w-28"
-        >
-          {pageSizes.map((count) => (
-            <SelectItem key={count}>{count}</SelectItem>
-          ))}
-        </Select>
+      <div className="flex items-center gap-4">
+        <div className="flex flex-row gap-4 items-center justify-center">
+          <label>Rows</label>
+          <Select
+            selectedKeys={new Set([String(rowsPerPage)])}
+            onSelectionChange={(keys) => {
+              const selected = parseInt(String(Array.from(keys)[0]), 10);
+              if (!isNaN(selected)) {
+                setRowsPerPage(selected);
+                setPage(1); // reset page
+              }
+            }}
+            className="h-10 w-24"
+          >
+            {pageSizes.map((count) => (
+              <SelectItem key={count} textValue={count.toString()}>
+                {count}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
 
-        <Input
+        <div className="flex flex-row gap-4 items-center justify-center">
+          <label>Go to page</label>
+          <Input
+            type="number"
+            min={1}
+            max={totalPages}
+            value={goTo}
+            onChange={(e) => setGoTo(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleGoTo()}
+            className="h-10 w-24"
+          />
+        </div>
+        <Button
           size="sm"
-          type="number"
-          label="Go to page"
-          value={goTo}
-          onChange={(e) => setGoTo(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleGoTo()}
-          className="w-24"
-        />
-        <Button size="sm" variant="flat" onPress={handleGoTo}>
+          variant="flat"
+          onPress={handleGoTo}
+          isDisabled={
+            !goTo ||
+            isNaN(Number(goTo)) ||
+            Number(goTo) < 1 ||
+            Number(goTo) > totalPages
+          }
+        >
           Go
         </Button>
       </div>
