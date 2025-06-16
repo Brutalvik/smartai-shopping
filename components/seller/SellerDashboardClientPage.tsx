@@ -306,6 +306,9 @@ export default function SellerDashboardClientPage({
       });
   }, [salesFilters]);
 
+  const countStart = (salesPage - 1) * salesRowsPerPage + 1;
+  const countEnd = Math.min(salesPage * salesRowsPerPage, filteredSales.length);
+
   return (
     <div className="flex h-[calc(100vh-10vh)]" id="main-content">
       {!loading && (
@@ -322,7 +325,7 @@ export default function SellerDashboardClientPage({
           />
         </div>
       )}
-      <div className="hidden md:flex">
+      <div className="hidden md:flex sm:flex">
         <DrawerSidebar
           onTabChange={(tab) => setActiveTab(tab as keyof ProductTabsMap)}
           activeTab={activeTab}
@@ -372,6 +375,12 @@ export default function SellerDashboardClientPage({
                 </motion.div>
               </AnimatePresence>
             </div>
+
+            {activeTab === tabs.sales && (
+              <div className="text-sm text-gray-500">
+                Showing {countStart}–{countEnd} of {filteredSales.length} sales
+              </div>
+            )}
 
             <div className="flex items-center gap-4">
               {selectedProductIds.size > 0 && (

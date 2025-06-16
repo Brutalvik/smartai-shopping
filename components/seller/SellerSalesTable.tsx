@@ -118,37 +118,9 @@ export default function SellerSalesTable({
     }
   };
 
-  const filteredSales = useMemo(() => {
-    if (!filters) return sales;
-    const { status, isReturnable, minAmount, maxAmount, startDate, endDate } =
-      filters;
-
-    return sales.filter((sale) => {
-      const saleDate = new Date(sale.orderDate);
-      const matchesStatus = !status || sale.status === status;
-      const matchesReturnable =
-        isReturnable === undefined || sale.isReturnable === isReturnable;
-      const matchesMinAmount =
-        minAmount === undefined || sale.amount >= minAmount;
-      const matchesMaxAmount =
-        maxAmount === undefined || sale.amount <= maxAmount;
-      const matchesStartDate = !startDate || saleDate >= new Date(startDate);
-      const matchesEndDate = !endDate || saleDate <= new Date(endDate);
-
-      return (
-        matchesStatus &&
-        matchesReturnable &&
-        matchesMinAmount &&
-        matchesMaxAmount &&
-        matchesStartDate &&
-        matchesEndDate
-      );
-    });
-  }, [sales, filters]);
-
   const sortedSales = useMemo(() => {
     const key = salesColumns[sortColumn];
-    return [...filteredSales].sort((a, b) => {
+    return [...sales].sort((a, b) => {
       const valA = getValue(a, key);
       const valB = getValue(b, key);
       if (typeof valA === "number" && typeof valB === "number") {
@@ -161,7 +133,7 @@ export default function SellerSalesTable({
         return 0;
       }
     });
-  }, [filteredSales, sortColumn, sortDirection]);
+  }, [sales, sortColumn, sortDirection]);
 
   const paginatedSales = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
