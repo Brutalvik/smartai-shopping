@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 
 import { dummySales } from "@/data/dummySales";
 import { Product } from "@/types/product";
-import { SalesFiltersType, tabs } from "@/components/seller/types";
+import { Sale, SalesFiltersType, tabs } from "@/components/seller/types";
 import XLoader from "@/components/ui/XLoader/XLoader";
 
 const SellerProductsTable = dynamic(
@@ -48,6 +48,7 @@ interface DashboardTabContentProps {
   salesFilters?: SalesFiltersType;
   salesPage: number;
   salesRowsPerPage: number;
+  filteredSales: Sale[];
 }
 
 export default function DashboardTabContent({
@@ -65,6 +66,7 @@ export default function DashboardTabContent({
   salesFilters,
   salesPage,
   salesRowsPerPage,
+  filteredSales,
 }: DashboardTabContentProps) {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams?.get("tab") as keyof typeof tabs | null;
@@ -90,7 +92,7 @@ export default function DashboardTabContent({
   }
 
   if (resolvedTab === tabs.sales) {
-    const paginatedSales = dummySales
+    const paginatedSales = filteredSales
       .map((s) => ({
         ...s,
         status: (s.status.charAt(0).toUpperCase() + s.status.slice(1)) as
@@ -99,7 +101,6 @@ export default function DashboardTabContent({
           | "Pending",
       }))
       .slice((salesPage - 1) * salesRowsPerPage, salesPage * salesRowsPerPage);
-
     return (
       <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
         <SellerSalesTable sales={paginatedSales} filters={salesFilters} />

@@ -336,7 +336,6 @@ export default function SalesFilters({
           </ModalContent>
         </motion.div>
       </Modal>
-      ;
     </>
   );
 }

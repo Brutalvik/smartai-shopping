@@ -18,18 +18,7 @@ import {
   Badge,
 } from "@heroui/react";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
-
-interface Sale {
-  saleId: string;
-  productTitle: string;
-  buyerEmail: string;
-  amount: number;
-  quantity: number;
-  status: "Delivered" | "Returned" | "Pending";
-  orderDate: string;
-  returnDeadline: string;
-  isReturnable: boolean;
-}
+import { Sale } from "@/components/seller/types";
 
 interface SellerSalesTableProps {
   sales: Sale[];

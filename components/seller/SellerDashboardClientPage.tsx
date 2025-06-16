@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import { Button, Chip, Tooltip, useDisclosure } from "@heroui/react";
 import { Loader2, SquarePlus, Trash2 } from "lucide-react";
 import { CDN } from "@/config/config";
@@ -266,6 +272,34 @@ export default function SellerDashboardClientPage({
     }
   }, [filters]);
 
+  const filteredSales = useMemo(() => {
+    return dummySales.filter((sale) => {
+      const { status, isReturnable, minAmount, maxAmount, startDate, endDate } =
+        salesFilters;
+
+      const saleDate = new Date(sale.orderDate);
+      const matchesStatus =
+        !status || sale.status.toLowerCase() === status.toLowerCase();
+      const matchesReturnable =
+        isReturnable === undefined || sale.isReturnable === isReturnable;
+      const matchesMinAmount =
+        minAmount === undefined || sale.amount >= minAmount;
+      const matchesMaxAmount =
+        maxAmount === undefined || sale.amount <= maxAmount;
+      const matchesStartDate = !startDate || saleDate >= new Date(startDate);
+      const matchesEndDate = !endDate || saleDate <= new Date(endDate);
+
+      return (
+        matchesStatus &&
+        matchesReturnable &&
+        matchesMinAmount &&
+        matchesMaxAmount &&
+        matchesStartDate &&
+        matchesEndDate
+      );
+    });
+  }, [salesFilters]);
+
   return (
     <div className="flex h-[calc(100vh-10vh)]" id="main-content">
       {!loading && (
@@ -371,7 +405,7 @@ export default function SellerDashboardClientPage({
                 setPage={setSalesPage}
                 rowsPerPage={salesRowsPerPage}
                 setRowsPerPage={setSalesRowsPerPage}
-                totalItems={dummySales.length}
+                totalItems={filteredSales.length}
               />
             </div>
           )}
@@ -391,6 +425,7 @@ export default function SellerDashboardClientPage({
             salesFilters={salesFilters}
             salesPage={salesPage}
             salesRowsPerPage={salesRowsPerPage}
+            filteredSales={filteredSales}
           />
 
           {!loading && products.length === 0 && (

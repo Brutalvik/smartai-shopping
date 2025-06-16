@@ -26,3 +26,15 @@ export const tabs: ProductTabsMap = {
   sales: "sales",
   upload: "upload",
 };
+
+export interface Sale {
+  saleId: string;
+  productTitle: string;
+  buyerEmail: string;
+  amount: number;
+  quantity: number;
+  status: "Delivered" | "Returned" | "Pending";
+  orderDate: string;
+  returnDeadline: string;
+  isReturnable: boolean;
+}
