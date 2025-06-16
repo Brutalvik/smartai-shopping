@@ -12,7 +12,6 @@ import {
   SelectItem,
   Input,
   Switch,
-  Chip,
   useDisclosure,
 } from "@heroui/react";
 import { Filter, RefreshCw } from "lucide-react";
@@ -25,7 +24,7 @@ import {
   startOfMonth,
   endOfMonth,
 } from "date-fns";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const statusOptions = ["All", "Delivered", "Pending", "Returned"];
 
@@ -73,6 +72,8 @@ export default function SalesFilters({
     initialFilters.endDate ? new Date(initialFilters.endDate) : null
   );
 
+  const chips: { label: string; onRemove: () => void }[] = [];
+
   const handleApply = () => {
     const filters = {
       status: status !== "All" ? status : undefined,
@@ -110,43 +111,88 @@ export default function SalesFilters({
     }
   };
 
+  const filters = {
+    status: status !== "All" ? status : undefined,
+    isReturnable,
+    minAmount,
+    maxAmount,
+    startDate: startDate ? startDate.toISOString() : undefined,
+    endDate: endDate ? endDate.toISOString() : undefined,
+  };
+
   const activeChips = useMemo(() => {
     const chips: { label: string; onRemove: () => void }[] = [];
 
     if (status && status !== "All")
       chips.push({
         label: `Status: ${status}`,
-        onRemove: () => setStatus("All"),
+        onRemove: () => {
+          setStatus("All");
+          onFiltersChange({
+            ...filters,
+            status: undefined,
+          });
+        },
       });
 
     if (minAmount !== undefined)
       chips.push({
         label: `Min: $${minAmount}`,
-        onRemove: () => setMinAmount(undefined),
+        onRemove: () => {
+          setMinAmount(undefined);
+          onFiltersChange({
+            ...filters,
+            minAmount: undefined,
+          });
+        },
       });
 
     if (maxAmount !== undefined)
       chips.push({
         label: `Max: $${maxAmount}`,
-        onRemove: () => setMaxAmount(undefined),
+        onRemove: () => {
+          setMaxAmount(undefined);
+          onFiltersChange({
+            ...filters,
+            maxAmount: undefined,
+          });
+        },
       });
 
     if (startDate)
       chips.push({
         label: `From: ${startDate.toLocaleDateString()}`,
-        onRemove: () => setStartDate(null),
+        onRemove: () => {
+          setStartDate(null);
+          onFiltersChange({
+            ...filters,
+            startDate: undefined,
+          });
+        },
       });
 
     if (endDate)
       chips.push({
         label: `To: ${endDate.toLocaleDateString()}`,
-        onRemove: () => setEndDate(null),
+        onRemove: () => {
+          setEndDate(null);
+          onFiltersChange({
+            ...filters,
+            endDate: undefined,
+          });
+        },
       });
 
     if (isReturnable)
       chips.push({
         label: "Returnable Only",
-        onRemove: () => setIsReturnable(undefined),
+        onRemove: () => {
+          setIsReturnable(undefined);
+          onFiltersChange({
+            ...filters,
+            isReturnable: undefined,
+          });
+        },
       });
 
     return chips;
