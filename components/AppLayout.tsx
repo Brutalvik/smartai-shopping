@@ -11,7 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <AppLoadingWrapper>
         <CartProvider>
           <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-            <div className="relative flex flex-col min-h-screen font-sans antialiased">
+            <div className="relative flex flex-col font-sans antialiased">
               <Navbar />
               <main className="container mx-auto max-w-fit flex-grow">
                 {children}

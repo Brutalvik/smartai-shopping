@@ -3,8 +3,6 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-
-import { dummySales } from "@/data/dummySales";
 import { Product } from "@/types/product";
 import { Sale, SalesFiltersType, tabs } from "@/components/seller/types";
 import XLoader from "@/components/ui/XLoader/XLoader";

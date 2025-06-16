@@ -11,6 +11,7 @@ body {
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -33,9 +34,11 @@ body {
     0% {
       transform: translateX(0);
     }
+
     50% {
       transform: translateX(-10px);
     }
+
     100% {
       transform: translateX(0);
     }
@@ -45,9 +48,11 @@ body {
     0% {
       transform: translateX(0);
     }
+
     50% {
       transform: translateX(10px);
     }
+
     100% {
       transform: translateX(0);
     }
@@ -62,7 +67,8 @@ body {
 /* Optional: clean up unwanted scrollbars or weird border behaviors */
 table th,
 table td {
-  border-right: 1px solid #e5e7eb; /* Tailwind gray-200 */
+  border-right: 1px solid #e5e7eb;
+  /* Tailwind gray-200 */
   border-bottom: 1px solid #e5e7eb;
   vertical-align: middle;
 }
@@ -76,6 +82,7 @@ table {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .scrollbar-thin::-webkit-scrollbar {
   display: none;
 }

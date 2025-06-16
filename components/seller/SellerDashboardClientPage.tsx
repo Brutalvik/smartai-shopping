@@ -1,19 +1,12 @@
 "use client";
 
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-  useMemo,
-} from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Button, Chip, Tooltip, useDisclosure } from "@heroui/react";
-import { Loader2, SquarePlus, Trash2 } from "lucide-react";
+import { SquarePlus, Trash2 } from "lucide-react";
 import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { isEmptyArray } from "formik";
 import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSidebar";
 import classNames from "classnames";
 import ProductFilters from "@/components/seller/ProductFilters";
@@ -37,13 +30,14 @@ import {
 } from "@/components/seller/types";
 import { dummySales } from "@/data/dummySales";
 import { AnimatePresence, motion } from "framer-motion";
+import DrawerSidebar from "@/components/ui/DrawerSidebar/DrawerSidebar";
 
 interface SellerDashboardClientPageProps {
   initialProducts: Product[];
   initialLastEvaluatedKey: Record<string, any> | undefined;
   initialHasMore: boolean;
   sellerId: string;
-  initialTab?: "products" | "sales" | "upload";
+  initialTab: string;
 }
 
 export default function SellerDashboardClientPage({
@@ -317,7 +311,7 @@ export default function SellerDashboardClientPage({
       {!loading && (
         <div
           className={classNames(
-            "transition-all duration-300 hidden md:block",
+            "transition-all duration-300 hidden lg:block",
             sidebarCollapsed ? "w-[60px]" : "w-[250px]"
           )}
         >
@@ -328,6 +322,12 @@ export default function SellerDashboardClientPage({
           />
         </div>
       )}
+      <div className="hidden md:flex">
+        <DrawerSidebar
+          onTabChange={(tab) => setActiveTab(tab as keyof ProductTabsMap)}
+          activeTab={activeTab}
+        />
+      </div>
 
       <div className="flex-1 transition-all duration-300 overflow-auto">
         <div className="p-4">
