@@ -27,7 +27,6 @@ export default function SalesColumnSelector({
 }: SalesColumnSelectorProps) {
   const [tempSelection, setTempSelection] = useState<string[]>([]);
 
-  // ✅ Sync when modal opens or props change
   useEffect(() => {
     if (isOpen) {
       setTempSelection(selectedColumns);
@@ -44,6 +43,14 @@ export default function SalesColumnSelector({
 
   const handleApply = () => {
     setSelectedColumns(tempSelection);
+    onClose();
+  };
+
+  const handleResetColumns = () => {
+    const mandatoryKeys = allColumns
+      .filter((c) => c.mandatory)
+      .map((c) => c.key);
+    setSelectedColumns(mandatoryKeys);
     onClose();
   };
 
@@ -75,6 +82,9 @@ export default function SalesColumnSelector({
         <ModalFooter>
           <Button variant="light" onPress={onClose}>
             Cancel
+          </Button>
+          <Button variant="light" onPress={handleResetColumns}>
+            Reset
           </Button>
           <Button color="primary" onPress={handleApply}>
             Apply

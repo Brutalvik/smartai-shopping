@@ -47,6 +47,10 @@ interface DashboardTabContentProps {
   salesPage: number;
   salesRowsPerPage: number;
   filteredSales: Sale[];
+  isModalOpen: boolean;
+  setIsModalOpen: () => void;
+  selectedColumns: string[];
+  setSelectedColumns: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export default function DashboardTabContent({
@@ -65,6 +69,10 @@ export default function DashboardTabContent({
   salesPage,
   salesRowsPerPage,
   filteredSales,
+  isModalOpen,
+  setIsModalOpen,
+  selectedColumns,
+  setSelectedColumns,
 }: DashboardTabContentProps) {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams?.get("tab") as keyof typeof tabs | null;
@@ -98,7 +106,13 @@ export default function DashboardTabContent({
       .slice((salesPage - 1) * salesRowsPerPage, salesPage * salesRowsPerPage);
     return (
       <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
-        <SellerSalesTable sales={paginatedSales} />
+        <SellerSalesTable
+          sales={paginatedSales}
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          selectedColumns={selectedColumns}
+          setSelectedColumns={setSelectedColumns}
+        />
       </div>
     );
   }

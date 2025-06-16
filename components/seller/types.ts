@@ -1,4 +1,10 @@
 export type Filters = {
+  status?: string;
+  isReturnable?: boolean;
+  minAmount?: number;
+  maxAmount?: number;
+  startDate?: string;
+  endDate?: string;
   category?: string;
   isActive?: boolean;
   minPrice?: number;

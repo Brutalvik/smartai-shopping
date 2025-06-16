@@ -16,25 +16,21 @@ import {
   TableCell,
   Tooltip,
   Badge,
-  Button,
 } from "@heroui/react";
-import { ArrowUp, ArrowDown, ArrowUpDown, Columns3 } from "lucide-react";
-import { MapKey, Sale } from "@/components/seller/types";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Filters, MapKey, Sale } from "@/components/seller/types";
 import SalesColumnSelector from "@/components/seller/SalesColumnSelector";
 import { allColumns } from "@/components/seller/utils";
 
 interface SellerSalesTableProps {
   sales: Sale[];
-  filters?: {
-    status?: string;
-    isReturnable?: boolean;
-    minAmount?: number;
-    maxAmount?: number;
-    startDate?: string;
-    endDate?: string;
-  };
+  filters?: Filters;
   page?: number;
   rowsPerPage?: number;
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+  selectedColumns: string[];
+  setSelectedColumns: (columns: string[]) => void;
 }
 
 export default function SellerSalesTable({
@@ -42,6 +38,10 @@ export default function SellerSalesTable({
   filters,
   page = 1,
   rowsPerPage = 10,
+  isModalOpen,
+  setIsModalOpen,
+  selectedColumns,
+  setSelectedColumns,
 }: SellerSalesTableProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
@@ -49,10 +49,6 @@ export default function SellerSalesTable({
   );
   const [sortColumn, setSortColumn] = useState<number>(0);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    allColumns.filter((c) => c.mandatory).map((c) => c.key)
-  );
 
   const isResizing = useRef(false);
   const startX = useRef(0);
@@ -183,18 +179,13 @@ export default function SellerSalesTable({
 
   useEffect(() => {
     if (!containerRef.current || visibleColumns.length === 0) return;
-
     const totalWidth = containerRef.current.offsetWidth;
     const avgWidth = Math.floor(totalWidth / visibleColumns.length);
-
-    // Skip setting if already initialized
     if (Object.keys(columnWidths).length === visibleColumns.length) return;
-
     const initialWidths: { [key: number]: number } = {};
     visibleColumns.forEach((_, i) => {
       initialWidths[i] = avgWidth;
     });
-
     setColumnWidths(initialWidths);
   }, [visibleColumns, Object.keys(columnWidths).length]);
 
@@ -203,15 +194,6 @@ export default function SellerSalesTable({
       ref={containerRef}
       className="relative border border-default-100 bg-white dark:bg-default-50 w-screen rounded-lg"
     >
-      <div className="flex justify-end p-2">
-        <Button
-          variant="light"
-          onPress={() => setIsModalOpen(true)}
-          startContent={<Columns3 size={16} />}
-        >
-          Customize Columns
-        </Button>
-      </div>
       <Table
         aria-label="Seller Sales Table"
         removeWrapper
@@ -248,13 +230,15 @@ export default function SellerSalesTable({
         <TableBody emptyContent="No sales found.">
           {paginatedSales.map((sale) => (
             <TableRow key={sale.saleId} className="text-sm h-[44px]">
-              {visibleColumns.map(({ key }, idx) => (
+              {visibleColumns.map(({ key }) => (
                 <TableCell key={key}>{getValue(sale, key)}</TableCell>
               ))}
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      {/* Column Selector Modal (controlled externally) */}
       <SalesColumnSelector
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

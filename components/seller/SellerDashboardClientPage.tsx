@@ -29,6 +29,9 @@ import {
 import { dummySales } from "@/data/dummySales";
 import { motion } from "framer-motion";
 
+import CustomizableColumnButton from "@/components/ui/CustomizableColumnButton/CustomizableColumnButton";
+import { allColumns } from "@/components/seller/utils";
+
 interface SellerDashboardClientPageProps {
   initialProducts: Product[];
   initialLastEvaluatedKey: Record<string, any> | undefined;
@@ -50,8 +53,6 @@ export default function SellerDashboardClientPage({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const productId = searchParams?.get("productId");
-
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number>(0);
   const tabParam = searchParams?.get("tab") as keyof ProductTabsMap;
   const [activeTab, setActiveTab] = useState<keyof ProductTabsMap>(
@@ -65,6 +66,11 @@ export default function SellerDashboardClientPage({
   const [lastEvaluatedKey, setLastEvaluatedKey] = useState<
     Record<string, any> | undefined
   >(initialLastEvaluatedKey);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedColumns, setSelectedColumns] = useState(
+    allColumns.filter((c) => c.mandatory).map((c) => c.key)
+  );
 
   const [filters, setFilters] = useState<Filters>({
     category: searchParams?.get("category") || "",
@@ -269,6 +275,15 @@ export default function SellerDashboardClientPage({
       .map((sale) => ({
         ...sale,
         status: sale.status as "Delivered" | "Returned" | "Pending",
+        shippingMethod: sale.shippingMethod as
+          | "Express"
+          | "Standard"
+          | "Same-Day",
+        paymentMethod: sale.paymentMethod as
+          | "Credit Card"
+          | "Apple Pay"
+          | "PayPal"
+          | "Google Pay",
       }))
       .filter((sale) => {
         const {
@@ -374,6 +389,13 @@ export default function SellerDashboardClientPage({
                   }}
                 />
               )}
+              {activeTab === tabs.sales && (
+                <div className="flex">
+                  <CustomizableColumnButton
+                    onOpen={() => setIsModalOpen(true)}
+                  />
+                </div>
+              )}
               <Tooltip content="Add new product">
                 <SquarePlus
                   size={28}
@@ -428,9 +450,13 @@ export default function SellerDashboardClientPage({
             salesPage={salesPage}
             salesRowsPerPage={salesRowsPerPage}
             filteredSales={filteredSales}
+            isModalOpen={isModalOpen}
+            setIsModalOpen={() => setIsModalOpen(!setIsModalOpen)}
+            selectedColumns={selectedColumns}
+            setSelectedColumns={setSelectedColumns}
           />
 
-          {!loading && products.length === 0 && (
+          {!loading && products.length === 0 && activeTab === tabs.products && (
             <div className="text-center text-gray-600 text-lg mt-10">
               No products found with the current filters.
             </div>
