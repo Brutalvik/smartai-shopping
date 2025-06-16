@@ -37,22 +37,7 @@ export default function ProtectedApp({ Component, pageProps }: AppProps) {
       )}
     >
       {loading && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "white",
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "opacity 0.3s ease-in-out",
-            opacity: loading ? 1 : 0,
-          }}
-        >
+        <div className="w-full h-full items-center justify-center">
           <XyvoLoader />
         </div>
       )}

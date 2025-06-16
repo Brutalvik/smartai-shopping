@@ -33,11 +33,13 @@ interface ProductFiltersProps {
     maxPrice?: number;
     searchKeyword?: string;
   };
+  setActiveChips?: (chips: { label: string; onRemove: () => void }[]) => void; // 👈 add this
 }
 
 export default function ProductFilters({
   onFiltersChange,
   initialFilters,
+  setActiveChips,
 }: ProductFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -54,7 +56,7 @@ export default function ProductFilters({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  useEffect(() => {
+  const handleFilterApply = () => {
     const params = new URLSearchParams();
     if (categoryFilter) params.set("category", categoryFilter);
     if (isActiveFilter !== undefined)
@@ -64,16 +66,9 @@ export default function ProductFilters({
     if (maxPriceFilter !== undefined)
       params.set("maxPrice", String(maxPriceFilter));
     if (searchKeyword) params.set("search", searchKeyword);
-    router.replace(`${pathname}?${params.toString()}`);
-  }, [
-    categoryFilter,
-    isActiveFilter,
-    minPriceFilter,
-    maxPriceFilter,
-    searchKeyword,
-  ]);
 
-  const handleFilterApply = () => {
+    router.replace(`${pathname}?${params.toString()}`);
+
     onFiltersChange({
       category: categoryFilter,
       isActive: isActiveFilter,
@@ -81,6 +76,56 @@ export default function ProductFilters({
       maxPrice: maxPriceFilter,
       searchKeyword,
     });
+
+    const chips: { label: string; onRemove: () => void }[] = [];
+
+    if (searchKeyword)
+      chips.push({
+        label: `Search: ${searchKeyword}`,
+        onRemove: () => {
+          setSearchKeyword("");
+          onFiltersChange({ ...initialFilters, searchKeyword: "" });
+        },
+      });
+
+    if (categoryFilter)
+      chips.push({
+        label: `Category: ${categoryFilter}`,
+        onRemove: () => {
+          setCategoryFilter("");
+          onFiltersChange({ ...initialFilters, category: "" });
+        },
+      });
+
+    if (minPriceFilter !== undefined)
+      chips.push({
+        label: `Min: $${minPriceFilter}`,
+        onRemove: () => {
+          setMinPriceFilter(undefined);
+          onFiltersChange({ ...initialFilters, minPrice: undefined });
+        },
+      });
+
+    if (maxPriceFilter !== undefined)
+      chips.push({
+        label: `Max: $${maxPriceFilter}`,
+        onRemove: () => {
+          setMaxPriceFilter(undefined);
+          onFiltersChange({ ...initialFilters, maxPrice: undefined });
+        },
+      });
+
+    if (isActiveFilter)
+      chips.push({
+        label: "Active Only",
+        onRemove: () => {
+          setIsActiveFilter(undefined);
+          onFiltersChange({ ...initialFilters, isActive: undefined });
+        },
+      });
+
+    setActiveChips?.(chips);
+
     onOpenChange();
   };
 
@@ -99,6 +144,78 @@ export default function ProductFilters({
     });
     onOpenChange();
   };
+
+  useEffect(() => {
+    const chips: { label: string; onRemove: () => void }[] = [];
+
+    if (searchKeyword)
+      chips.push({
+        label: `Search: ${searchKeyword}`,
+        onRemove: () => {
+          setSearchKeyword("");
+          onFiltersChange({
+            ...initialFilters,
+            searchKeyword: "",
+          });
+        },
+      });
+
+    if (categoryFilter)
+      chips.push({
+        label: `Category: ${categoryFilter}`,
+        onRemove: () => {
+          setCategoryFilter("");
+          onFiltersChange({
+            ...initialFilters,
+            category: "",
+          });
+        },
+      });
+
+    if (minPriceFilter !== undefined)
+      chips.push({
+        label: `Min: $${minPriceFilter}`,
+        onRemove: () => {
+          setMinPriceFilter(undefined);
+          onFiltersChange({
+            ...initialFilters,
+            minPrice: undefined,
+          });
+        },
+      });
+
+    if (maxPriceFilter !== undefined)
+      chips.push({
+        label: `Max: $${maxPriceFilter}`,
+        onRemove: () => {
+          setMaxPriceFilter(undefined);
+          onFiltersChange({
+            ...initialFilters,
+            maxPrice: undefined,
+          });
+        },
+      });
+
+    if (isActiveFilter)
+      chips.push({
+        label: "Active Only",
+        onRemove: () => {
+          setIsActiveFilter(undefined);
+          onFiltersChange({
+            ...initialFilters,
+            isActive: undefined,
+          });
+        },
+      });
+
+    if (setActiveChips) setActiveChips(chips);
+  }, [
+    categoryFilter,
+    isActiveFilter,
+    minPriceFilter,
+    maxPriceFilter,
+    searchKeyword,
+  ]);
 
   return (
     <>

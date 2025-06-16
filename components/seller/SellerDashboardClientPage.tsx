@@ -7,8 +7,6 @@ import { CDN } from "@/config/config";
 import { Product } from "@/types/product";
 import { addToast } from "@heroui/react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import CollapsibleSidebar from "@/components/ui/CollapsibleSidebar/CollapsibleSidebar";
-import classNames from "classnames";
 import ProductFilters from "@/components/seller/ProductFilters";
 import SalesFilters from "./SalesFilters";
 import DashboardTabContent from "./SellerDashboardTabContent";
@@ -29,8 +27,7 @@ import {
   tabs,
 } from "@/components/seller/types";
 import { dummySales } from "@/data/dummySales";
-import { AnimatePresence, motion } from "framer-motion";
-import DrawerSidebar from "@/components/ui/DrawerSidebar/DrawerSidebar";
+import { motion } from "framer-motion";
 
 interface SellerDashboardClientPageProps {
   initialProducts: Product[];
@@ -107,9 +104,9 @@ export default function SellerDashboardClientPage({
   const [salesChips, setSalesChips] = useState<
     { label: string; onRemove: () => void }[]
   >([]);
-
-  const handleSidebarToggle = (collapsed: boolean) =>
-    setSidebarCollapsed(collapsed);
+  const [productChips, setProductChips] = useState<
+    { label: string; onRemove: () => void }[]
+  >([]);
 
   useEffect(() => {
     const updateWidth = () => setWindowWidth(window.innerWidth);
@@ -310,70 +307,53 @@ export default function SellerDashboardClientPage({
   const countEnd = Math.min(salesPage * salesRowsPerPage, filteredSales.length);
 
   return (
-    <div className="flex h-[calc(100vh-10vh)]" id="main-content">
-      {!loading && (
-        <div
-          className={classNames(
-            "transition-all duration-300 hidden lg:block",
-            sidebarCollapsed ? "w-[60px]" : "w-[250px]"
-          )}
-        >
-          <CollapsibleSidebar
-            onToggle={handleSidebarToggle}
-            onTabChange={(tab) => setActiveTab(tab as keyof ProductTabsMap)}
-            activeTab={activeTab}
-          />
-        </div>
-      )}
-      <div className="hidden md:flex sm:flex">
-        <DrawerSidebar
-          onTabChange={(tab) => setActiveTab(tab as keyof ProductTabsMap)}
-          activeTab={activeTab}
-        />
-      </div>
-
+    <div className="flex" id="main-content">
       <div className="flex-1 transition-all duration-300 overflow-auto">
         <div className="p-4">
           <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-bold capitalize">{activeTab}</h1>
-              <AnimatePresence>
-                <motion.div
-                  key="chip-container"
-                  layout
-                  className="flex flex-wrap gap-2"
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {activeTab === tabs.sales && salesChips.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {salesChips.map((chip) => (
-                        <motion.div
-                          key={chip.label}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          transition={{ duration: 0.2 }}
+              {activeTab === tabs.products && productChips.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {productChips.map((chip) => (
+                    <Chip
+                      key={chip.label}
+                      onClose={chip.onRemove}
+                      variant="flat"
+                      color="primary"
+                      size="sm"
+                      className="text-sm"
+                    >
+                      {chip.label}
+                    </Chip>
+                  ))}
+                </div>
+              )}
+              {activeTab === tabs.sales && salesChips.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {salesChips.map((chip) => (
+                    <motion.div
+                      key={chip.label}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div key={chip.label}>
+                        <Chip
+                          onClose={chip.onRemove}
+                          variant="flat"
+                          color="primary"
+                          size="sm"
+                          className="text-sm"
                         >
-                          <div key={chip.label}>
-                            <Chip
-                              onClose={chip.onRemove}
-                              variant="flat"
-                              color="primary"
-                              size="sm"
-                              className="text-sm"
-                            >
-                              {chip.label}
-                            </Chip>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
+                          {chip.label}
+                        </Chip>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {activeTab === tabs.sales && (
@@ -406,6 +386,7 @@ export default function SellerDashboardClientPage({
                 <ProductFilters
                   onFiltersChange={(newFilters) => setFilters(newFilters)}
                   initialFilters={filters}
+                  setActiveChips={setProductChips}
                 />
               ) : activeTab === tabs.sales ? (
                 <SalesFilters

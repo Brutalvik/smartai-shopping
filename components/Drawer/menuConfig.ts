@@ -9,7 +9,8 @@ import {
   LogOut,
   User2Icon,
   Upload,
-  Plus,
+  PanelsTopLeft,
+  ChartNoAxesCombined,
 } from "lucide-react";
 
 export const buyerMenu = [
@@ -33,11 +34,8 @@ export const buyerMenu = [
 
 export const sellerMenu = [
   {
-    title: "Seller Tools",
-    items: [
-      { label: "My Products", icon: Upload, path: "/seller/dashboard" },
-      { label: "Profile", icon: User, path: "/profile" },
-    ],
+    title: "Home",
+    items: [{ label: "Profile", icon: User, path: "/profile" }],
   },
   {
     title: "Explore",
@@ -54,3 +52,21 @@ export const authMenu = {
     { label: "Sign Out", icon: LogOut, path: "/signout", isSignOut: true },
   ],
 };
+
+export const sellerTools = [
+  {
+    label: "My Products",
+    icon: PanelsTopLeft,
+    tabKey: "products",
+  },
+  {
+    label: "Sales",
+    icon: ChartNoAxesCombined,
+    tabKey: "sales",
+  },
+  {
+    label: "Add Product",
+    icon: Upload,
+    tabKey: "upload",
+  },
+];

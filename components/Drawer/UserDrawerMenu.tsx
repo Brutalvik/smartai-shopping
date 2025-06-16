@@ -21,6 +21,7 @@ import {
   buyerMenu,
   sellerMenu,
   authMenu,
+  sellerTools,
 } from "@/components/Drawer/menuConfig";
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
 import { selectUser } from "@/store/selectors";
@@ -173,13 +174,41 @@ const UserDrawerMenu = () => {
                             />
                           );
                         })}
-
                         {idx < currentMenu.length - 1 && (
                           <hr className="border-default-200" />
                         )}
                       </div>
                     );
                   })}
+
+                  {isSeller && (
+                    <>
+                      <hr className="border-default-200 my-3" />
+                      <div className="space-y-2">
+                        <p className="text-xs text-default-400 px-3 uppercase tracking-wide">
+                          Seller Tools
+                        </p>
+                        {sellerTools.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <DrawerItem
+                              key={item.label}
+                              icon={<Icon size={18} />}
+                              label={item.label}
+                              onClick={() => {
+                                const newParams = new URLSearchParams();
+                                newParams.set("tab", item.tabKey);
+                                router.push(
+                                  `/seller/dashboard?${newParams.toString()}`
+                                );
+                                onClose();
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
 
                   <hr className="border-default-200" />
 
