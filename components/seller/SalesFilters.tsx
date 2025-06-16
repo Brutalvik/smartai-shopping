@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -15,7 +15,7 @@ import {
   Chip,
   useDisclosure,
 } from "@heroui/react";
-import { CalendarDays, Filter, RefreshCw, X } from "lucide-react";
+import { Filter, RefreshCw } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -46,15 +46,17 @@ interface SalesFiltersProps {
     startDate?: string;
     endDate?: string;
   };
+  setActiveChips?: (chips: { label: string; onRemove: () => void }[]) => void;
 }
 
 export default function SalesFilters({
   onFiltersChange,
   initialFilters,
+  setActiveChips,
 }: SalesFiltersProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const [status, setStatus] = useState<string>(initialFilters.status || "All");
+  const [status, setStatus] = useState(initialFilters.status || "All");
   const [isReturnable, setIsReturnable] = useState<boolean | undefined>(
     initialFilters.isReturnable
   );
@@ -72,14 +74,15 @@ export default function SalesFilters({
   );
 
   const handleApply = () => {
-    onFiltersChange({
+    const filters = {
       status: status !== "All" ? status : undefined,
       isReturnable,
       minAmount,
       maxAmount,
       startDate: startDate ? startDate.toISOString() : undefined,
       endDate: endDate ? endDate.toISOString() : undefined,
-    });
+    };
+    onFiltersChange(filters);
     onOpenChange();
   };
 
@@ -149,6 +152,10 @@ export default function SalesFilters({
     return chips;
   }, [status, minAmount, maxAmount, startDate, endDate, isReturnable]);
 
+  useEffect(() => {
+    if (setActiveChips) setActiveChips(activeChips);
+  }, [activeChips]);
+
   return (
     <>
       <div className="flex flex-wrap gap-2 items-center">
@@ -173,7 +180,7 @@ export default function SalesFilters({
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2 }}
             >
-              {activeChips.map((chip, index) => (
+              {activeChips.map((chip) => (
                 <motion.div
                   key={chip.label}
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -196,7 +203,6 @@ export default function SalesFilters({
           )}
         </AnimatePresence>
       </div>
-
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
@@ -318,6 +324,7 @@ export default function SalesFilters({
           </ModalContent>
         </motion.div>
       </Modal>
+      ;
     </>
   );
 }

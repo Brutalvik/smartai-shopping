@@ -83,7 +83,7 @@ export const MultiStepLoader = forwardRef<
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="w-full h-full fixed inset-0 z-[100] flex items-center justify-center backdrop-blur-2xl"
+          className="w-full h-full fixed inset-0 z-[100] flex items-center justify-center bg-black/60 dark:bg-white/10 backdrop-blur-md"
         >
           <div className="h-96 relative">
             <div className="flex flex-col gap-4 max-w-xl mx-auto">
@@ -112,8 +112,8 @@ export const MultiStepLoader = forwardRef<
                       className={cn(
                         "text-sm",
                         isActive
-                          ? "text-lime-500 font-semibold"
-                          : "text-default opacity-70"
+                          ? "text-black dark:text-white font-semibold"
+                          : "text-black/70 dark:text-white/70"
                       )}
                     >
                       {step.text}
@@ -123,7 +123,7 @@ export const MultiStepLoader = forwardRef<
               })}
             </div>
           </div>
-          <div className="bg-gradient-to-t inset-x-0 bottom-0 z-0 bg-white dark:bg-black h-full absolute [mask-image:radial-gradient(900px_at_center,transparent_30%,white)]" />
+          <div className="bg-gradient-to-t inset-x-0 bottom-0 z-0 h-full absolute [mask-image:radial-gradient(900px_at_center,transparent_30%,white)]" />
         </motion.div>
       )}
     </AnimatePresence>

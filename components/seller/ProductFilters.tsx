@@ -97,6 +97,7 @@ export default function ProductFilters({
       maxPrice: undefined,
       searchKeyword: "",
     });
+    onOpenChange();
   };
 
   return (

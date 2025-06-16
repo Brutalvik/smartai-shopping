@@ -82,7 +82,7 @@ export default function PaginationControls({
         </div>
 
         <div className="flex flex-row gap-4 items-center justify-center">
-          <label>Go to page</label>
+          <label>Go to</label>
           <Input
             type="number"
             min={1}

@@ -48,7 +48,6 @@ interface Props {
 }
 
 export default function SellerProductUploadForm({ initialProduct }: Props) {
-  console.log("INITIAL PRODUCT : ", initialProduct);
   const router = useRouter();
   const isEditMode = Boolean(initialProduct);
   const loaderRef = useRef<any>(null);
@@ -142,7 +141,9 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
         categories.find((cat) => cat.key === values.category)?.label || "";
 
       loaderRef.current?.start();
-      loaderRef.current?.stepTo(0);
+      setTimeout(() => {
+        loaderRef.current?.stepTo(0);
+      }, 1000);
 
       const formData = new FormData();
       formData.append("title", values.title);
@@ -155,7 +156,9 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
       values.images.forEach((file) => formData.append("images", file));
 
       try {
-        loaderRef.current?.stepTo(1);
+        setTimeout(() => {
+          loaderRef.current?.stepTo(1);
+        }, 500);
         const url = isEditMode
           ? `${CDN.sellerProductsApi}/seller/products/${initialProduct?.productId}`
           : `${CDN.sellerProductsApi}/seller/products`;
@@ -169,7 +172,9 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
 
         if (!res.ok) throw new Error("Upload failed");
 
-        loaderRef.current?.stepTo(2);
+        setTimeout(() => {
+          loaderRef.current?.stepTo(2);
+        }, 800);
 
         addToast({
           description: isEditMode
@@ -184,13 +189,16 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
           setImagePreviews([]);
         }
 
-        loaderRef.current?.stepTo(3);
+        setTimeout(() => {
+          loaderRef.current?.stepTo(3);
+        }, 1000);
         setTimeout(() => {
           loaderRef.current?.stop();
           router.push(
             isEditMode ? "/seller/dashboard?updated=1" : "/seller/dashboard"
           );
         }, 1200);
+        formik.resetForm();
       } catch (err) {
         loaderRef.current?.stop();
         addToast({
