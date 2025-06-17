@@ -239,92 +239,93 @@ export default function SellerSalesTable({
   );
 
   return (
-    <div
-      ref={containerRef}
-      style={{ maxWidth: "100vw" }}
-      className="relative border border-default-100 bg-white dark:bg-default-50 w-full overflow-x-hidden rounded-lg"
-    >
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={({ active, over }) => {
-          if (!over || active.id === over.id) return;
-          const oldIndex = columnOrder.indexOf(active.id as string);
-          const newIndex = columnOrder.indexOf(over.id as string);
-          setColumnOrder(arrayMove(columnOrder, oldIndex, newIndex));
-        }}
+    <div className="w-full overflow-x-auto md:overflow-x-hidden">
+      <div
+        ref={containerRef}
+        className="min-w-[768px] md:min-w-full relative border border-default-100 bg-white dark:bg-default-50 rounded-lg"
       >
-        <SortableContext
-          items={validColumnOrder}
-          strategy={verticalListSortingStrategy}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={({ active, over }) => {
+            if (!over || active.id === over.id) return;
+            const oldIndex = columnOrder.indexOf(active.id as string);
+            const newIndex = columnOrder.indexOf(over.id as string);
+            setColumnOrder(arrayMove(columnOrder, oldIndex, newIndex));
+          }}
         >
-          <table
-            aria-label="Seller Sales Table"
-            className="w-full table-fixed border-collapse"
+          <SortableContext
+            items={validColumnOrder}
+            strategy={verticalListSortingStrategy}
           >
-            <Tooltip content="Drag to rearrange">
-              <thead className="sticky top-0 bg-grey-70 dark:bg-default-50 z-10">
-                <tr className="h-[56px]">
-                  {validColumnOrder.map((key, index) => {
-                    const col = allColumns.find((c) => c.key === key)!;
-                    return (
-                      <SortableHeader
-                        key={col.key}
-                        column={col}
-                        index={index}
-                        sortColumn={sortColumn}
-                        sortDirection={sortDirection}
-                        toggleSort={toggleSort}
-                        getColumnStyle={getColumnStyle}
-                        onMouseDown={handleMouseDown}
-                      />
-                    );
-                  })}
-                </tr>
-              </thead>
-            </Tooltip>
-            <tbody>
-              {sortedSales.length === 0 ? (
-                <tr className="text-center">
-                  <td
-                    colSpan={validColumnOrder.length}
-                    className="py-4 text-default-600"
-                  >
-                    No sales found.
-                  </td>
-                </tr>
-              ) : (
-                sortedSales.map((sale) => (
-                  <tr
-                    key={sale.saleId}
-                    className="h-[44px] border-b border-default-100 last:border-b-0"
-                  >
-                    {validColumnOrder.map((key) => (
-                      <td
-                        key={key}
-                        style={getColumnStyle(validColumnOrder.indexOf(key))}
-                        className={
-                          key === "quantity"
-                            ? "px-1 py-0 text-xs text-left truncate"
-                            : "p-2 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
-                        }
-                      >
-                        {getValue(sale, key)}
-                      </td>
-                    ))}
+            <table
+              aria-label="Seller Sales Table"
+              className="w-full table-fixed border-collapse"
+            >
+              <Tooltip content="Drag to rearrange">
+                <thead className="sticky top-0 bg-grey-70 dark:bg-default-50 z-10">
+                  <tr className="h-[56px]">
+                    {validColumnOrder.map((key, index) => {
+                      const col = allColumns.find((c) => c.key === key)!;
+                      return (
+                        <SortableHeader
+                          key={col.key}
+                          column={col}
+                          index={index}
+                          sortColumn={sortColumn}
+                          sortDirection={sortDirection}
+                          toggleSort={toggleSort}
+                          getColumnStyle={getColumnStyle}
+                          onMouseDown={handleMouseDown}
+                        />
+                      );
+                    })}
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </SortableContext>
-      </DndContext>
-      <SalesColumnSelector
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        selectedColumns={selectedColumns}
-        setSelectedColumns={setSelectedColumns}
-      />
+                </thead>
+              </Tooltip>
+              <tbody>
+                {sortedSales.length === 0 ? (
+                  <tr className="text-center">
+                    <td
+                      colSpan={validColumnOrder.length}
+                      className="py-4 text-default-600"
+                    >
+                      No sales found.
+                    </td>
+                  </tr>
+                ) : (
+                  sortedSales.map((sale) => (
+                    <tr
+                      key={sale.saleId}
+                      className="h-[44px] border-b border-default-100 last:border-b-0"
+                    >
+                      {validColumnOrder.map((key) => (
+                        <td
+                          key={key}
+                          style={getColumnStyle(validColumnOrder.indexOf(key))}
+                          className={
+                            key === "quantity"
+                              ? "px-1 py-0 text-xs text-left truncate"
+                              : "p-2 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
+                          }
+                        >
+                          {getValue(sale, key)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </SortableContext>
+        </DndContext>
+        <SalesColumnSelector
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          selectedColumns={selectedColumns}
+          setSelectedColumns={setSelectedColumns}
+        />
+      </div>
     </div>
   );
 }
