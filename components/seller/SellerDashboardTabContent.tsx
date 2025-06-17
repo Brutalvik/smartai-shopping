@@ -51,6 +51,8 @@ interface DashboardTabContentProps {
   setIsModalOpen: () => void;
   selectedColumns: string[];
   setSelectedColumns: React.Dispatch<React.SetStateAction<string[]>>;
+  columnOrder: string[];
+  setColumnOrder: (order: string[]) => void;
 }
 
 export default function DashboardTabContent({
@@ -73,6 +75,8 @@ export default function DashboardTabContent({
   setIsModalOpen,
   selectedColumns,
   setSelectedColumns,
+  columnOrder,
+  setColumnOrder,
 }: DashboardTabContentProps) {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams?.get("tab") as keyof typeof tabs | null;
@@ -112,6 +116,8 @@ export default function DashboardTabContent({
           setIsModalOpen={setIsModalOpen}
           selectedColumns={selectedColumns}
           setSelectedColumns={setSelectedColumns}
+          columnOrder={columnOrder}
+          setColumnOrder={setColumnOrder}
         />
       </div>
     );

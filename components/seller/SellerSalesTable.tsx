@@ -1,26 +1,30 @@
+// components/seller/SellerSalesTable.tsx
 "use client";
 
 import React, {
   useRef,
-  useState,
   useEffect,
   useCallback,
   useMemo,
+  CSSProperties,
 } from "react";
 import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableColumn,
-  TableRow,
-  TableCell,
-  Tooltip,
-  Badge,
-} from "@heroui/react";
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
-import { Filters, MapKey, Sale } from "@/components/seller/types";
+import { Filters, MapKey, Sale, Column } from "@/components/seller/types";
 import SalesColumnSelector from "@/components/seller/SalesColumnSelector";
 import { allColumns } from "@/components/seller/utils";
+import { SortableHeader } from "./SortableHeader"; // <<< IMPORT THE NEW COMPONENT HERE
 
 interface SellerSalesTableProps {
   sales: Sale[];
@@ -31,6 +35,8 @@ interface SellerSalesTableProps {
   setIsModalOpen: (open: boolean) => void;
   selectedColumns: string[];
   setSelectedColumns: (columns: string[]) => void;
+  columnOrder: string[];
+  setColumnOrder: (order: string[]) => void;
 }
 
 export default function SellerSalesTable({
@@ -42,14 +48,18 @@ export default function SellerSalesTable({
   setIsModalOpen,
   selectedColumns,
   setSelectedColumns,
+  columnOrder,
+  setColumnOrder,
 }: SellerSalesTableProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [columnWidths, setColumnWidths] = useState<{ [key: number]: number }>(
-    {}
+  const sensors = useSensors(useSensor(PointerSensor));
+  const [columnWidths, setColumnWidths] = React.useState<{
+    [key: number]: number;
+  }>({});
+  const [sortColumn, setSortColumn] = React.useState<number>(0);
+  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">(
+    "asc"
   );
-  const [sortColumn, setSortColumn] = useState<number>(0);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
   const isResizing = useRef(false);
   const startX = useRef(0);
   const startWidth = useRef(0);
@@ -84,14 +94,13 @@ export default function SellerSalesTable({
     document.removeEventListener("mouseup", handleMouseUp);
   }, [handleMouseMove]);
 
-  const getColumnStyle = (index: number) =>
-    columnWidths[index] ? { width: `${columnWidths[index]}px` } : {};
-
-  const visibleColumns = allColumns.filter((c) =>
-    selectedColumns.includes(c.key)
+  const getColumnStyle = useCallback(
+    (index: number): CSSProperties =>
+      columnWidths[index] ? { width: `${columnWidths[index]}px` } : {},
+    [columnWidths]
   );
 
-  const getValue = (sale: Sale, key: string): any => {
+  const getValue = useCallback((sale: Sale, key: string): any => {
     const map: Record<MapKey, any> = {
       saleId: sale.saleId,
       productTitle: sale.productTitle,
@@ -113,7 +122,7 @@ export default function SellerSalesTable({
       tax: `$${sale.tax?.toFixed(2)}`,
     };
     return map[key as MapKey] ?? "";
-  };
+  }, []);
 
   const filteredSales = useMemo(() => {
     return sales.filter((sale) => {
@@ -146,7 +155,7 @@ export default function SellerSalesTable({
   }, [sales, filters]);
 
   const sortedSales = useMemo(() => {
-    const key = visibleColumns[sortColumn]?.key;
+    const key = columnOrder[sortColumn] ?? columnOrder[0] ?? "saleId";
     return [...filteredSales].sort((a, b) => {
       const valA = getValue(a, key);
       const valB = getValue(b, key);
@@ -160,85 +169,130 @@ export default function SellerSalesTable({
         return 0;
       }
     });
-  }, [filteredSales, sortColumn, sortDirection, visibleColumns]);
+  }, [filteredSales, sortColumn, sortDirection, columnOrder, getValue]);
 
-  const paginatedSales = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    return sortedSales.slice(start, end);
-  }, [sortedSales, page, rowsPerPage]);
-
-  const toggleSort = (index: number) => {
-    if (sortColumn === index) {
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortColumn(index);
-      setSortDirection("asc");
-    }
-  };
+  const toggleSort = useCallback(
+    (index: number) => {
+      if (sortColumn === index) {
+        setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+      } else {
+        setSortColumn(index);
+        setSortDirection("asc");
+      }
+    },
+    [sortColumn]
+  );
 
   useEffect(() => {
-    if (!containerRef.current || visibleColumns.length === 0) return;
-    const totalWidth = containerRef.current.offsetWidth;
-    const avgWidth = Math.floor(totalWidth / visibleColumns.length);
-    if (Object.keys(columnWidths).length === visibleColumns.length) return;
-    const initialWidths: { [key: number]: number } = {};
-    visibleColumns.forEach((_, i) => {
-      initialWidths[i] = avgWidth;
-    });
-    setColumnWidths(initialWidths);
-  }, [visibleColumns, Object.keys(columnWidths).length]);
+    const updateWidths = () => {
+      if (!containerRef.current || columnOrder.length === 0) return;
+      const totalWidth = containerRef.current.offsetWidth;
+      const baseWidth = Math.floor(totalWidth / columnOrder.length);
+      const newWidths: { [key: number]: number } = {};
+      columnOrder.forEach((_, i) => {
+        newWidths[i] = baseWidth;
+      });
+      setColumnWidths(newWidths);
+    };
+    updateWidths();
+    window.addEventListener("resize", updateWidths);
+    return () => window.removeEventListener("resize", updateWidths);
+  }, [columnOrder, rowsPerPage]);
+
+  useEffect(() => {
+    const mandatoryKeys = allColumns
+      .filter((c) => c.mandatory)
+      .map((c) => c.key);
+    const optionalKeys = selectedColumns.filter(
+      (key) => !mandatoryKeys.includes(key)
+    );
+    const newOrder = [
+      ...columnOrder.filter(
+        (key) => mandatoryKeys.includes(key) || optionalKeys.includes(key)
+      ),
+      ...optionalKeys.filter((key) => !columnOrder.includes(key)),
+    ];
+    if (JSON.stringify(newOrder) !== JSON.stringify(columnOrder)) {
+      setColumnOrder(newOrder);
+    }
+  }, [selectedColumns, columnOrder, setColumnOrder]);
+
+  const validColumnOrder = useMemo(
+    () =>
+      columnOrder.filter((key) => allColumns.some((col) => col.key === key)),
+    [columnOrder]
+  );
 
   return (
     <div
       ref={containerRef}
-      className="relative border border-default-100 bg-white dark:bg-default-50 w-screen rounded-lg"
+      className="relative border border-default-100 bg-white dark:bg-default-50 w-screen rounded-lg overflow-hidden"
     >
-      <Table
-        aria-label="Seller Sales Table"
-        removeWrapper
-        className="min-w-full [&>thead]:sticky [&>thead]:top-0 [&>thead]:bg-white dark:[&>thead]:bg-default-50"
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={({ active, over }) => {
+          if (!over || active.id === over.id) return;
+          const oldIndex = columnOrder.indexOf(active.id as string);
+          const newIndex = columnOrder.indexOf(over.id as string);
+          setColumnOrder(arrayMove(columnOrder, oldIndex, newIndex));
+        }}
       >
-        <TableHeader>
-          {visibleColumns.map(({ label }, i) => (
-            <TableColumn
-              key={label}
-              className="relative whitespace-nowrap text-sm font-semibold border-r select-none cursor-pointer"
-              style={getColumnStyle(i)}
-              onClick={() => toggleSort(i)}
-            >
-              <div className="flex items-center gap-1">
-                <span>{label}</span>
-                {sortColumn === i ? (
-                  sortDirection === "asc" ? (
-                    <ArrowUp size={14} />
-                  ) : (
-                    <ArrowDown size={14} />
-                  )
-                ) : (
-                  <ArrowUpDown size={14} className="text-default-400" />
-                )}
-              </div>
-              <div
-                className="absolute top-0 -right-1 h-full w-1.5"
-                style={{ cursor: "ew-resize" }}
-                onMouseDown={(e) => handleMouseDown(e, i)}
-              />
-            </TableColumn>
-          ))}
-        </TableHeader>
-        <TableBody emptyContent="No sales found.">
-          {paginatedSales.map((sale) => (
-            <TableRow key={sale.saleId} className="text-sm h-[44px]">
-              {visibleColumns.map(({ key }) => (
-                <TableCell key={key}>{getValue(sale, key)}</TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      {/* Column Selector Modal (controlled externally) */}
+        <SortableContext
+          items={validColumnOrder}
+          strategy={verticalListSortingStrategy}
+        >
+          <table
+            aria-label="Seller Sales Table"
+            className="min-w-full border-collapse"
+          >
+            <thead className="sticky top-0 bg-white dark:bg-default-50 z-10">
+              <tr className="h-[56px]">
+                {validColumnOrder.map((key, index) => {
+                  const col = allColumns.find((c) => c.key === key)!;
+                  return (
+                    <SortableHeader
+                      key={col.key} // IMPORTANT: key prop is crucial for React's reconciliation
+                      column={col}
+                      index={index}
+                      sortColumn={sortColumn}
+                      sortDirection={sortDirection}
+                      toggleSort={toggleSort}
+                      getColumnStyle={getColumnStyle}
+                      onMouseDown={handleMouseDown}
+                    />
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedSales.length === 0 ? (
+                <tr className="text-center">
+                  <td
+                    colSpan={validColumnOrder.length}
+                    className="py-4 text-default-600"
+                  >
+                    No sales found.
+                  </td>
+                </tr>
+              ) : (
+                sortedSales.map((sale) => (
+                  <tr
+                    key={sale.saleId}
+                    className="h-[44px] border-b border-default-100 last:border-b-0"
+                  >
+                    {validColumnOrder.map((key) => (
+                      <td key={key} className="p-4 text-sm whitespace-nowrap">
+                        {getValue(sale, key)}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </SortableContext>
+      </DndContext>
       <SalesColumnSelector
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

@@ -69,3 +69,9 @@ export type MapKey =
   | "shippingCost"
   | "discount"
   | "tax";
+
+export interface Column {
+  key: string;
+  label: string;
+  mandatory?: boolean;
+}

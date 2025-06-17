@@ -113,6 +113,9 @@ export default function SellerDashboardClientPage({
   const [productChips, setProductChips] = useState<
     { label: string; onRemove: () => void }[]
   >([]);
+  const [columnOrder, setColumnOrder] = useState<string[]>(
+    allColumns.filter((c) => c.mandatory).map((c) => c.key)
+  );
 
   useEffect(() => {
     const updateWidth = () => setWindowWidth(window.innerWidth);
@@ -321,6 +324,8 @@ export default function SellerDashboardClientPage({
   const countStart = (salesPage - 1) * salesRowsPerPage + 1;
   const countEnd = Math.min(salesPage * salesRowsPerPage, filteredSales.length);
 
+  console.log("columnOrder", columnOrder);
+
   return (
     <div className="flex" id="main-content">
       <div className="flex-1 transition-all duration-300 overflow-auto">
@@ -454,6 +459,8 @@ export default function SellerDashboardClientPage({
             setIsModalOpen={() => setIsModalOpen(!setIsModalOpen)}
             selectedColumns={selectedColumns}
             setSelectedColumns={setSelectedColumns}
+            columnOrder={columnOrder}
+            setColumnOrder={setColumnOrder}
           />
 
           {!loading && products.length === 0 && activeTab === tabs.products && (
