@@ -397,6 +397,7 @@ export default function SellerDashboardClientPage({
               {activeTab === tabs.sales && (
                 <div className="flex">
                   <CustomizableColumnButton
+                    className="cursor-pointer text-default-500 hover:text-primary"
                     onOpen={() => setIsModalOpen(true)}
                   />
                 </div>

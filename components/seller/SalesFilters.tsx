@@ -13,8 +13,9 @@ import {
   Input,
   Switch,
   useDisclosure,
+  Tooltip,
 } from "@heroui/react";
-import { Filter, RefreshCw } from "lucide-react";
+import { Filter, ListFilterPlus, RefreshCw } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -204,17 +205,14 @@ export default function SalesFilters({
 
   return (
     <>
-      <div className="flex flex-wrap gap-2 items-center">
-        <Button
-          isIconOnly
-          variant="flat"
-          size="sm"
-          onPress={() => onOpen()}
-          aria-label="Filter Sales"
-        >
-          <Filter className="h-4 w-4" />
-        </Button>
-      </div>
+      <Tooltip content="Sales filters">
+        <ListFilterPlus
+          className="cursor-pointer text-default-500 hover:text-primary"
+          strokeWidth={1.75}
+          onClick={() => onOpen()}
+          size={26}
+        />
+      </Tooltip>
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}

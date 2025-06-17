@@ -13,6 +13,7 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
+  Tooltip,
 } from "@heroui/react";
 import { categories } from "@/data/categories";
 import { useRouter, usePathname } from "next/navigation";
@@ -219,7 +220,14 @@ export default function ProductFilters({
 
   return (
     <>
-      <ListFilterPlus className="cursor-pointer" onClick={() => onOpen()} />
+      <Tooltip content="Product filters">
+        <ListFilterPlus
+          className="cursor-pointer text-default-500 hover:text-primary"
+          strokeWidth={1.75}
+          onClick={() => onOpen()}
+          size={26}
+        />
+      </Tooltip>
       <Modal
         isDismissable={false}
         isKeyboardDismissDisabled={true}
