@@ -1,4 +1,3 @@
-// components/seller/SellerSalesTable.tsx
 "use client";
 
 import React, {
@@ -20,11 +19,10 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { Filters, MapKey, Sale, Column } from "@/components/seller/types";
 import SalesColumnSelector from "@/components/seller/SalesColumnSelector";
 import { allColumns } from "@/components/seller/utils";
-import { SortableHeader } from "./SortableHeader"; // <<< IMPORT THE NEW COMPONENT HERE
+import { SortableHeader } from "./SortableHeader";
 import { Tooltip } from "@heroui/react";
 
 interface SellerSalesTableProps {
@@ -195,9 +193,19 @@ export default function SellerSalesTable({
       if (!containerRef.current || columnOrder.length === 0) return;
       const totalWidth = containerRef.current.offsetWidth;
       const baseWidth = Math.floor((totalWidth / columnOrder.length) * 0.25);
+      const fixedColumnWidths: Record<string, number> = {
+        quantity: 10,
+        shippingCost: 20,
+        status: 10,
+        total: 10,
+        paymentMethod: 10,
+        shippingMethod: 10,
+        orderDate: 10,
+        amount: 10,
+      };
       const newWidths: { [key: number]: number } = {};
       columnOrder.forEach((key, i) => {
-        newWidths[i] = key === "quantity" ? 10 : baseWidth;
+        newWidths[i] = fixedColumnWidths[key] ?? baseWidth;
       });
       setColumnWidths(newWidths);
     };
@@ -233,7 +241,8 @@ export default function SellerSalesTable({
   return (
     <div
       ref={containerRef}
-      className="relative border border-default-100 bg-white dark:bg-default-50 w-screen rounded-lg"
+      style={{ maxWidth: "100vw" }}
+      className="relative border border-default-100 bg-white dark:bg-default-50 w-full overflow-x-hidden rounded-lg"
     >
       <DndContext
         sensors={sensors}
@@ -251,7 +260,7 @@ export default function SellerSalesTable({
         >
           <table
             aria-label="Seller Sales Table"
-            className="min-w-full border-collapse"
+            className="w-full table-fixed border-collapse"
           >
             <Tooltip content="Drag to rearrange">
               <thead className="sticky top-0 bg-grey-70 dark:bg-default-50 z-10">
@@ -296,7 +305,7 @@ export default function SellerSalesTable({
                         style={getColumnStyle(validColumnOrder.indexOf(key))}
                         className={
                           key === "quantity"
-                            ? "px-1 py-0 text-xs text-center truncate"
+                            ? "px-1 py-0 text-xs text-left truncate"
                             : "p-2 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
                         }
                       >

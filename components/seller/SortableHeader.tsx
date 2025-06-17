@@ -18,10 +18,11 @@ interface SortableHeaderProps {
 
 const labelOverrides: Record<string, string> = {
   quantity: "Qty",
-  shippingMethod: "Shipping",
+  shippingMethod: "Mode",
   paymentMethod: "Payment",
   buyerEmail: "Buyer",
   returnDeadline: "Returnable",
+  shippingCost: "Shipping",
 };
 
 export const SortableHeader: React.FC<SortableHeaderProps> = ({
