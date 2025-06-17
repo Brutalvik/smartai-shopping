@@ -24,7 +24,7 @@ export default async function SellerDashboardPage(props: any) {
 
   try {
     const queryParams = new URLSearchParams();
-    queryParams.append("limit", "10");
+    queryParams?.append("limit", "10");
 
     const response = await fetch(
       `${CDN.sellerProductsApi}/seller/products?${queryParams.toString()}`,

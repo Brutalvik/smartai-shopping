@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
   // Redirect to signin if not authenticated
   if (isProtected && (!token || token.length < 20)) {
     const redirectUrl = new URL("/auth/signin", request.url);
-    redirectUrl.searchParams.set("redirect", pathname);
+    redirectUrl.searchParams?.set("redirect", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 

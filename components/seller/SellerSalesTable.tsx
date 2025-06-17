@@ -97,7 +97,13 @@ export default function SellerSalesTable({
 
   const getColumnStyle = useCallback(
     (index: number): CSSProperties =>
-      columnWidths[index] ? { width: `${columnWidths[index]}px` } : {},
+      columnWidths[index]
+        ? {
+            width: `${columnWidths[index] * 0.7}px`,
+            minWidth: `${columnWidths[index] * 0.7}px`,
+            maxWidth: `${columnWidths[index] * 0.7}px`,
+          }
+        : {},
     [columnWidths]
   );
 

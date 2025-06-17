@@ -1,11 +1,10 @@
-// components/seller/SortableHeader.tsx
-"use client"; // If this component is used in a client-side environment like Next.js App Router
+"use client";
 
 import React, { CSSProperties } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DndCSS } from "@dnd-kit/utilities";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
-import { Column } from "@/components/seller/types"; // Make sure this path is correct
+import { Column } from "@/components/seller/types";
 
 interface SortableHeaderProps {
   column: Column;
@@ -17,6 +16,14 @@ interface SortableHeaderProps {
   onMouseDown: (e: React.MouseEvent, index: number) => void;
 }
 
+const labelOverrides: Record<string, string> = {
+  quantity: "Qty",
+  shippingMethod: "Shipping",
+  paymentMethod: "Payment",
+  buyerEmail: "Buyer",
+  returnDeadline: "Returnable",
+};
+
 export const SortableHeader: React.FC<SortableHeaderProps> = ({
   column,
   index,
@@ -26,7 +33,6 @@ export const SortableHeader: React.FC<SortableHeaderProps> = ({
   getColumnStyle,
   onMouseDown,
 }) => {
-  // useSortable is called here, within a stable component
   const {
     attributes,
     listeners,
@@ -43,7 +49,6 @@ export const SortableHeader: React.FC<SortableHeaderProps> = ({
     zIndex: isDragging ? 1 : 0,
     position: "relative",
     boxSizing: "border-box",
-    padding: "1rem",
     textAlign: "left",
     fontWeight: 600,
     fontSize: "0.875rem",
@@ -51,7 +56,11 @@ export const SortableHeader: React.FC<SortableHeaderProps> = ({
     userSelect: "none",
     cursor: "pointer",
     borderRight: "1px solid var(--default-100, #e0e0e0)",
+    backgroundColor: "var(--background)",
+    padding: "0.5rem",
   };
+
+  const displayLabel = labelOverrides[column.key] ?? column.label;
 
   return (
     <th
@@ -61,10 +70,9 @@ export const SortableHeader: React.FC<SortableHeaderProps> = ({
       {...attributes}
       {...listeners}
       onClick={() => toggleSort(index)}
-      className="bg-default/50"
     >
       <div className="flex items-center gap-1">
-        <span>{column.label}</span>
+        <span>{displayLabel}</span>
         {sortColumn === index ? (
           sortDirection === "asc" ? (
             <ArrowUp size={14} />
