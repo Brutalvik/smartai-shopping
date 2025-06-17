@@ -31,6 +31,9 @@ import { motion } from "framer-motion";
 
 import CustomizableColumnButton from "@/components/ui/CustomizableColumnButton/CustomizableColumnButton";
 import { allColumns } from "@/components/seller/utils";
+import ExportButton from "@/components/ui/ExportButton/ExportButton";
+import { selectUser } from "@/store/selectors";
+import { useAppSelector } from "@/store/hooks/hooks";
 
 interface SellerDashboardClientPageProps {
   initialProducts: Product[];
@@ -48,6 +51,9 @@ export default function SellerDashboardClientPage({
   initialTab,
 }: SellerDashboardClientPageProps) {
   useAutoLogout();
+  const { given_name, family_name, email, business_name, phone, id } =
+    useAppSelector(selectUser);
+
   const { isOpen, onClose } = useDisclosure();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -324,7 +330,11 @@ export default function SellerDashboardClientPage({
   const countStart = (salesPage - 1) * salesRowsPerPage + 1;
   const countEnd = Math.min(salesPage * salesRowsPerPage, filteredSales.length);
 
-  console.log("columnOrder", columnOrder);
+  const paginatedSales = useMemo(() => {
+    const start = (salesPage - 1) * salesRowsPerPage;
+    const end = start + salesRowsPerPage;
+    return filteredSales.slice(start, end);
+  }, [filteredSales, salesPage, salesRowsPerPage]);
 
   return (
     <div className="flex" id="main-content">
@@ -404,7 +414,7 @@ export default function SellerDashboardClientPage({
               )}
               <Tooltip content="Add new product">
                 <SquarePlus
-                  size={28}
+                  size={26}
                   className="cursor-pointer text-default-500 hover:text-primary"
                   strokeWidth={1.75}
                   onClick={() => setActiveTab("upload")}
@@ -417,13 +427,27 @@ export default function SellerDashboardClientPage({
                   setActiveChips={setProductChips}
                 />
               ) : activeTab === tabs.sales ? (
-                <SalesFilters
-                  onFiltersChange={(newSalesFilters) =>
-                    setSalesFilters(newSalesFilters)
-                  }
-                  initialFilters={salesFilters}
-                  setActiveChips={setSalesChips}
-                />
+                <div className="flex flex-row gap-4">
+                  <ExportButton
+                    sellerName={given_name}
+                    sellerId={id}
+                    businessName={business_name}
+                    sellerFirstName={given_name}
+                    sellerLastName={family_name}
+                    sellerPhone={phone}
+                    sellerEmail={email}
+                    data={paginatedSales}
+                    allData={filteredSales}
+                    columns={columnOrder}
+                  />
+                  <SalesFilters
+                    onFiltersChange={(newSalesFilters) =>
+                      setSalesFilters(newSalesFilters)
+                    }
+                    initialFilters={salesFilters}
+                    setActiveChips={setSalesChips}
+                  />
+                </div>
               ) : null}
             </div>
           </div>
