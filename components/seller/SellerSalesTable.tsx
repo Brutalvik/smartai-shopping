@@ -25,6 +25,7 @@ import { Filters, MapKey, Sale, Column } from "@/components/seller/types";
 import SalesColumnSelector from "@/components/seller/SalesColumnSelector";
 import { allColumns } from "@/components/seller/utils";
 import { SortableHeader } from "./SortableHeader"; // <<< IMPORT THE NEW COMPONENT HERE
+import { Tooltip } from "@heroui/react";
 
 interface SellerSalesTableProps {
   sales: Sale[];
@@ -226,7 +227,7 @@ export default function SellerSalesTable({
   return (
     <div
       ref={containerRef}
-      className="relative border border-default-100 bg-white dark:bg-default-50 w-screen rounded-lg overflow-hidden"
+      className="relative border border-default-100 bg-white dark:bg-default-50 w-screen rounded-lg"
     >
       <DndContext
         sensors={sensors}
@@ -246,25 +247,27 @@ export default function SellerSalesTable({
             aria-label="Seller Sales Table"
             className="min-w-full border-collapse"
           >
-            <thead className="sticky top-0 bg-white dark:bg-default-50 z-10">
-              <tr className="h-[56px]">
-                {validColumnOrder.map((key, index) => {
-                  const col = allColumns.find((c) => c.key === key)!;
-                  return (
-                    <SortableHeader
-                      key={col.key} // IMPORTANT: key prop is crucial for React's reconciliation
-                      column={col}
-                      index={index}
-                      sortColumn={sortColumn}
-                      sortDirection={sortDirection}
-                      toggleSort={toggleSort}
-                      getColumnStyle={getColumnStyle}
-                      onMouseDown={handleMouseDown}
-                    />
-                  );
-                })}
-              </tr>
-            </thead>
+            <Tooltip content="Drag to rearrange">
+              <thead className="sticky top-0 bg-white dark:bg-default-50 z-10">
+                <tr className="h-[56px]">
+                  {validColumnOrder.map((key, index) => {
+                    const col = allColumns.find((c) => c.key === key)!;
+                    return (
+                      <SortableHeader
+                        key={col.key}
+                        column={col}
+                        index={index}
+                        sortColumn={sortColumn}
+                        sortDirection={sortDirection}
+                        toggleSort={toggleSort}
+                        getColumnStyle={getColumnStyle}
+                        onMouseDown={handleMouseDown}
+                      />
+                    );
+                  })}
+                </tr>
+              </thead>
+            </Tooltip>
             <tbody>
               {sortedSales.length === 0 ? (
                 <tr className="text-center">

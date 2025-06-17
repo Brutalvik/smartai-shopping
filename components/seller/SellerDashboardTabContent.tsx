@@ -109,7 +109,7 @@ export default function DashboardTabContent({
       }))
       .slice((salesPage - 1) * salesRowsPerPage, salesPage * salesRowsPerPage);
     return (
-      <div className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
+      <div className="relative border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg">
         <SellerSalesTable
           sales={paginatedSales}
           isModalOpen={isModalOpen}

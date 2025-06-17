@@ -328,7 +328,7 @@ export default function SellerDashboardClientPage({
 
   return (
     <div className="flex" id="main-content">
-      <div className="flex-1 transition-all duration-300 overflow-auto">
+      <div className="flex-1 transition-all duration-300">
         <div className="p-4">
           <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
             <div className="flex flex-wrap items-center gap-2">

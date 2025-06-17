@@ -172,7 +172,7 @@ export default function SellerProductsTable({
   return (
     <div
       ref={containerRef}
-      className="relative overflow-x-auto border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg"
+      className="relative border border-default-100 bg-white dark:bg-default-50 max-w-full rounded-lg"
     >
       <Table
         aria-label="Seller Products Table"
