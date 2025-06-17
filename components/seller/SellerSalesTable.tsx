@@ -99,9 +99,9 @@ export default function SellerSalesTable({
     (index: number): CSSProperties =>
       columnWidths[index]
         ? {
-            width: `${columnWidths[index] * 0.7}px`,
-            minWidth: `${columnWidths[index] * 0.7}px`,
-            maxWidth: `${columnWidths[index] * 0.7}px`,
+            width: `${columnWidths[index]}px`,
+            minWidth: `${columnWidths[index]}px`,
+            maxWidth: `${columnWidths[index]}px`,
           }
         : {},
     [columnWidths]
@@ -194,7 +194,7 @@ export default function SellerSalesTable({
     const updateWidths = () => {
       if (!containerRef.current || columnOrder.length === 0) return;
       const totalWidth = containerRef.current.offsetWidth;
-      const baseWidth = Math.floor(totalWidth / columnOrder.length);
+      const baseWidth = Math.floor((totalWidth / columnOrder.length) * 0.25);
       const newWidths: { [key: number]: number } = {};
       columnOrder.forEach((_, i) => {
         newWidths[i] = baseWidth;
@@ -254,7 +254,7 @@ export default function SellerSalesTable({
             className="min-w-full border-collapse"
           >
             <Tooltip content="Drag to rearrange">
-              <thead className="sticky top-0 bg-white dark:bg-default-50 z-10">
+              <thead className="sticky top-0 bg-grey-70 dark:bg-default-50 z-10">
                 <tr className="h-[56px]">
                   {validColumnOrder.map((key, index) => {
                     const col = allColumns.find((c) => c.key === key)!;
@@ -291,7 +291,11 @@ export default function SellerSalesTable({
                     className="h-[44px] border-b border-default-100 last:border-b-0"
                   >
                     {validColumnOrder.map((key) => (
-                      <td key={key} className="p-4 text-sm whitespace-nowrap">
+                      <td
+                        key={key}
+                        style={getColumnStyle(validColumnOrder.indexOf(key))}
+                        className="p-2 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
+                      >
                         {getValue(sale, key)}
                       </td>
                     ))}
