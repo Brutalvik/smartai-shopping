@@ -196,8 +196,8 @@ export default function SellerSalesTable({
       const totalWidth = containerRef.current.offsetWidth;
       const baseWidth = Math.floor((totalWidth / columnOrder.length) * 0.25);
       const newWidths: { [key: number]: number } = {};
-      columnOrder.forEach((_, i) => {
-        newWidths[i] = baseWidth;
+      columnOrder.forEach((key, i) => {
+        newWidths[i] = key === "quantity" ? 10 : baseWidth;
       });
       setColumnWidths(newWidths);
     };
@@ -294,7 +294,11 @@ export default function SellerSalesTable({
                       <td
                         key={key}
                         style={getColumnStyle(validColumnOrder.indexOf(key))}
-                        className="p-2 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
+                        className={
+                          key === "quantity"
+                            ? "px-1 py-0 text-xs text-center truncate"
+                            : "p-2 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
+                        }
                       >
                         {getValue(sale, key)}
                       </td>
