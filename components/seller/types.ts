@@ -25,12 +25,14 @@ export interface ProductTabsMap {
   products: "products";
   sales: "sales";
   upload: "upload";
+  analytics: "analytics";
 }
 
 export const tabs: ProductTabsMap = {
   products: "products",
   sales: "sales",
   upload: "upload",
+  analytics: "analytics",
 };
 
 export interface Sale {

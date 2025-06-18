@@ -31,6 +31,14 @@ const SellerSalesTable = dynamic(
   }
 );
 
+const SellerAnalyticsDashboard = dynamic(
+  () => import("@/components/seller/SellerAnalyticsDashboard"),
+  {
+    ssr: false,
+    loading: () => <XLoader />,
+  }
+);
+
 interface DashboardTabContentProps {
   activeTab?: string;
   products: Product[];
@@ -125,6 +133,10 @@ export default function DashboardTabContent({
 
   if (resolvedTab === tabs.upload) {
     return <SellerProductUploadForm initialProduct={productToEdit} />;
+  }
+
+  if (resolvedTab === tabs.analytics) {
+    return <SellerAnalyticsDashboard />;
   }
 
   return null;

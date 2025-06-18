@@ -102,7 +102,8 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
       title: Yup.string().required("Title is required"),
       description: Yup.string()
         .required("Description is required")
-        .min(10, "Description must be at least 10 characters"),
+        .min(10, "Description must be at least 10 characters")
+        .max(2000, "Description must not exceed 2000 characters"),
       price: Yup.number()
         .required("Price is required")
         .min(0.1, "Price must be at least $0.10"),
@@ -184,10 +185,8 @@ export default function SellerProductUploadForm({ initialProduct }: Props) {
           timeout: 3000,
         });
 
-        if (res.ok) {
-          formik.resetForm();
-          setImagePreviews([]);
-        }
+        formik.resetForm();
+        setImagePreviews([]);
 
         setTimeout(() => {
           loaderRef.current?.stepTo(3);

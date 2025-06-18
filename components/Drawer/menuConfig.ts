@@ -11,6 +11,7 @@ import {
   Upload,
   PanelsTopLeft,
   ChartNoAxesCombined,
+  Computer,
 } from "lucide-react";
 
 export const buyerMenu = [
@@ -61,12 +62,17 @@ export const sellerTools = [
   },
   {
     label: "Sales",
-    icon: ChartNoAxesCombined,
+    icon: Computer,
     tabKey: "sales",
   },
   {
     label: "Add Product",
     icon: Upload,
     tabKey: "upload",
+  },
+  {
+    label: "Analytics",
+    icon: ChartNoAxesCombined,
+    tabKey: "analytics",
   },
 ];
