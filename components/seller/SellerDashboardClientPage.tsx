@@ -30,7 +30,7 @@ import { dummySales } from "@/data/dummySales";
 import { motion } from "framer-motion";
 
 import CustomizableColumnButton from "@/components/ui/CustomizableColumnButton/CustomizableColumnButton";
-import { allColumns } from "@/components/seller/utils/utils";
+import { allColumns } from "@/components/seller/utils";
 import ExportButton from "@/components/ui/ExportButton/ExportButton";
 import { selectUser } from "@/store/selectors";
 import { useAppSelector } from "@/store/hooks/hooks";

@@ -3,7 +3,6 @@ import ProtectedLayout from "@/layouts/ProtectedLayout";
 import SellerDashboardClientPage from "@/components/seller/SellerDashboardClientPage";
 import { CDN } from "@/config/config";
 import type { Product } from "@/types/product";
-import GAProvider from "@/components/seller/GAProvider";
 
 export default async function SellerDashboardPage(props: any) {
   const cookieStore = await cookies(); // ✅ required for your setup
@@ -60,7 +59,6 @@ export default async function SellerDashboardPage(props: any) {
 
   return (
     <ProtectedLayout redirectPath="/auth/signin?redirect=/seller/dashboard">
-      <GAProvider />
       <SellerDashboardClientPage
         initialProducts={products}
         initialLastEvaluatedKey={lastEvaluatedKey}

@@ -21,7 +21,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Filters, MapKey, Sale, Column } from "@/components/seller/types";
 import SalesColumnSelector from "@/components/seller/SalesColumnSelector";
-import { allColumns } from "@/components/seller/utils/utils";
+import { allColumns } from "@/components/seller/utils";
 import { SortableHeader } from "./SortableHeader";
 import { Tooltip } from "@heroui/react";
 

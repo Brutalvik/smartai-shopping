@@ -10,7 +10,7 @@ import {
   Button,
   Checkbox,
 } from "@heroui/react";
-import { allColumns } from "@/components/seller/utils/utils";
+import { allColumns } from "@/components/seller/utils";
 
 interface SalesColumnSelectorProps {
   isOpen: boolean;
