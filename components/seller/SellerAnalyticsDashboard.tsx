@@ -176,7 +176,7 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="w-full p-2 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold">Seller Analytics</h1>
         <select
@@ -192,7 +192,7 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader>Total Sales</CardHeader>
           <CardBody>
@@ -213,7 +213,7 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader>Customer Breakdown</CardHeader>
           <CardBody>

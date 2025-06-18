@@ -13,9 +13,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
             <div className="relative flex flex-col font-sans antialiased">
               <Navbar />
-              <main className="container mx-auto max-w-fit flex-grow">
-                {children}
-              </main>
+              <main className="w-full max-w-none flex-grow">{children}</main>
               <footer className="w-full flex items-center justify-center py-3 text-xs">
                 <p>
                   © {new Date().getFullYear()}{" "}
