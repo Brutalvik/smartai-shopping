@@ -342,7 +342,9 @@ export default function SellerDashboardClientPage({
         <div className="p-4">
           <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold capitalize">{activeTab}</h1>
+              <h1 className="text-2xl font-bold capitalize">
+                {activeTab === tabs.analytics ? "" : activeTab}
+              </h1>
               {activeTab === tabs.products && productChips.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {productChips.map((chip) => (
