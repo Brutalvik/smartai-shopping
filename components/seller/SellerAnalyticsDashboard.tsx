@@ -31,7 +31,7 @@ import {
   Marker,
   ZoomableGroup,
 } from "react-simple-maps";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   DollarSign,
   ShoppingBag,
@@ -46,6 +46,7 @@ import {
 import dayjs from "dayjs";
 import { feature } from "topojson-client";
 import { dummySales } from "@/data/dummySales";
+import AnimatedCounter from "@/components/seller/AnimatedCounter";
 
 ChartJS.register(
   ArcElement,
@@ -70,41 +71,13 @@ const geoData = [
 
 type Product = { title: string; salesCount: number };
 
-const AnimatedCounter = ({
-  value,
-  prefix = "",
-  suffix = "",
-  className = "",
+const IconWrapper = ({
+  icon: Icon,
+  color,
 }: {
-  value: number;
-  prefix?: string;
-  suffix?: string;
-  className?: string;
-}) => {
-  const motionValue = useMotionValue(0);
-  const rounded = useTransform(motionValue, (latest) =>
-    Number(latest.toFixed(2))
-  );
-
-  console.log(value, rounded);
-  const [display, setDisplay] = useState(0);
-
-  useEffect(() => {
-    const controls = animate(motionValue, value, { duration: 1.2 });
-    rounded.on("change", (latest) => setDisplay(latest));
-    return () => controls.stop();
-  }, [value]);
-
-  return (
-    <motion.span className={`text-xl font-semibold ${className}`}>
-      {prefix}
-      {prefix === "$" ? display.toFixed(2) : Math.round(display)}
-      {suffix}
-    </motion.span>
-  );
-};
-
-const IconWrapper = ({ icon: Icon, color }: any) => (
+  icon: React.ElementType;
+  color: string;
+}) => (
   <div className={`p-2 rounded-full bg-${color}-100 text-${color}-600`}>
     <Icon className="w-5 h-5" />
   </div>
@@ -145,17 +118,36 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
     }));
   }, [filteredSales]);
 
-  const totalSales = filteredSales.reduce((sum, s) => sum + s.amount, 0);
-  const totalOrders = filteredSales.length;
-  const repeatRate = Math.floor(Math.random() * 30) + 10;
-  const avgOrderValue = totalOrders ? totalSales / totalOrders : 0;
-  const totalTax = filteredSales.reduce((sum, s) => sum + (s.tax || 0), 0);
-  const returnRate = Math.floor(
-    (filteredSales.filter((s) => s.status === "returned").length /
-      totalOrders) *
-      100
+  const totalSales = useMemo(
+    () => filteredSales.reduce((sum, s) => sum + s.amount, 0),
+    [filteredSales]
   );
-  const topProduct = derivedProducts[0]?.title || "—";
+
+  const totalOrders = useMemo(() => filteredSales.length, [filteredSales]);
+
+  const repeatRate = useMemo(() => Math.floor(Math.random() * 30) + 10, []);
+
+  const avgOrderValue = useMemo(
+    () => (totalOrders ? totalSales / totalOrders : 0),
+    [totalSales, totalOrders]
+  );
+
+  const totalTax = useMemo(
+    () => filteredSales.reduce((sum, s) => sum + (s.tax || 0), 0),
+    [filteredSales]
+  );
+
+  const returnRate = useMemo(() => {
+    const returned = filteredSales.filter(
+      (s) => s.status === "returned"
+    ).length;
+    return Math.floor((returned / totalOrders) * 100);
+  }, [filteredSales, totalOrders]);
+
+  const topProduct = useMemo(
+    () => derivedProducts[0]?.title || "—",
+    [derivedProducts]
+  );
 
   const customerBreakdown = {
     labels: ["Repeat", "New"],
@@ -247,12 +239,7 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
       icon: Percent,
       color: "purple",
     },
-    {
-      label: "Top Product",
-      value: topProduct,
-      icon: Star,
-      color: "cyan",
-    },
+    { label: "Top Product", value: topProduct, icon: Star, color: "cyan" },
   ];
 
   return (
@@ -270,6 +257,7 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
         </select>
       </div>
 
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
         {kpi.map(({ label, value, icon, prefix, suffix, color }, i) => (
           <motion.div
@@ -281,13 +269,11 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
             <Card className={`border-l-4 border-${color}-500 shadow-md`}>
               <CardHeader className="flex items-center gap-2 text-gray-500">
                 <IconWrapper icon={icon} color={color} />
-                <span className="text-sm font-medium truncate w-full">
-                  {label}
-                </span>
+                <span className="text-sm font-medium truncate">{label}</span>
               </CardHeader>
               <CardBody className="text-gray-500">
                 {typeof value === "string" ? (
-                  <div className="text-sm text-gray-500 truncate">{value}</div>
+                  <div className="text-sm truncate">{value}</div>
                 ) : (
                   <AnimatedCounter
                     value={value}
@@ -302,139 +288,139 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
         ))}
       </div>
 
+      {/* Chart Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {[
-          {
-            title: "Customer Breakdown",
-            icon: <PieChart className="w-4 h-4 text-emerald-500" />,
-            content: (
-              <Doughnut
-                data={customerBreakdown}
-                options={{ maintainAspectRatio: false }}
-              />
-            ),
-          },
-          {
-            title: "Revenue Trend",
-            icon: <BarChart3 className="w-4 h-4 text-violet-500" />,
-            content: (
-              <Bar
-                data={revenueTrend}
-                options={{ maintainAspectRatio: false }}
-              />
-            ),
-          },
-        ].map(({ title, icon, content }, i) => (
-          <motion.div
-            key={title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.5 + i * 0.1 }}
-          >
-            <Card>
-              <CardHeader className="flex gap-2 items-center">
-                {icon}
-                {title}
-              </CardHeader>
-              <CardBody>
-                <div className="h-[200px]">{content}</div>
-              </CardBody>
-            </Card>
-          </motion.div>
-        ))}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+        >
+          <Card>
+            <CardHeader className="flex gap-2 items-center">
+              <PieChart className="w-4 h-4 text-emerald-500" />
+              Customer Breakdown
+            </CardHeader>
+            <CardBody>
+              <div className="h-[200px]">
+                <Doughnut
+                  data={customerBreakdown}
+                  options={{ maintainAspectRatio: false }}
+                />
+              </div>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader className="flex gap-2 items-center">
+              <BarChart3 className="w-4 h-4 text-violet-500" />
+              Revenue Trend
+            </CardHeader>
+            <CardBody>
+              <div className="h-[200px]">
+                <Bar
+                  data={revenueTrend}
+                  options={{ maintainAspectRatio: false }}
+                />
+              </div>
+            </CardBody>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
+        >
+          <Card className="col-span-1 lg:col-span-2 h-full">
+            <CardHeader className="flex justify-between items-center">
+              <span className="flex gap-2 items-center">
+                <Globe className="w-4 h-4 text-blue-500" />
+                Global Sales Map ({focusedMap ? "Focused" : "World"})
+              </span>
+              <Switch isSelected={focusedMap} onValueChange={setFocusedMap} />
+            </CardHeader>
+            <CardBody className="h-[300px]">
+              <ComposableMap
+                projection="geoMercator"
+                projectionConfig={{ scale: focusedMap ? 220 : 140 }}
+                className="w-full h-full"
+              >
+                <ZoomableGroup
+                  center={focusedMap ? [100, 20] : [0, 0]}
+                  zoom={focusedMap ? 1.7 : 1}
+                >
+                  {geoJson && (
+                    <Geographies geography={geoJson}>
+                      {({ geographies }) =>
+                        geographies.map((geo) => {
+                          const iso = geo.properties.ISO_A2 || geo.id;
+                          const shouldRender =
+                            !focusedMap ||
+                            ["US", "CA", "IN", "ID", "SG"].includes(iso);
+                          return shouldRender ? (
+                            <Geography
+                              key={geo.rsmKey}
+                              geography={geo}
+                              fill="#f1f5f9"
+                              stroke="#cbd5e1"
+                            />
+                          ) : null;
+                        })
+                      }
+                    </Geographies>
+                  )}
+                  {geoData.map(({ name, coordinates, code }) => (
+                    <Marker
+                      key={code}
+                      coordinates={coordinates as [number, number]}
+                    >
+                      <Tooltip content={name}>
+                        <circle
+                          r={10}
+                          fill={
+                            code === selectedCountry ? "#dc2626" : "#0ea5e9"
+                          }
+                          stroke="#fff"
+                          strokeWidth={2}
+                          className="cursor-pointer hover:scale-125 transition-transform duration-200"
+                          onClick={() =>
+                            setSelectedCountry((prev) =>
+                              prev === code ? null : code
+                            )
+                          }
+                        />
+                      </Tooltip>
+                    </Marker>
+                  ))}
+                </ZoomableGroup>
+              </ComposableMap>
+            </CardBody>
+          </Card>
+        </motion.div>
       </div>
 
+      {/* Top Products */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.8 }}
-      >
-        <Card className="col-span-1 lg:col-span-2 h-full">
-          <CardHeader className="flex justify-between items-center">
-            <span className="flex gap-2 items-center">
-              <Globe className="w-4 h-4 text-blue-500" />
-              Global Sales Map ({focusedMap ? "Focused" : "World"})
-            </span>
-            <Switch isSelected={focusedMap} onValueChange={setFocusedMap} />
-          </CardHeader>
-          <CardBody className="h-[300px]">
-            <ComposableMap
-              projection="geoMercator"
-              projectionConfig={{ scale: focusedMap ? 220 : 140 }}
-              className="w-full h-full"
-            >
-              <ZoomableGroup
-                center={focusedMap ? [100, 20] : [0, 0]}
-                zoom={focusedMap ? 1.7 : 1}
-              >
-                {geoJson && (
-                  <Geographies geography={geoJson}>
-                    {({ geographies }) =>
-                      geographies.map((geo) => {
-                        const iso = geo.properties.ISO_A2 || geo.id;
-                        const shouldRender =
-                          !focusedMap ||
-                          ["US", "CA", "IN", "ID", "SG"].includes(iso);
-                        return shouldRender ? (
-                          <Geography
-                            key={geo.rsmKey}
-                            geography={geo}
-                            fill="#f1f5f9"
-                            stroke="#cbd5e1"
-                          />
-                        ) : null;
-                      })
-                    }
-                  </Geographies>
-                )}
-                {geoData.map(({ name, coordinates, code }) => (
-                  <Marker
-                    key={code}
-                    coordinates={coordinates as [number, number]}
-                  >
-                    <Tooltip content={name}>
-                      <circle
-                        r={6}
-                        fill={code === selectedCountry ? "#dc2626" : "#0ea5e9"}
-                        stroke="#fff"
-                        strokeWidth={2}
-                        className="cursor-pointer hover:scale-125 transition-transform duration-200"
-                        onClick={() =>
-                          setSelectedCountry((prev) =>
-                            prev === code ? null : code
-                          )
-                        }
-                      />
-                    </Tooltip>
-                  </Marker>
-                ))}
-              </ZoomableGroup>
-            </ComposableMap>
-          </CardBody>
-        </Card>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 1.0 }}
+        transition={{ duration: 0.4, delay: 0.5 }}
       >
         <Card className="col-span-1 lg:col-span-3 h-full">
           <CardHeader>Top Products</CardHeader>
           <CardBody>
             <ul className="space-y-2 max-h-[300px] overflow-y-auto">
-              <li className="flex justify-between items-center border-b pb-1 cursor-pointer font-bold">
-                Product
-                <span className="text-sm px-10">Qty</span>
+              <li className="flex justify-between items-center border-b pb-1 cursor-pointer font-semibold">
+                Product <span className="text-sm px-10">Qty</span>
               </li>
-
               {derivedProducts.map((product) => (
                 <li
                   key={product.title}
                   className="flex justify-between items-center border-b pb-1 cursor-pointer hover:text-primary text-gray-500"
                   onClick={() => handleProductClick(product)}
                 >
-                  <span className="truncate w-40">{product.title}</span>
+                  <span className="truncate max-w-[200px]">
+                    {product.title}
+                  </span>
                   <span className="text-sm px-10">
                     {product.salesCount} sold
                   </span>
@@ -445,6 +431,7 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
         </Card>
       </motion.div>
 
+      {/* Modal for Drilldown */}
       <Modal isOpen={modal.isOpen} onClose={modal.onClose} size="4xl">
         <ModalContent>
           <ModalHeader>{selectedProduct?.title} – Sales Trend</ModalHeader>
