@@ -2,30 +2,72 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 
 export default function CallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleCallback = async () => {
-      try {
-        // This hits your Fastify server, handles Cognito code exchange
-        const res = await axios.get("/api/auth/user", {
-          withCredentials: true,
-        });
+    const run = async () => {
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get("code");
 
-        // Store user in context/localStorage
-        localStorage.setItem("user", JSON.stringify(res.data));
-        router.push("/"); // redirect to homepage or dashboard
-      } catch (error) {
-        console.error("Callback failed:", error);
-        router.push("/auth");
+      if (!code) {
+        router.replace("/auth?error=missing_code");
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_AUTH_API}/auth/process-social-login`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ code }),
+          }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message);
+
+        if (data.needsSignupChoice) {
+          router.push(
+            `/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}`
+          );
+        } else {
+          const complete = await fetch(
+            `${process.env.NEXT_PUBLIC_AUTH_API}/auth/complete-social-signup`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                email: data.email,
+                accountType: data.accountType,
+                socialIdp: data.socialIdp,
+                cognitoUserSub: data.cognitoUserSub,
+              }),
+            }
+          );
+
+          const final = await complete.json();
+
+          if (final.isLoggedIn) {
+            localStorage.setItem("user", JSON.stringify(final.user));
+            router.replace(final.redirectTo || "/");
+          } else {
+            throw new Error(final.message || "Login failed");
+          }
+        }
+      } catch (err) {
+        console.error("Social login failed:", err);
+        router.push("/auth?error=social_login_failed");
       }
     };
 
-    handleCallback();
+    run();
   }, []);
 
-  return <div>Logging in...</div>;
+  return <div className="p-4">Logging you in with Google...</div>;
 }

@@ -337,7 +337,7 @@ export default function SellerAnalyticsDashboard(): JSX.Element {
                 <Globe className="w-4 h-4 text-blue-500" />
                 Global Sales Map ({focusedMap ? "Focused" : "World"})
               </span>
-              <Switch isSelected={focusedMap} onValueChange={setFocusedMap} />
+              {/* <Switch isSelected={focusedMap} onValueChange={setFocusedMap} /> */}
             </CardHeader>
             <CardBody className="h-[300px]">
               <ComposableMap

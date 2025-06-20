@@ -14,7 +14,7 @@ import { FaUserShield } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface AccountInfo {
   type: "Customer" | "Seller";
@@ -68,6 +68,22 @@ export default function EmailEntryCard({
       onUserExists(enteredEmail, userAccounts[0]);
     }
   }, [userAccounts, enteredEmail, onUserExists]);
+
+  const handleGoogleLogin = useCallback(() => {
+    const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
+    const domain = process.env.NEXT_PUBLIC_COGNITO_CUSTOMER_DOMAIN;
+    const region = process.env.NEXT_PUBLIC_XYVO_REGION;
+    const redirectUri = encodeURIComponent(
+      process.env.NEXT_PUBLIC_FRONTEND_SOCIAL_CALLBACK_URL || ""
+    );
+
+    const url =
+      `${domain}/oauth2/authorize?` +
+      `response_type=code&client_id=${clientId}` +
+      `&redirect_uri=${redirectUri}&identity_provider=Google`;
+
+    window.location.href = url;
+  }, []);
 
   const renderEmailForm = () => (
     <Card className="p-2 w-full max-w-full mx-auto lg:mt-0 shadow-2xl backdrop-blur bg-grey/10 bg-white/10">
@@ -148,7 +164,11 @@ export default function EmailEntryCard({
           </div>
 
           <div className="flex justify-center gap-4 mt-2">
-            <FcGoogle size={30} className="cursor-pointer" />
+            <FcGoogle
+              size={30}
+              className="cursor-pointer"
+              onClick={handleGoogleLogin}
+            />
             <span className="text-white/40">|</span>
             <FaFacebook size={26} className="cursor-pointer text-blue-600" />
           </div>
