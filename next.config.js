@@ -12,8 +12,7 @@ const nextConfig = {
     return [
       {
         source: "/auth/:path*",
-        destination:
-          "https://m1pozl1jdg.execute-api.us-east-2.amazonaws.com/auth/:path*",
+        destination: `${process.env.NEXT_PUBLIC_AUTH_API}/auth/:path*`,
       },
     ];
   },

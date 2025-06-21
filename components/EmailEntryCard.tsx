@@ -72,7 +72,6 @@ export default function EmailEntryCard({
   const handleGoogleLogin = useCallback(() => {
     const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
     const domain = process.env.NEXT_PUBLIC_COGNITO_CUSTOMER_DOMAIN;
-    const region = process.env.NEXT_PUBLIC_XYVO_REGION;
     const redirectUri = encodeURIComponent(
       process.env.NEXT_PUBLIC_FRONTEND_SOCIAL_CALLBACK_URL || ""
     );
