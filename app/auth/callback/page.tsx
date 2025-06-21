@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { CDN } from "@/config/config";
 
 export default function CallbackPage() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function CallbackPage() {
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_AUTH_API}/auth/process-social-login`,
+          `${CDN.userAuthApi}/auth/process-social-login`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -37,7 +38,7 @@ export default function CallbackPage() {
           );
         } else {
           const complete = await fetch(
-            `${process.env.NEXT_PUBLIC_AUTH_API}/auth/complete-social-signup`,
+            `${CDN.userAuthApi}/auth/complete-social-signup`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
