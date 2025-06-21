@@ -19,6 +19,7 @@ export default function CallbackPage() {
       }
 
       try {
+        // Exchange the auth code for Cognito tokens and user info
         const res = await fetch(
           `${CDN.cognitoAuthApi}/auth/process-social-login`,
           {
@@ -30,9 +31,9 @@ export default function CallbackPage() {
         );
 
         const data = await res.json();
-
         if (!res.ok) throw new Error(data.message || "Login failed");
 
+        // If the user needs to choose role (signup)
         if (data.needsSignupChoice) {
           router.push(
             `/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}`
@@ -40,6 +41,7 @@ export default function CallbackPage() {
           return;
         }
 
+        // Complete the social signup with account type and Cognito sub
         const complete = await fetch(
           `${CDN.cognitoAuthApi}/auth/complete-social-signup`,
           {
@@ -56,7 +58,6 @@ export default function CallbackPage() {
         );
 
         const final = await complete.json();
-
         if (!complete.ok || !final.isLoggedIn) {
           throw new Error(final.message || "Login failed");
         }
@@ -74,4 +75,4 @@ export default function CallbackPage() {
 
   return <XyvoLoader colorTheme="google" />;
 }
-// This page handles the callback from the social login provider (e.g., Google)
+// This page handles the OAuth callback from social providers
