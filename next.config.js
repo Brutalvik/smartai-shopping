@@ -12,7 +12,7 @@ const nextConfig = {
     return [
       {
         source: "/auth/:path*",
-        destination: `${process.env.NEXT_PUBLIC_AUTH_API}/auth/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_COGNITO_AUTH_URL}/auth/:path*`,
       },
     ];
   },
