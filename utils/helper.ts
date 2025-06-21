@@ -1,3 +1,4 @@
+import { CDN } from "@/config/config";
 import { canadianAreaCodes } from "@/data/canadianAreaCodes";
 import { createHmac } from "crypto";
 import jwt from "jsonwebtoken";
@@ -21,7 +22,7 @@ export function verifyToken(token: string | undefined) {
   if (!token) return null;
 
   try {
-    return jwt.verify(token, process.env.JWT_SECRET!);
+    return jwt.verify(token, CDN.jwtSecret!);
   } catch (err) {
     return null;
   }

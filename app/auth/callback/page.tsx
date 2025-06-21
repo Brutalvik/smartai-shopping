@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CDN } from "@/config/config";
+import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 
 export default function CallbackPage() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function CallbackPage() {
 
       try {
         const res = await fetch(
-          `${CDN.userAuthApi}/auth/process-social-login`,
+          `${CDN.cognitoAuthApi}/auth/process-social-login`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -30,45 +31,47 @@ export default function CallbackPage() {
 
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.message);
+        if (!res.ok) throw new Error(data.message || "Login failed");
 
         if (data.needsSignupChoice) {
           router.push(
             `/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}`
           );
-        } else {
-          const complete = await fetch(
-            `${CDN.userAuthApi}/auth/complete-social-signup`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({
-                email: data.email,
-                accountType: data.accountType,
-                socialIdp: data.socialIdp,
-                cognitoUserSub: data.cognitoUserSub,
-              }),
-            }
-          );
-
-          const final = await complete.json();
-
-          if (final.isLoggedIn) {
-            localStorage.setItem("user", JSON.stringify(final.user));
-            router.replace(final.redirectTo || "/");
-          } else {
-            throw new Error(final.message || "Login failed");
-          }
+          return;
         }
-      } catch (err) {
-        console.error("Social login failed:", err);
+
+        const complete = await fetch(
+          `${CDN.cognitoAuthApi}/auth/complete-social-signup`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              email: data.email,
+              accountType: data.accountType,
+              socialIdp: data.socialIdp,
+              cognitoUserSub: data.cognitoUserSub,
+            }),
+          }
+        );
+
+        const final = await complete.json();
+
+        if (!complete.ok || !final.isLoggedIn) {
+          throw new Error(final.message || "Login failed");
+        }
+
+        localStorage.setItem("user", JSON.stringify(final.user));
+        router.replace(final.redirectTo || "/");
+      } catch (err: any) {
+        console.error("Social login failed:", err.message || err);
         router.push("/auth?error=social_login_failed");
       }
     };
 
     run();
-  }, []);
+  }, [router]);
 
-  return <div className="p-4">Logging you in with Google...</div>;
+  return <XyvoLoader colorTheme="google" />;
 }
+// This page handles the callback from the social login provider (e.g., Google)

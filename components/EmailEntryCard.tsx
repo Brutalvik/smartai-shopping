@@ -70,11 +70,9 @@ export default function EmailEntryCard({
   }, [userAccounts, enteredEmail, onUserExists]);
 
   const handleGoogleLogin = useCallback(() => {
-    const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
-    const domain = process.env.NEXT_PUBLIC_COGNITO_CUSTOMER_DOMAIN;
-    const redirectUri = encodeURIComponent(
-      process.env.NEXT_PUBLIC_FRONTEND_SOCIAL_CALLBACK_URL || ""
-    );
+    const clientId = CDN.cognitoClientId;
+    const domain = CDN.socialAuthApi;
+    const redirectUri = encodeURIComponent(CDN.socialCallbackUrl || "");
 
     const url =
       `${domain}/oauth2/authorize?` +

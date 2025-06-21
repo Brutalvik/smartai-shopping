@@ -3,34 +3,94 @@
 import React from "react";
 import "./XyvoLoader.css";
 
-export default function XyvoLoader() {
+type Theme = "google" | "standard";
+
+interface XyvoLoaderProps {
+  colorTheme?: Theme;
+}
+
+export default function XyvoLoader({
+  colorTheme = "standard",
+}: XyvoLoaderProps) {
+  const isGoogle = colorTheme === "google";
+
   return (
     <div className="loader text-default-500">
-      {/* Invisible SVG defs with gradients */}
       <svg height="0" width="0" viewBox="0 0 100 100" className="absolute">
         <defs xmlns="http://www.w3.org/2000/svg">
-          <linearGradient
-            gradientUnits="userSpaceOnUse"
-            y2="2"
-            x2="0"
-            y1="62"
-            x1="0"
-            id="x-gradient"
-          >
-            <stop stopColor="#1780cc" />
-            <stop stopColor="#1780cc" offset="1.5" />
-          </linearGradient>
-          <linearGradient
-            gradientUnits="userSpaceOnUse"
-            y2="2"
-            x2="0"
-            y1="62"
-            x1="0"
-            id="default-gradient"
-          >
-            <stop stopColor="currentColor" />
-            <stop stopColor="currentColor" offset="1.5" />
-          </linearGradient>
+          {isGoogle ? (
+            <>
+              <linearGradient
+                id="x-gradient"
+                x1="0"
+                y1="62"
+                x2="0"
+                y2="2"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="#EA4335" />
+                <stop stopColor="#EA4335" offset="1.5" />
+              </linearGradient>
+              <linearGradient
+                id="y-gradient"
+                x1="0"
+                y1="62"
+                x2="0"
+                y2="2"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="#4285F4" />
+                <stop stopColor="#4285F4" offset="1.5" />
+              </linearGradient>
+              <linearGradient
+                id="v-gradient"
+                x1="0"
+                y1="62"
+                x2="0"
+                y2="2"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="#FBBC05" />
+                <stop stopColor="#FBBC05" offset="1.5" />
+              </linearGradient>
+              <linearGradient
+                id="o-gradient"
+                x1="0"
+                y1="62"
+                x2="0"
+                y2="2"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="#34A853" />
+                <stop stopColor="#34A853" offset="1.5" />
+              </linearGradient>
+            </>
+          ) : (
+            <>
+              <linearGradient
+                id="x-gradient"
+                x1="0"
+                y1="62"
+                x2="0"
+                y2="2"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="#1780cc" />
+                <stop stopColor="#1780cc" offset="1.5" />
+              </linearGradient>
+              <linearGradient
+                id="default-gradient"
+                x1="0"
+                y1="62"
+                x2="0"
+                y2="2"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="currentColor" />
+                <stop stopColor="currentColor" offset="1.5" />
+              </linearGradient>
+            </>
+          )}
         </defs>
       </svg>
 
@@ -67,7 +127,7 @@ export default function XyvoLoader() {
           strokeLinejoin="round"
           strokeLinecap="round"
           strokeWidth="12"
-          stroke="url(#default-gradient)"
+          stroke={isGoogle ? "url(#y-gradient)" : "url(#default-gradient)"}
           d="M 20,20 L 50,50 M 80,20 L 50,50 L 50,80"
           className="dash"
           pathLength="360"
@@ -87,7 +147,7 @@ export default function XyvoLoader() {
           strokeLinejoin="round"
           strokeLinecap="round"
           strokeWidth="12"
-          stroke="url(#default-gradient)"
+          stroke={isGoogle ? "url(#v-gradient)" : "url(#default-gradient)"}
           d="M 20,20 L 50,80 L 80,20"
           className="dash"
           pathLength="360"
@@ -107,7 +167,7 @@ export default function XyvoLoader() {
           strokeLinejoin="round"
           strokeLinecap="round"
           strokeWidth="11"
-          stroke="url(#default-gradient)"
+          stroke={isGoogle ? "url(#o-gradient)" : "url(#default-gradient)"}
           d="M 50,15  
             A 35,35 0 0 1 85,50  
             A 35,35 0 0 1 50,85  
