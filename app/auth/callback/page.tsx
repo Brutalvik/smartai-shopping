@@ -92,21 +92,23 @@ export default function CallbackPage() {
 
   const handlePhoneSubmit = async (phone: string, countryCode: string) => {
     if (!pendingPhoneData) return;
-    console.log("PHONE NUMBER RECIEVED ", `${countryCode}-${phone}`);
-    setPendingPhoneData((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        phone: `${countryCode}-${phone}`,
-      };
-    });
-    console.log("DATA : ", pendingPhoneData);
-    if (!pendingPhoneData.phone) {
-      console.log("NO PHONE NUMBER RECIVED.");
-    }
+
+    const fullPhone = `${countryCode}-${phone}`;
+    console.log("PHONE NUMBER RECEIVED:", fullPhone);
+
+    const updatedData = {
+      ...pendingPhoneData,
+      phone: fullPhone,
+    };
+
+    setPendingPhoneData(updatedData);
+
+    console.log("UPDATED DATA : ", updatedData);
+
     router.push(
-      `/auth/choose-role?email=${pendingPhoneData.email}&sub=${pendingPhoneData.cognitoUserSub}&provider=${pendingPhoneData.socialIdp}&phone=${pendingPhoneData.phone}`
+      `/auth/choose-role?email=${updatedData.email}&sub=${updatedData.cognitoUserSub}&provider=${updatedData.socialIdp}&phone=${updatedData.phone}`
     );
+
     setShowPhoneModal(false);
   };
 
