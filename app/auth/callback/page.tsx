@@ -14,6 +14,7 @@ export default function CallbackPage() {
     accountType: string;
     socialIdp: string;
     cognitoUserSub: string;
+    phoneNumber?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -40,13 +41,6 @@ export default function CallbackPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
 
-        if (data.needsSignupChoice) {
-          router.push(
-            `/auth/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}`
-          );
-          return;
-        }
-
         if (!data.phoneNumber) {
           setPendingPhoneData({
             email: data.email,
@@ -55,6 +49,13 @@ export default function CallbackPage() {
             cognitoUserSub: data.cognitoUserSub,
           });
           setShowPhoneModal(true);
+          return;
+        }
+
+        if (data.needsSignupChoice) {
+          router.push(
+            `/auth/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}&phone=${data.phoneNumber}`
+          );
           return;
         }
 
@@ -89,54 +90,19 @@ export default function CallbackPage() {
     run();
   }, [router]);
 
-  const handlePhoneSubmit = async (phone: string, countryCode: string) => {
+  const handlePhoneSubmit = async (phone: string) => {
     if (!pendingPhoneData) return;
-    try {
-      const res = await fetch(`${CDN.cognitoSocialAuthApi}/auth/add-phone`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone,
-          countryCode,
-          email: pendingPhoneData.email,
-          cognitoUserSub: pendingPhoneData.cognitoUserSub,
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Failed to add phone number");
-      }
-
-      // Retry completing the signup
-      const complete = await fetch(
-        `${CDN.cognitoSocialAuthApi}/auth/complete-social-signup`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            email: pendingPhoneData.email,
-            accountType: pendingPhoneData.accountType,
-            socialIdp: pendingPhoneData.socialIdp,
-            cognitoUserSub: pendingPhoneData.cognitoUserSub,
-          }),
-        }
-      );
-
-      const final = await complete.json();
-
-      if (!complete.ok || !final.isLoggedIn) {
-        throw new Error(final.message || "Login failed after phone");
-      }
-
-      localStorage.setItem("user", JSON.stringify(final.user));
-      router.replace(final.redirectTo || "/");
-    } catch (err: any) {
-      console.error("Phone number submission failed:", err.message);
-      router.replace("/auth?error=phone_entry_failed");
-    }
+    setPendingPhoneData((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        phoneNumber: phone,
+      };
+    });
+    setShowPhoneModal(false);
+    router.push(
+      `/auth/choose-role?email=${pendingPhoneData.email}&sub=${pendingPhoneData.cognitoUserSub}&provider=${pendingPhoneData.socialIdp}&phone=${pendingPhoneData.phoneNumber}`
+    );
   };
 
   return (
@@ -144,7 +110,7 @@ export default function CallbackPage() {
       <XyvoLoader colorTheme="google" />
       <PhoneModal
         isOpen={showPhoneModal}
-        onClose={() => router.replace("/")}
+        onClose={() => setShowPhoneModal(false)}
         onSubmitPhone={handlePhoneSubmit}
       />
     </>
