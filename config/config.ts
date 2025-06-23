@@ -5,7 +5,7 @@ export const CDN = {
   cognitoClientSecret: process.env.NEXT_PUBLIC_COGNITO_CLIENT_SECRET,
   awsRegion: process.env.NEXT_PUBLIC_COGNITO_REGION,
   sellerProductsApi: process.env.NEXT_PUBLIC_SELLER_PRODUCTS_URL,
-  cognitoAuthApi: process.env.NEXT_PUBLIC_COGNITO_AUTH_URL,
+  cognitoSocialAuthApi: process.env.NEXT_PUBLIC_COGNITO_AUTH_URL,
   socialCallbackUrl: process.env.NEXT_PUBLIC_FRONTEND_SOCIAL_CALLBACK_URL,
   jwtSecret: process.env.NEXT_PUBLIC_JWT_SECRET,
 };

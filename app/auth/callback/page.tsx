@@ -28,7 +28,7 @@ export default function CallbackPage() {
 
       try {
         const res = await fetch(
-          `${CDN.cognitoAuthApi}/auth/process-social-login`,
+          `${CDN.cognitoSocialAuthApi}/auth/process-social-login`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -42,7 +42,7 @@ export default function CallbackPage() {
 
         if (data.needsSignupChoice) {
           router.push(
-            `/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}`
+            `/auth/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}`
           );
           return;
         }
@@ -59,7 +59,7 @@ export default function CallbackPage() {
         }
 
         const complete = await fetch(
-          `${CDN.cognitoAuthApi}/auth/complete-social-signup`,
+          `${CDN.cognitoSocialAuthApi}/auth/complete-social-signup`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -92,7 +92,7 @@ export default function CallbackPage() {
   const handlePhoneSubmit = async (phone: string, countryCode: string) => {
     if (!pendingPhoneData) return;
     try {
-      const res = await fetch(`${CDN.cognitoAuthApi}/auth/add-phone`, {
+      const res = await fetch(`${CDN.cognitoSocialAuthApi}/auth/add-phone`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -111,7 +111,7 @@ export default function CallbackPage() {
 
       // Retry completing the signup
       const complete = await fetch(
-        `${CDN.cognitoAuthApi}/auth/complete-social-signup`,
+        `${CDN.cognitoSocialAuthApi}/auth/complete-social-signup`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
