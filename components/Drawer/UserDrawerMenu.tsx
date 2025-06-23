@@ -24,11 +24,17 @@ import {
   sellerTools,
 } from "@/components/Drawer/menuConfig";
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
-import { selectUser } from "@/store/selectors";
 import { clearUser } from "@/store/slices/userSlice";
+import {
+  selectUser,
+  selectUserEmail,
+  selectIsLoggedIn,
+} from "@/store/selectors";
 
 const UserDrawerMenu = () => {
   const user = useAppSelector(selectUser);
+  const userEmail = useAppSelector(selectUserEmail);
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const dispatch = useAppDispatch();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const router = useRouter();
@@ -84,9 +90,11 @@ const UserDrawerMenu = () => {
     }
   };
 
-  const avatarInitial = getInitial(user?.name);
+  const avatarInitial = user?.name
+    ? getInitial(user.name)
+    : getInitial(userEmail);
   const { bg, fg } = getColorByName(user?.name || "Guest", avatarColors);
-  const greetingLine = user
+  const greetingLine = user?.name
     ? `Hi ${getFirstNameCapitalized(user?.name as string)}!`
     : `Hi there 👋`;
   const subline = user
