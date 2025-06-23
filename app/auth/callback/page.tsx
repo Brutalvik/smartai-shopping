@@ -90,16 +90,20 @@ export default function CallbackPage() {
     run();
   }, [router]);
 
-  const handlePhoneSubmit = async (phone: string) => {
+  const handlePhoneSubmit = async (phone: string, countryCode: string) => {
     if (!pendingPhoneData) return;
+    console.log("PHONE NUMBER RECIEVED ", `${countryCode}-${phone}`);
     setPendingPhoneData((prev) => {
       if (!prev) return null;
       return {
         ...prev,
-        phone: phone,
+        phone: `${countryCode}-${phone}`,
       };
     });
     console.log("DATA : ", pendingPhoneData);
+    if (!pendingPhoneData.phone) {
+      console.log("NO PHONE NUMBER RECIVED.");
+    }
     router.push(
       `/auth/choose-role?email=${pendingPhoneData.email}&sub=${pendingPhoneData.cognitoUserSub}&provider=${pendingPhoneData.socialIdp}&phone=${pendingPhoneData.phone}`
     );

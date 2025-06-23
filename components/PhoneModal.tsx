@@ -41,7 +41,7 @@ export default function PhoneModal({
     onSubmit: async (values) => {
       setSubmitting(true);
       try {
-        await onSubmitPhone(values.phone, values.countryCode);
+        onSubmitPhone(values.phone, values.countryCode);
         onClose();
       } catch (err) {
         console.error("Phone submission failed", err);
