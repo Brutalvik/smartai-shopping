@@ -74,7 +74,7 @@ export const Navbar = () => {
               />
             </Badge>
 
-            {user?.id ? (
+            {isLoggedIn ? (
               <UserDrawerMenu />
             ) : (
               <AnimatePresence mode="wait">
@@ -133,7 +133,7 @@ export const Navbar = () => {
           />
         </Badge>
 
-        {user?.id ? (
+        {isLoggedIn ? (
           <UserDrawerMenu />
         ) : (
           <AnimatePresence mode="wait">
