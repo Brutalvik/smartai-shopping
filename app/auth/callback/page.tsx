@@ -20,47 +20,44 @@ export default function CallbackPage() {
     const run = async () => {
       const url = new URL(window.location.href);
       const code = url.searchParams.get("code");
-      console.log("Social login callback initiated. Code received:", !!code); // Log if code exists
 
       if (!code) {
-        console.error("Error: Missing authorization code in callback URL.");
         router.replace("/auth?error=missing_code");
         return;
       }
 
       try {
-        console.log("Attempting to call process-social-login endpoint...");
         const res = await fetch(
           `${CDN.cognitoAuthApi}/auth/process-social-login`,
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify({ code }),
           }
         );
 
-        console.log("Response status from process-social-login:", res);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Login failed");
 
-        if (!res.ok) {
-          const errorData = await res.json();
-          console.error(
-            "Social login process failed at /auth/process-social-login:",
-            res.status,
-            res.statusText,
-            errorData
+        if (data.needsSignupChoice) {
+          router.push(
+            `/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}`
           );
-          throw new Error(
-            errorData.message || "Failed to process social login with backend."
-          );
+          return;
         }
 
-        const data = await res.json();
-        console.log("Response from process-social-login:", data);
+        if (!data.phoneNumber) {
+          setPendingPhoneData({
+            email: data.email,
+            accountType: data.accountType,
+            socialIdp: data.socialIdp,
+            cognitoUserSub: data.cognitoUserSub,
+          });
+          setShowPhoneModal(true);
+          return;
+        }
 
-        console.log("Attempting to complete social signup...");
         const complete = await fetch(
           `${CDN.cognitoAuthApi}/auth/complete-social-signup`,
           {
@@ -76,32 +73,16 @@ export default function CallbackPage() {
           }
         );
 
-        if (!complete.ok) {
-          const errorData = await complete.json();
-          console.error(
-            "Social signup completion failed:",
-            complete.status,
-            complete.statusText,
-            errorData
-          );
-          throw new Error(
-            errorData.message || "Login failed after completion."
-          );
-        }
-
         const final = await complete.json();
-        if (!final.isLoggedIn) {
-          throw new Error(final.message || "Login failed after completion.");
+        if (!complete.ok || !final.isLoggedIn) {
+          throw new Error(final.message || "Login failed");
         }
 
-        console.log("Social login successful. Redirecting.");
         localStorage.setItem("user", JSON.stringify(final.user));
         router.replace(final.redirectTo || "/");
       } catch (err: any) {
-        console.error("Social login flow error:", err.message || err);
-        router.replace(
-          `/auth?error=${encodeURIComponent(err.message || "social_login_failed")}`
-        );
+        console.error("Social login failed:", err.message || err);
+        router.replace("/auth?error=social_login_failed");
       }
     };
 
@@ -109,12 +90,8 @@ export default function CallbackPage() {
   }, [router]);
 
   const handlePhoneSubmit = async (phone: string, countryCode: string) => {
-    if (!pendingPhoneData) {
-      console.warn("Attempted phone submit without pending phone data.");
-      return;
-    }
+    if (!pendingPhoneData) return;
     try {
-      console.log("Submitting phone number...");
       const res = await fetch(`${CDN.cognitoAuthApi}/auth/add-phone`, {
         method: "POST",
         credentials: "include",
@@ -131,9 +108,6 @@ export default function CallbackPage() {
         const errData = await res.json();
         throw new Error(errData.message || "Failed to add phone number");
       }
-      console.log(
-        "Phone number added successfully. Retrying signup completion."
-      );
 
       // Retry completing the signup
       const complete = await fetch(
@@ -161,9 +135,7 @@ export default function CallbackPage() {
       router.replace(final.redirectTo || "/");
     } catch (err: any) {
       console.error("Phone number submission failed:", err.message);
-      router.replace(
-        `/auth?error=${encodeURIComponent(err.message || "phone_entry_failed")}`
-      );
+      router.replace("/auth?error=phone_entry_failed");
     }
   };
 
@@ -172,10 +144,7 @@ export default function CallbackPage() {
       <XyvoLoader colorTheme="google" />
       <PhoneModal
         isOpen={showPhoneModal}
-        onClose={() => {
-          console.log("Phone modal closed, redirecting to home/auth.");
-          router.replace("/"); // Or /auth, depending on desired behavior
-        }}
+        onClose={() => router.replace("/")}
         onSubmitPhone={handlePhoneSubmit}
       />
     </>
