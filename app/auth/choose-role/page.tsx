@@ -20,6 +20,13 @@ export default function ChooseRolePage() {
   const provider = searchParams?.get("provider");
   const phone = searchParams?.get("phone");
 
+  console.log("ChooseRolePage params:", {
+    email,
+    sub,
+    provider,
+    phone,
+  });
+
   const choose = async (role: roleType) => {
     const res = await fetch(`${CDN.userAuthApi}/auth/complete-social-signup`, {
       method: "POST",

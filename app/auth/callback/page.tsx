@@ -99,10 +99,11 @@ export default function CallbackPage() {
         phone: phone,
       };
     });
-    setShowPhoneModal(false);
+    console.log("DATA : ", pendingPhoneData);
     router.push(
       `/auth/choose-role?email=${pendingPhoneData.email}&sub=${pendingPhoneData.cognitoUserSub}&provider=${pendingPhoneData.socialIdp}&phone=${pendingPhoneData.phone}`
     );
+    setShowPhoneModal(false);
   };
 
   return (
