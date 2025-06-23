@@ -14,7 +14,7 @@ export default function CallbackPage() {
     accountType: string;
     socialIdp: string;
     cognitoUserSub: string;
-    phoneNumber?: string;
+    phone?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -96,12 +96,12 @@ export default function CallbackPage() {
       if (!prev) return null;
       return {
         ...prev,
-        phoneNumber: phone,
+        phone: phone,
       };
     });
     setShowPhoneModal(false);
     router.push(
-      `/auth/choose-role?email=${pendingPhoneData.email}&sub=${pendingPhoneData.cognitoUserSub}&provider=${pendingPhoneData.socialIdp}&phone=${pendingPhoneData.phoneNumber}`
+      `/auth/choose-role?email=${pendingPhoneData.email}&sub=${pendingPhoneData.cognitoUserSub}&provider=${pendingPhoneData.socialIdp}&phone=${pendingPhoneData.phone}`
     );
   };
 
