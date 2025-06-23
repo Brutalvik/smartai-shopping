@@ -69,6 +69,8 @@ export default function CallbackPage() {
             credentials: "include",
             body: JSON.stringify({
               email: data.email,
+              accountType: data.accountType,
+              socialIdp: data.socialIdp,
               cognitoUserSub: data.cognitoUserSub,
             }),
           }
