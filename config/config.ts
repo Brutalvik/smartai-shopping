@@ -8,4 +8,6 @@ export const CDN = {
   cognitoSocialAuthApi: process.env.NEXT_PUBLIC_COGNITO_AUTH_URL,
   socialCallbackUrl: process.env.NEXT_PUBLIC_FRONTEND_SOCIAL_CALLBACK_URL,
   jwtSecret: process.env.NEXT_PUBLIC_JWT_SECRET,
+  buyer: "buyer",
+  seller: "seller",
 };

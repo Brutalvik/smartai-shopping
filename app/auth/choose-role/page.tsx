@@ -4,6 +4,9 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
+import { CDN } from "@/config/config";
+
+type roleType = "buyer" | "seller";
 
 export default function ChooseRolePage() {
   const searchParams = useSearchParams();
@@ -13,23 +16,22 @@ export default function ChooseRolePage() {
   const sub = searchParams?.get("sub");
   const provider = searchParams?.get("provider");
 
-  const choose = async (role: "buyer" | "seller") => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_COGNITO_AUTH_URL}/auth/complete-social-signup`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          email,
-          cognitoUserSub: sub,
-          socialIdp: provider,
-          accountType: role,
-        }),
-      }
-    );
+  const choose = async (role: roleType) => {
+    const res = await fetch(`${CDN.userAuthApi}/auth/complete-social-signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        email,
+        cognitoUserSub: sub,
+        socialIdp: provider,
+        accountType: role,
+      }),
+    });
 
     const data = await res.json();
+
+    console.log("Signup response:", data);
 
     if (res.ok && data.isLoggedIn) {
       localStorage.setItem("user", JSON.stringify(data.user));
