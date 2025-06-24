@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Tabs, Tab } from "@heroui/react";
-import { Modal } from "@heroui/modal";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Avatar } from "@heroui/avatar";
@@ -41,7 +40,7 @@ export default function BuyerProfilePage() {
 
       <div className="mt-6">
         {selectedTab === "profile" && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="shadow rounded-lg p-6">
             <div className="flex items-center space-x-4 mb-6">
               <div className="relative">
                 <Avatar src={profile.profilePic} size="lg" />
@@ -80,7 +79,7 @@ export default function BuyerProfilePage() {
         )}
 
         {selectedTab === "settings" && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold mb-4">Email Preferences</h3>
             <label className="flex items-center space-x-2">
               <input
@@ -94,14 +93,14 @@ export default function BuyerProfilePage() {
         )}
 
         {selectedTab === "orders" && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold mb-4">Order History</h3>
             <p className="text-gray-500">No orders placed yet.</p>
           </div>
         )}
 
         {selectedTab === "security" && (
-          <div className="bg-white shadow rounded-lg p-6 space-y-4">
+          <div className="shadow rounded-lg p-6 space-y-4">
             <h3 className="text-lg font-semibold">Security Settings</h3>
             <div>
               <label className="block text-sm font-medium">Password</label>
@@ -119,20 +118,28 @@ export default function BuyerProfilePage() {
         )}
       </div>
 
-      <Modal isOpen={showAvatarModal} onClose={() => setShowAvatarModal(false)}>
-        <div className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Change Profile Picture</h2>
-          <Input type="file" className="mb-4" />
-          <div className="flex justify-end gap-2">
-            <Button onPress={() => setShowAvatarModal(false)} variant="light">
-              Cancel
-            </Button>
-            <Button onPress={() => setShowAvatarModal(false)} variant="solid">
-              Save
-            </Button>
+      {showAvatarModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h2 className="text-lg font-semibold mb-4">
+              Change Profile Picture
+            </h2>
+            <Input type="file" className="mb-4" />
+            <div className="flex justify-end gap-2">
+              <Button onPress={() => setShowAvatarModal(false)} variant="flat">
+                Cancel
+              </Button>
+              <Button
+                onPress={() => setShowAvatarModal(false)}
+                variant="solid"
+                color="primary"
+              >
+                Save
+              </Button>
+            </div>
           </div>
         </div>
-      </Modal>
+      )}
     </div>
   );
 }
