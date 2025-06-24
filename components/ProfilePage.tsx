@@ -15,7 +15,17 @@ import {
 
 import { encodeUUID, formatPhoneNumber } from "@/utils/helper";
 
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/modal";
+
 export default function BuyerProfilePage() {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const user = useAppSelector(selectUser);
   const userEmail = useAppSelector(selectUserEmail);
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
@@ -24,6 +34,10 @@ export default function BuyerProfilePage() {
   const [selectedTab, setSelectedTab] = useState("profile");
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  const handleAvatarUpdate = () => {
+    console.log("Avatar Updated");
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -46,7 +60,6 @@ export default function BuyerProfilePage() {
           {isEditing ? "Save" : "Edit"}
         </Button>
       </div>
-
       <div className="mt-6">
         {selectedTab === "profile" && (
           <div className="shadow rounded-lg p-6">
@@ -141,28 +154,35 @@ export default function BuyerProfilePage() {
         )}
       </div>
 
-      {showAvatarModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">
-              Change Profile Picture
-            </h2>
-            <Input type="file" className="mb-4" />
-            <div className="flex justify-end gap-2">
-              <Button onPress={() => setShowAvatarModal(false)} variant="flat">
-                Cancel
-              </Button>
-              <Button
-                onPress={() => setShowAvatarModal(false)}
-                variant="solid"
-                color="primary"
-              >
-                Save
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal isOpen={showAvatarModal} onOpenChange={handleAvatarUpdate}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Change Profile Picture
+              </ModalHeader>
+              <ModalBody>
+                <Input type="file" className="mb-4" />
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  variant="flat"
+                  onPress={() => setShowAvatarModal(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={() => setShowAvatarModal(false)}
+                >
+                  Update
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
