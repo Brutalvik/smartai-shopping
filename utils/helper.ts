@@ -37,3 +37,57 @@ export const getFirstNameCapitalized = (fullName: string): string => {
 };
 
 export const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
+
+type UUIDEncodingResult = {
+  encoded: string;
+  positions: number[];
+  cases: number[];
+};
+
+export const encodeUUID = (uuid: string): UUIDEncodingResult => {
+  const positions: number[] = [];
+  const cases: number[] = [];
+  let encoded = "";
+
+  for (let i = 0; i < uuid.length; i++) {
+    const char = uuid[i];
+    if (char === "-") {
+      positions.push(i);
+    } else {
+      cases.push(char === char.toUpperCase() ? 1 : 0);
+      encoded += char.toUpperCase();
+    }
+  }
+
+  return { encoded, positions, cases };
+};
+
+export const decodeUUID = (
+  encoded: string,
+  positions: number[],
+  cases: number[]
+): string => {
+  let decoded = "";
+  let j = 0;
+
+  for (let i = 0; i < encoded.length + positions.length; i++) {
+    if (positions.includes(i)) {
+      decoded += "-";
+    } else {
+      const char = encoded[j];
+      decoded += cases[j] === 1 ? char : char.toLowerCase();
+      j++;
+    }
+  }
+
+  return decoded;
+};
+
+export const formatPhoneNumber = (raw?: string): string => {
+  const digits = raw?.replace(/\D/g, "") ?? "";
+  if (digits.length === 11 && digits.startsWith("1")) {
+    const parts = digits.slice(1).match(/(\d{3})(\d{3})(\d{4})/);
+    if (parts) return `+1 (${parts[1]}) ${parts[2]} ${parts[3]}`;
+  }
+  return raw ?? "";
+};

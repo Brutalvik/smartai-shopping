@@ -10,6 +10,7 @@ import {
 import { Download } from "lucide-react";
 import { saveAs } from "file-saver";
 import dayjs from "dayjs";
+import { formatPhoneNumber } from "@/utils/helper";
 
 interface ExportButtonProps {
   sellerName: string;
@@ -51,15 +52,6 @@ const formatValue = (key: string, value: any) => {
 
 const capitalize = (s?: string) =>
   s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
-
-const formatPhoneNumber = (raw?: string): string => {
-  const digits = raw?.replace(/\D/g, "") ?? "";
-  if (digits.length === 11 && digits.startsWith("1")) {
-    const parts = digits.slice(1).match(/(\d{3})(\d{3})(\d{4})/);
-    if (parts) return `+1 (${parts[1]}) ${parts[2]} ${parts[3]}`;
-  }
-  return raw ?? "";
-};
 
 export default function ExportButton({
   sellerName,

@@ -10,4 +10,12 @@ export interface UserState {
   business_name?: string;
   preferredLocale?: string;
   accessTokenExpiresAt?: number | undefined;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  dateOfBirth?: string;
+  preferredPayment?: string;
+  newsletterSubscribed?: boolean;
+  profilePic?: string;
 }
