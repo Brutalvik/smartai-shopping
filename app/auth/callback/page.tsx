@@ -43,6 +43,13 @@ export default function CallbackPage() {
         if (!res.ok) throw new Error(data.message || "Login failed");
         console.log("data : ", data);
 
+        if (data.needsSignupChoice) {
+          router.push(
+            `/auth/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}&phone=${data.phoneNumber}`
+          );
+          return;
+        }
+
         if (!data.phoneNumber) {
           setPendingPhoneData({
             email: data.email,
@@ -51,13 +58,6 @@ export default function CallbackPage() {
             cognitoUserSub: data.cognitoUserSub,
           });
           setShowPhoneModal(true);
-          return;
-        }
-
-        if (data.needsSignupChoice) {
-          router.push(
-            `/auth/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}&phone=${data.phoneNumber}`
-          );
           return;
         }
 
@@ -96,7 +96,6 @@ export default function CallbackPage() {
     if (!pendingPhoneData) return;
 
     const fullPhone = `${countryCode}-${phone}`;
-    console.log("PHONE NUMBER RECEIVED:", fullPhone);
 
     const updatedData = {
       ...pendingPhoneData,
