@@ -9,8 +9,8 @@ import { useAppDispatch } from "@/store/hooks/hooks";
 import { setUser } from "@/store/slices/userSlice";
 
 export default function CallbackPage() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [pendingPhoneData, setPendingPhoneData] = useState<{
     email: string;
@@ -47,36 +47,13 @@ export default function CallbackPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
 
-        console.log("process-social-login response:", data);
-
-        if (!data.needsSignupChoice && data.accountType) {
-          const complete = await fetch(
-            `${CDN.cognitoSocialAuthApi}/auth/complete-social-signup`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({
-                email: data.email,
-                accountType: data.accountType,
-                socialIdp: data.socialIdp,
-                cognitoUserSub: data.cognitoUserSub,
-                phone: data.phoneNumber,
-              }),
-            }
-          );
-
-          const final = await complete.json();
-          if (!complete.ok || !final.isLoggedIn) {
-            throw new Error(final.message || "Login failed");
-          }
-
-          dispatch(setUser(final.user));
-          router.replace(final.redirectTo || "/");
+        if (data.isLoggedIn && data.user) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+          dispatch(setUser(data.user));
+          router.replace(data.redirectTo || "/");
           return;
         }
 
-        // ✅ New user needs phone number
         if (data.needsSignupChoice && !data.phoneNumber) {
           setPendingPhoneData({
             email: data.email,
@@ -91,7 +68,6 @@ export default function CallbackPage() {
           return;
         }
 
-        // ✅ New user with phone → role selection screen
         if (data.needsSignupChoice && data.phoneNumber) {
           router.push(
             `/auth/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}&phone=${data.phoneNumber}`
@@ -104,24 +80,16 @@ export default function CallbackPage() {
     };
 
     run();
-  }, [router]);
+  }, [router, dispatch]);
 
   const handlePhoneSubmit = async (phone: string, countryCode: string) => {
     if (!pendingPhoneData) return;
-
     const fullPhone = `${countryCode}-${phone}`;
-
-    const updatedData = {
-      ...pendingPhoneData,
-      phone: fullPhone,
-    };
-
+    const updatedData = { ...pendingPhoneData, phone: fullPhone };
     setPendingPhoneData(updatedData);
-
     router.push(
       `/auth/choose-role?email=${updatedData.email}&sub=${updatedData.cognitoUserSub}&provider=${updatedData.socialIdp}&phone=${updatedData.phone}`
     );
-
     setShowPhoneModal(false);
   };
 
