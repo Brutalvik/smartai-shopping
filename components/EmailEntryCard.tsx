@@ -77,7 +77,7 @@ export default function EmailEntryCard({
     const url =
       `${domain}/oauth2/authorize?` +
       `response_type=code&client_id=${clientId}` +
-      `&redirect_uri=${redirectUri}&identity_provider=Google`;
+      `&redirect_uri=${redirectUri}&identity_provider=Google&prompt=select_account`;
 
     window.location.href = url;
   }, []);
