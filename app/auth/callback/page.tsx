@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import { CDN } from "@/config/config";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 import PhoneModal from "@/components/PhoneModal";
+import { useAppDispatch } from "@/store/hooks/hooks";
+import { setUser } from "@/store/slices/userSlice";
 
 export default function CallbackPage() {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [pendingPhoneData, setPendingPhoneData] = useState<{
@@ -46,7 +49,6 @@ export default function CallbackPage() {
 
         console.log("process-social-login response:", data);
 
-        // ✅ If already logged in, skip phone/role selection
         if (!data.needsSignupChoice && data.accountType) {
           const complete = await fetch(
             `${CDN.cognitoSocialAuthApi}/auth/complete-social-signup`,
@@ -59,7 +61,7 @@ export default function CallbackPage() {
                 accountType: data.accountType,
                 socialIdp: data.socialIdp,
                 cognitoUserSub: data.cognitoUserSub,
-                phone: data.phoneNumber || "+11234567890", // fallback dummy if missing
+                phone: data.phoneNumber,
               }),
             }
           );
@@ -69,7 +71,7 @@ export default function CallbackPage() {
             throw new Error(final.message || "Login failed");
           }
 
-          localStorage.setItem("user", JSON.stringify(final.user));
+          dispatch(setUser(final.user));
           router.replace(final.redirectTo || "/");
           return;
         }
