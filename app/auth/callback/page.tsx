@@ -4,12 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CDN } from "@/config/config";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
-import PhoneModal from "@/components//PhoneModal";
-import { useAppDispatch } from "@/store/hooks/hooks";
-import { setUser } from "@/store/slices/userSlice";
+import PhoneModal from "@/components/PhoneModal";
 
 export default function CallbackPage() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [pendingPhoneData, setPendingPhoneData] = useState<{
@@ -18,6 +15,9 @@ export default function CallbackPage() {
     socialIdp: string;
     cognitoUserSub: string;
     phone?: string;
+    name?: string;
+    givenName?: string;
+    familyName?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -43,19 +43,11 @@ export default function CallbackPage() {
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
-        console.log("data : ", data);
 
-        if (data.needsSignupChoice) {
-          router.push(
-            `/auth/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}&phone=${data.phoneNumber}`
-          );
-          setPendingPhoneData({
-            email: data.email,
-            accountType: data.accountType,
-            socialIdp: data.socialIdp,
-            cognitoUserSub: data.cognitoUserSub,
-          });
-          setShowPhoneModal(true);
+        console.log("process-social-login response:", data);
+
+        // ✅ If already logged in, skip phone/role selection
+        if (!data.needsSignupChoice && data.accountType) {
           const complete = await fetch(
             `${CDN.cognitoSocialAuthApi}/auth/complete-social-signup`,
             {
@@ -67,6 +59,7 @@ export default function CallbackPage() {
                 accountType: data.accountType,
                 socialIdp: data.socialIdp,
                 cognitoUserSub: data.cognitoUserSub,
+                phone: data.phoneNumber || "+11234567890", // fallback dummy if missing
               }),
             }
           );
@@ -75,9 +68,32 @@ export default function CallbackPage() {
           if (!complete.ok || !final.isLoggedIn) {
             throw new Error(final.message || "Login failed");
           }
-          dispatch(setUser(data.user));
+
+          localStorage.setItem("user", JSON.stringify(final.user));
           router.replace(final.redirectTo || "/");
           return;
+        }
+
+        // ✅ New user needs phone number
+        if (data.needsSignupChoice && !data.phoneNumber) {
+          setPendingPhoneData({
+            email: data.email,
+            accountType: data.accountType || "buyer",
+            socialIdp: data.socialIdp,
+            cognitoUserSub: data.cognitoUserSub,
+            name: data.name,
+            givenName: data.givenName,
+            familyName: data.familyName,
+          });
+          setShowPhoneModal(true);
+          return;
+        }
+
+        // ✅ New user with phone → role selection screen
+        if (data.needsSignupChoice && data.phoneNumber) {
+          router.push(
+            `/auth/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}&phone=${data.phoneNumber}`
+          );
         }
       } catch (err: any) {
         console.error("Social login failed:", err.message || err);
@@ -99,8 +115,6 @@ export default function CallbackPage() {
     };
 
     setPendingPhoneData(updatedData);
-
-    console.log("UPDATED DATA : ", updatedData);
 
     router.push(
       `/auth/choose-role?email=${updatedData.email}&sub=${updatedData.cognitoUserSub}&provider=${updatedData.socialIdp}&phone=${updatedData.phone}`
