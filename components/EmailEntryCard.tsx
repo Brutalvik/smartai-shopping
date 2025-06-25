@@ -73,12 +73,13 @@ export default function EmailEntryCard({
     const clientId = CDN.cognitoClientId;
     const domain = CDN.socialAuthApi;
     const redirectUri = encodeURIComponent(CDN.socialCallbackUrl || "");
+    const scope = encodeURIComponent("openid profile email");
 
     const url =
       `${domain}/oauth2/authorize?` +
       `response_type=code&client_id=${clientId}` +
       `&redirect_uri=${redirectUri}&identity_provider=Google` +
-      `&scope=openid%20email%20profile` +
+      `&scope=${scope}` +
       `&prompt=select_account`;
 
     window.location.href = url;
