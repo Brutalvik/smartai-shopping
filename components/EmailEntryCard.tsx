@@ -76,10 +76,8 @@ export default function EmailEntryCard({
 
     const url =
       `${domain}/oauth2/authorize?` +
-      `response_type=code` +
-      `&client_id=${clientId}` +
-      `&redirect_uri=${redirectUri}` +
-      `&identity_provider=Google` +
+      `response_type=code&client_id=${clientId}` +
+      `&redirect_uri=${redirectUri}&identity_provider=Google` +
       `&scope=openid+email+profile` +
       `&prompt=select_account`;
 
