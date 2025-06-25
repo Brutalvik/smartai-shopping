@@ -19,12 +19,15 @@ export default async function ProtectedLayout({
   const token = cookieStore.get("x-token")?.value;
   const user = verifyToken(token);
 
+  // ⛔ Handle redirect *before* render path
   if (!user || typeof user === "string") {
-    redirect(`${redirectPath}?redirect=${encodeURIComponent(redirectPath)}`);
+    throw redirect(
+      `${redirectPath}?redirect=${encodeURIComponent(redirectPath)}`
+    );
   }
 
   if (requireSeller && user.group?.toLowerCase() !== "sellers") {
-    redirect("/");
+    throw redirect("/");
   }
 
   const userData: UserState = {

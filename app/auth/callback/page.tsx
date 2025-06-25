@@ -7,6 +7,7 @@ import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 import PhoneModal from "@/components//PhoneModal";
 
 export default function CallbackPage() {
+  console.log("CALLBACK CALLED");
   const router = useRouter();
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [pendingPhoneData, setPendingPhoneData] = useState<{
@@ -40,6 +41,7 @@ export default function CallbackPage() {
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
+        console.log("data : ", data);
 
         if (!data.phoneNumber) {
           setPendingPhoneData({
