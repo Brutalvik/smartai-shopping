@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { CDN } from "@/config/config";
 import XyvoLoader from "@/components/ui/XyvoLoader/XyvoLoader";
 import PhoneModal from "@/components//PhoneModal";
+import { useAppDispatch } from "@/store/hooks/hooks";
+import { setUser } from "@/store/slices/userSlice";
 
 export default function CallbackPage() {
-  console.log("CALLBACK CALLED");
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [pendingPhoneData, setPendingPhoneData] = useState<{
@@ -47,10 +49,6 @@ export default function CallbackPage() {
           router.push(
             `/auth/choose-role?email=${data.email}&sub=${data.cognitoUserSub}&provider=${data.socialIdp}&phone=${data.phoneNumber}`
           );
-          return;
-        }
-
-        if (!data.phoneNumber) {
           setPendingPhoneData({
             email: data.email,
             accountType: data.accountType,
@@ -58,31 +56,29 @@ export default function CallbackPage() {
             cognitoUserSub: data.cognitoUserSub,
           });
           setShowPhoneModal(true);
+          const complete = await fetch(
+            `${CDN.cognitoSocialAuthApi}/auth/complete-social-signup`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                email: data.email,
+                accountType: data.accountType,
+                socialIdp: data.socialIdp,
+                cognitoUserSub: data.cognitoUserSub,
+              }),
+            }
+          );
+
+          const final = await complete.json();
+          if (!complete.ok || !final.isLoggedIn) {
+            throw new Error(final.message || "Login failed");
+          }
+          dispatch(setUser(data.user));
+          router.replace(final.redirectTo || "/");
           return;
         }
-
-        const complete = await fetch(
-          `${CDN.cognitoSocialAuthApi}/auth/complete-social-signup`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              email: data.email,
-              accountType: data.accountType,
-              socialIdp: data.socialIdp,
-              cognitoUserSub: data.cognitoUserSub,
-            }),
-          }
-        );
-
-        const final = await complete.json();
-        if (!complete.ok || !final.isLoggedIn) {
-          throw new Error(final.message || "Login failed");
-        }
-
-        localStorage.setItem("user", JSON.stringify(final.user));
-        router.replace(final.redirectTo || "/");
       } catch (err: any) {
         console.error("Social login failed:", err.message || err);
         router.replace("/auth?error=social_login_failed");
