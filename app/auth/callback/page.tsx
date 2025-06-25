@@ -48,7 +48,8 @@ export default function CallbackPage() {
         if (!res.ok) throw new Error(data.message || "Login failed");
 
         if (data.isLoggedIn && data.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
+          console.log("DATA : ", data);
+
           dispatch(setUser(data.user));
           router.replace(data.redirectTo || "/");
           return;
