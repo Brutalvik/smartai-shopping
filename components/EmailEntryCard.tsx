@@ -78,7 +78,7 @@ export default function EmailEntryCard({
       `${domain}/oauth2/authorize?` +
       `response_type=code&client_id=${clientId}` +
       `&redirect_uri=${redirectUri}&identity_provider=Google` +
-      `&scope=openid+email+profile` +
+      `&scope=openid%20email%20profile` +
       `&prompt=select_account`;
 
     window.location.href = url;
